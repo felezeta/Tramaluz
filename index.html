@@ -315,19 +315,19 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
             <button class="btn brown" type="button" id="btnUp" disabled>AGRANDAR</button>
             <div class="meter" id="upMeter" aria-hidden="true"><i></i></div>
           </div>
+          <div class="row"><div><span class="swlabel">USAR AGRANDADA</span><div class="sw tight" role="radiogroup" aria-label="Usar la imagen agrandada" id="swUseUp"></div></div></div>
           <p class="note" id="upNote">Usa ANIME para ilustraciones y GENERAL para fotos. Corre en tu tarjeta de video.</p>
         </div>
 
         <div class="group">
-          <h3>MODO</h3><button class="qhelp" type="button" data-help="h-modo" aria-label="Ayuda: Modo">?</button>
+          <h3>PROCESOS</h3><button class="qhelp" type="button" data-help="h-modo" aria-label="Ayuda: Procesos">?</button>
           <div class="row">
-            <div><span class="swlabel">PROCESO</span><div class="sw" role="radiogroup" aria-label="Proceso" id="swMode"></div></div>
+            <div><span class="swlabel">LIMPIAR</span><div class="sw tight" role="radiogroup" aria-label="Limpiar: encendido o apagado" id="swClean"></div></div>
+            <div><span class="swlabel">SEMITONO</span><div class="sw tight" role="radiogroup" aria-label="Semitono: encendido o apagado" id="swSemi"></div></div>
             <div><span class="swlabel">QUITAR</span><div class="sw" role="radiogroup" aria-label="Qué quitar" id="swKnock"></div></div>
           </div>
-          <div class="row" style="align-items:center">
-            <button class="btn brown" type="button" id="btnBake" disabled>APLICAR LIMPIEZA</button>
-          </div>
-          <p class="note">En LIMPIAR: deja la imagen limpia y pasa a SEMITONO, sin grabar ni volver a cargar. Si no te gusta, DESHACER.</p>
+          <div class="knobs" id="kLimpia" style="margin-top:12px"></div>
+          <p class="note" id="modeNote"></p>
         </div>
 
         <div class="group" id="gTrama">
@@ -338,7 +338,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 
         <div class="group">
           <h3>TONO</h3><button class="qhelp" type="button" data-help="h-tono" aria-label="Ayuda: Tono">?</button>
-          <div class="knobs five" id="kTono"></div>
+          <div class="knobs" id="kTono"></div>
         </div>
 
         <div class="group">
@@ -373,7 +373,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         <ol class="steps">
           <li><b>CARGAR</b> tu diseño (PNG, JPG o WebP), o arrástralo a la pantalla.</li>
           <li>Toca el color de la <b>CAMISETA</b>.</li>
-          <li>Ajusta <b>MODO</b>, <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
+          <li>Prende o apaga los <b>PROCESOS</b> y ajusta <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
           <li>Pon el <b>ANCHO</b> en cm y dale <b>GRABAR PNG</b>.</li>
         </ol>
         <p class="tip">Toca cualquier <b>?</b> de la app para ver solo esa parte. Tus imágenes nunca salen de tu computador.</p>
@@ -392,7 +392,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>100%</dt><dd>El número muestra el zoom actual; tócalo para ver los puntos a tamaño real, como saldrán impresos.</dd>
           <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
           <dt>COMPARAR</dt><dd>Divide la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea.</dd>
-          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, modo, forma, camiseta, ancho, limpieza aplicada y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
+          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
         </dl>
       </section>
@@ -420,20 +420,25 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>×2 A ×7</dt><dd>Cuántas veces más grande. De ×5 a ×7 la IA pasa dos veces por la imagen: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
           <dt>SALDRÁ</dt><dd>El tamaño que tendrá la imagen después de agrandar, antes de darle al botón.</dd>
           <dt>AGRANDAR</dt><dd>Empieza. La barra verde muestra el avance.</dd>
+          <dt>USAR AGRANDADA</dt><dd>Después de agrandar: <b>NO</b> vuelve a la imagen original y <b>SÍ</b> usa otra vez la agrandada, sin volver a calcular y sin perder tus ajustes.</dd>
         </dl>
         <p class="tip">Si no te gusta el resultado, dale DESHACER. Agranda antes de ajustar la trama. Corre en tu computador: la primera vez descarga el modelo y en equipos sin buena tarjeta de video es más lento.</p>
       </section>
-      <section class="hsec" id="h-modo"><h4>MODO</h4>
+      <section class="hsec" id="h-modo"><h4>PROCESOS</h4>
         <dl class="hdl">
+          <dt>LIMPIAR</dt><dd>Quita el fondo y lo que tenga menos opacidad que el CORTE ALFA, y deja sólido lo demás.</dd>
           <dt>SEMITONO</dt><dd>Convierte sombras y degradados en puntos sólidos. Así no queda velo blanco.</dd>
-          <dt>LIMPIAR</dt><dd>Deja el diseño igual, sin puntos, pero quita las semitransparencias y el fondo.</dd>
-          <dt>APLICAR LIMPIEZA</dt><dd>Solo en LIMPIAR. Fija la limpieza en la imagen y pasa a SEMITONO para tramarla encima, sin grabar un PNG intermedio. Elige antes el color de la camiseta: los bordes suaves se mezclan con ese color.</dd>
+          <dt>LOS DOS EN SÍ</dt><dd>Primero limpia y luego hace el semitono, en un solo paso y en un solo PNG. Todas las perillas de TONO funcionan y los colores se conservan.</dd>
+          <dt>SOLO LIMPIAR</dt><dd>Deja el diseño sin puntos. Los bordes suaves se mezclan con el color de la camiseta.</dd>
+          <dt>LOS DOS EN NO</dt><dd>Graba la imagen tal cual a 300 ppp (por ejemplo, solo agrandada). Ojo: conserva las semitransparencias del original.</dd>
+          <dt>CORTE ALFA</dt><dd>Solo con LIMPIAR en SÍ: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
+          <dt>CONTRAER</dt><dd>Recorta el contorno del diseño hacia adentro para quitar la película o halo blanco del borde. Sube de a poco: 0,05 a 0,15 mm suele bastar. Funciona con LIMPIAR y con SEMITONO.</dd>
           <dt>OSCUROS</dt><dd>Para camiseta oscura: lo negro desaparece y se ve la tela.</dd>
           <dt>CLAROS</dt><dd>Para camiseta clara: lo blanco desaparece.</dd>
         </dl>
         <p class="tip">OSCUROS o CLAROS se elige solo cuando tocas el color de la camiseta. Quita por tono: también borra los negros (o blancos) de adentro del diseño.</p>
       </section>
-      <section class="hsec" id="h-trama"><h4>TRAMA · SOLO EN SEMITONO</h4>
+      <section class="hsec" id="h-trama"><h4>TRAMA · SOLO CON SEMITONO EN SÍ</h4>
         <dl class="hdl">
           <dt>LPI</dt><dd>Cantidad de puntos. Menos = puntos grandes y visibles. Más = puntos finos. Para DTF, entre 35 y 55.</dd>
           <dt>ÁNGULO</dt><dd>Inclinación de la trama. 22,5° o 45° se ven más naturales.</dd>
@@ -449,8 +454,8 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>SÓLIDO</dt><dd>Desde este % la tinta queda llena, sin puntos.</dd>
           <dt>CURVA</dt><dd>Más de 1 = puntos más pequeños y más tela a la vista. Menos de 1 = más tinta.</dd>
           <dt>INTENSIDAD</dt><dd>Aviva el color de los puntos para que no se vea lavado.</dd>
-          <dt>CORTE ALFA</dt><dd>Solo en LIMPIAR: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
         </dl>
+        <p class="tip">CORTE ALFA y CONTRAER están en PROCESOS, junto a LIMPIAR.</p>
       </section>
       <section class="hsec" id="h-camiseta"><h4>CAMISETA</h4>
         <dl class="hdl">
@@ -490,17 +495,21 @@ function track(name) { try { if (window.goatcounter && window.goatcounter.count)
    Parámetros
    ========================================================= */
 const P = {
-  mode: 'semi',        // semi | clean
+  cleanOn: false,      // proceso LIMPIAR encendido
+  semiOn: true,        // proceso SEMITONO encendido (los dos juntos: limpia y luego hace semitono)
+  useUp: false,        // usar la imagen agrandada con IA (no se guarda: depende de la imagen)
   knock: 'dark',       // dark: quita oscuros (camiseta oscura) | light: quita claros
   shape: 'round',      // round | square | line
   lpi: 45, angle: 22.5, minDot: 0.25,
-  black: 8, solid: 92, curve: 1.0, intensity: 50, alphaCut: 55,
+  black: 8, solid: 92, curve: 1.0, intensity: 50, alphaCut: 55, choke: 0,
   widthCm: 30,
   shirt: '#111111',
   zoom: 'fit', compare: false,
   model: 'anime', scale: 4, unit: 'cm',
 };
-try { const saved = JSON.parse(store.get('tramaluz.p') || 'null'); if (saved) for (const k of ['mode','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','shirt','model','scale','unit']) if (k in saved) P[k] = saved[k]; } catch (e) {}
+try { const saved = JSON.parse(store.get('tramaluz.p') || 'null');
+  if (saved && !('semiOn' in saved) && saved.mode) { P.cleanOn = saved.mode === 'clean'; P.semiOn = saved.mode !== 'clean'; } // ajustes de la versión con MODO
+  if (saved) for (const k of ['cleanOn','semiOn','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','choke','shirt','model','scale','unit']) if (k in saved) P[k] = saved[k]; } catch (e) {}
 let saveT = null;
 function persist() { clearTimeout(saveT); saveT = setTimeout(() => store.set('tramaluz.p', JSON.stringify(P)), 400); scheduleCommit(); }
 
@@ -609,7 +618,21 @@ function blueNoise(n) {
 }
 const workerSrc = `${spot.toString()}
 ${blueNoise.toString()}
-let S=null,SW=0,SH=0,BN=null; const LUT={}; const N=128;
+let S=null,SW=0,SH=0,BN=null,D=null; const LUT={}; const N=128;
+// CONTRAER: distancia (en px x8) de cada píxel visible al transparente más cercano (chaflán 8/11, dos pasadas)
+function distField(){
+  const n=SW*SH, d=new Uint16Array(n), INF=65535;
+  for(let i=0;i<n;i++) d[i]=S[i*4+3]>=128?INF:0;
+  for(let y=0;y<SH;y++)for(let x=0;x<SW;x++){ const i=y*SW+x; let v=d[i]; if(!v)continue; let t;
+    if(x>0){t=d[i-1]+8; if(t<v)v=t;}
+    if(y>0){const j=i-SW; t=d[j]+8; if(t<v)v=t; if(x>0){t=d[j-1]+11; if(t<v)v=t;} if(x<SW-1){t=d[j+1]+11; if(t<v)v=t;}}
+    d[i]=v; }
+  for(let y=SH-1;y>=0;y--)for(let x=SW-1;x>=0;x--){ const i=y*SW+x; let v=d[i]; if(!v)continue; let t;
+    if(x<SW-1){t=d[i+1]+8; if(t<v)v=t;}
+    if(y<SH-1){const j=i+SW; t=d[j]+8; if(t<v)v=t; if(x<SW-1){t=d[j+1]+11; if(t<v)v=t;} if(x>0){t=d[j-1]+11; if(t<v)v=t;}}
+    d[i]=v; }
+  return d;
+}
 function buildLut(shape){
   const vals=new Float32Array(N*N), idx=new Uint32Array(N*N);
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){const u=(i+0.5)/N-0.5,v=(j+0.5)/N-0.5; const s=spot(shape,u,v);
@@ -623,6 +646,7 @@ function render(m){
   const out=new Uint8ClampedArray(rw*rh*4);
   if(!S) return out;
   const kx=SW/outW, ky=SH/outH;
+  const chk=kind!=='orig'&&p.mode!=='none'&&p.chokePx>0? p.chokePx*kx : 0; if(chk>0&&!D) D=distField();
   const cell=p.cell, ang=p.angle*Math.PI/180, cs=Math.cos(ang)/cell, sn=Math.sin(ang)/cell;
   const grain=p.shape==='grain'; const lut=grain?null:lutFor(p.shape); if(grain&&!BN) BN=blueNoise(64);
   const lo=p.black/100, hi=Math.max(p.solid/100,lo+0.01), span=hi-lo, gam=p.curve, inten=p.intensity/100;
@@ -642,15 +666,19 @@ function render(m){
       let r=(S[a00]*A00+S[a01]*A01+S[a10]*A10+S[a11]*A11)/A/255;
       let g=(S[a00+1]*A00+S[a01+1]*A01+S[a10+1]*A10+S[a11+1]*A11)/A/255;
       let b=(S[a00+2]*A00+S[a01+2]*A01+S[a10+2]*A10+S[a11+2]*A11)/A/255;
-      const a=A/255;
-      if(kind==='orig'){ out[o]=r*255; out[o+1]=g*255; out[o+2]=b*255; out[o+3]=A; continue; }
+      let a=A/255;
+      if(kind==='orig'||p.mode==='none'){ out[o]=r*255; out[o+1]=g*255; out[o+2]=b*255; out[o+3]=A; continue; }
+      if(chk>0){ const f=(D[a00>>2]*w00+D[a01>>2]*w01+D[a10>>2]*w10+D[a11>>2]*w11)/8-chk; if(f<=0) continue; if(f<1) a*=f; }
       const lum=0.2126*r+0.7152*g+0.0722*b;
       if(p.mode==='clean'){
         const v=dark? lum*a : (1-lum)*a;
         if(a<acut || v<lo) continue;
         out[o]=(r*a+sr*(1-a))*255; out[o+1]=(g*a+sg*(1-a))*255; out[o+2]=(b*a+sb*(1-a))*255; out[o+3]=255; continue;
       }
-      const v=dark? lum*a : (1-lum)*a;
+      let a2=a;
+      if(p.mode==='both'){ // limpiar y luego semitono: quita el fondo y lo tenue, y deja sólido lo demás con su color original (sin mezclarlo con la camiseta)
+        if(a<acut || (dark? lum*a : (1-lum)*a)<lo) continue; a2=1; }
+      const v=dark? lum*a2 : (1-lum)*a2;
       let c=(v-lo)/span; if(c<=0) continue; if(c>1)c=1; if(gam!==1)c=Math.pow(c,gam);
       if(c<cmin){ if(c<cmin*0.5) continue; c=cmin; } if(c>cmax) c=1;
       let alpha;
@@ -671,7 +699,7 @@ function render(m){
 }
 onmessage=async(e)=>{ const m=e.data;
   try{
-    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; postMessage({type:'ok',id:m.id}); return; }
+    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; D=null; postMessage({type:'ok',id:m.id}); return; }
     if(m.type==='render'){ const out=render(m); postMessage({type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh},[out.buffer]); return; }
     if(m.type==='export'){
       const out=render(m);
@@ -692,15 +720,16 @@ function wcall(msg, transfer) { const id = ++jobSeq; msg.id = id; return new Pro
    Imagen fuente
    ========================================================= */
 let SRC = null;      // {w,h,data:Uint8ClampedArray,name, semi}
-let ORIGINAL = null; // copia antes de agrandar
-let srcGen = 0;      // numera las imágenes derivadas (agrandado, limpieza) para el historial
-async function setSource(img, keepOriginal) {
+let BASE = null;     // la imagen tal como se cargó (sin agrandar)
+let UP = null;       // la última imagen agrandada con IA (para prender/apagar el agrandado)
+let srcGen = 0;      // numera las imágenes agrandadas para el historial
+async function setSource(img) {
   SRC = img;
-  if (!keepOriginal) ORIGINAL = null;
+  if (img.op === 'AGRANDADO IA') UP = img;
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
   ['btnUp', 'btnExport'].forEach(id => $('#' + id).disabled = false);
-  syncModeUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
+  syncModeUI(); syncUpUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
 async function loadFile(file) {
@@ -717,7 +746,8 @@ async function loadFile(file) {
     const img = { w, h, data: id.data, name: file.name.replace(/\.[^.]+$/, '') };
     img.semi = semiPct(img.data);
     lastDraw = null;
-    await setSource(img, false);
+    BASE = img; UP = null;
+    await setSource(img);
     resetHistory();
     track('imagen-cargada');
   } catch (e) { console.error(e); toast('No pude abrir esa imagen.'); }
@@ -748,8 +778,10 @@ function params() {
     : (sh === 'square' || sh === 'diamond') ? (d * d) / (cell * cell) : Math.PI * (d / 2) ** 2 / (cell * cell);
   cmin = clamp(cmin, 0, 0.45);
   const sc = hexToRgb(P.shirt);
-  return { mode: P.mode, knock: P.knock, shape: P.shape, grain: Math.max(2, Math.round(d)), cell, angle: P.angle, cmin, black: P.black, solid: P.solid, curve: P.curve, intensity: P.intensity, alphaCut: P.alphaCut, shirt: sc };
+  return { mode: procMode(), knock: P.knock, shape: P.shape, grain: Math.max(2, Math.round(d)), cell, angle: P.angle, cmin, black: P.black, solid: P.solid, curve: P.curve, intensity: P.intensity, alphaCut: P.alphaCut, chokePx: P.choke / 25.4 * DPI, shirt: sc };
 }
+// Qué procesos están prendidos: both (limpiar + semitono) | semi | clean | none
+function procMode() { return P.cleanOn ? (P.semiOn ? 'both' : 'clean') : (P.semiOn ? 'semi' : 'none'); }
 function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 const UNITS = { px: 'px', mm: 'mm', cm: 'cm', m: 'm', in: 'pulg' };
 const UDEC = { px: 0, mm: 0, cm: 1, m: 3, in: 2 };
@@ -783,7 +815,8 @@ function renderMeasures() {
   if (ppi >= 250) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'BUENA', 'ok');
   else if (ppi >= 200) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'ACEPTABLE', 'ok');
   else add('CALIDAD', `${nf0.format(ppi)} ppp`, need <= 7 ? `BAJA: AGRANDA ×${Math.max(2, need)}` : 'MUY BAJA: REDUCE EL ANCHO');
-  add('SEMITRANSP.', `${nf0.format(SRC.semi)}% en el original → 0% al grabar`);
+  const keepSemi = procMode() === 'none';
+  add('SEMITRANSP.', `${nf0.format(SRC.semi)}% en el original → ` + (keepSemi ? 'se conservan al grabar' : '0% al grabar'), keepSemi && SRC.semi >= 0.5 ? 'OJO EN DTF' : null);
   add('LARGO EN ROLLO', fmtLen(o.hcm));
 }
 function updateUpSize() {
@@ -819,9 +852,10 @@ function updateInfo() {
   const o = outSize(), ppi = SRC.w / (P.widthCm / 2.54);
   const si = $('#srcInfo'); si.textContent = `${SRC.name} · ${SRC.w} × ${SRC.h} px`;
   if (ppi < 200) { const w = document.createElement('span'); w.className = 'warn'; w.textContent = ' · BAJA RESOLUCIÓN'; si.appendChild(w); }
+  const st = procMode() === 'none' ? 'SIN PROCESAR' : '0% SEMITRANSPARENTE';
   $('#status').textContent = P.unit === 'px'
-    ? `SALIDA ${o.w} × ${o.h} px · 300 ppp · 0% SEMITRANSPARENTE`
-    : `SALIDA ${fmtPair(P.widthCm, o.hcm)} · ${o.w} × ${o.h} px · 0% SEMITRANSPARENTE`;
+    ? `SALIDA ${o.w} × ${o.h} px · 300 ppp · ${st}`
+    : `SALIDA ${fmtPair(P.widthCm, o.hcm)} · ${o.w} × ${o.h} px · ${st}`;
 }
 
 /* =========================================================
@@ -1019,11 +1053,34 @@ function srScale(model, x, N) {
   swap(tf.clipByValue(y, 0, 1)); return y;
 }
 let upRunning = false;
+// Los píxeles 100% transparentes guardan un color escondido (muchas veces blanco). La IA lo ve junto al contorno
+// y deja una película blanca al agrandar. Aquí se rellena ese color con el del borde más cercano (la transparencia no cambia).
+function bleedEdges(data, w, h, passes = 8) {
+  const out = new Uint8ClampedArray(data), n = w * h;
+  let filled = new Uint8Array(n), any = false;
+  for (let i = 0; i < n; i++) if (data[i * 4 + 3] > 0) filled[i] = 1; else any = true;
+  if (!any) return out;
+  for (let p = 0; p < passes; p++) {
+    const next = filled.slice(); let changed = false;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x; if (filled[i]) continue;
+      let r = 0, g = 0, b = 0, c = 0;
+      const add = j => { const o = j * 4; r += out[o]; g += out[o + 1]; b += out[o + 2]; c++; };
+      if (x > 0 && filled[i - 1]) add(i - 1);
+      if (x < w - 1 && filled[i + 1]) add(i + 1);
+      if (y > 0 && filled[i - w]) add(i - w);
+      if (y < h - 1 && filled[i + w]) add(i + w);
+      if (c) { const o = i * 4; out[o] = r / c; out[o + 1] = g / c; out[o + 2] = b / c; next[i] = 1; changed = true; }
+    }
+    filled = next; if (!changed) break;
+  }
+  return out;
+}
 async function upscale() {
-  if (!SRC || upRunning || baking) return;
+  if (!SRC || upRunning) return;
   const target = P.scale, sw = SRC.w, sh = SRC.h, ow = sw * target, oh = sh * target;
   if (ow * oh > 50e6 || Math.max(ow, oh) > 12000) { toast(`Quedaría de ${ow} × ${oh} px, demasiado grande. Baja la escala o usa una imagen más pequeña.`); return; }
-  upRunning = true; $('#btnUp').disabled = true; const meter = $('#upMeter i'); meter.style.width = '0%';
+  upRunning = true; $('#btnUp').disabled = true; syncUpUI(); const meter = $('#upMeter i'); meter.style.width = '0%';
   $('#upNote').textContent = 'Cargando el motor de IA…';
   try {
     const backend = await ensureTf();
@@ -1031,7 +1088,7 @@ async function upscale() {
     const model = await getModel(P.model);
     const TILE = 128, PAD = 24;
     const out = new Uint8ClampedArray(ow * oh * 4);
-    const src = SRC.data;
+    const src = bleedEdges(SRC.data, sw, sh);
     const tiles = []; for (let y = 0; y < sh; y += TILE) for (let x = 0; x < sw; x += TILE) tiles.push([x, y]);
     let done = 0; const t0 = performance.now();
     for (const [tx, ty] of tiles) {
@@ -1070,7 +1127,7 @@ async function upscale() {
       const bd = bc.getImageData(0, 0, ow, oh).data; for (let i = 0; i < out.length; i += 4) out[i + 3] = bd[i];
     }
     const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen };
-    await setSource(img, true);
+    await setSource(img);
     commitNow();
     track('agrandar-ia-x' + target);
     $('#upNote').textContent = `Listo: ${sw} × ${sh} → ${ow} × ${oh} px. Si no te gusta, dale DESHACER.`;
@@ -1078,32 +1135,22 @@ async function upscale() {
   } catch (e) {
     console.error(e); $('#upNote').textContent = 'No se pudo agrandar: ' + (e.message || 'error') + '. Prueba con una imagen más pequeña.';
   }
-  upRunning = false; $('#btnUp').disabled = !SRC;
+  upRunning = false; $('#btnUp').disabled = !SRC; syncUpUI();
 }
 $('#btnUp').onclick = upscale;
 
-/* =========================================================
-   Aplicar limpieza: fija LIMPIAR en la imagen y pasa a SEMITONO
-   (así se hacen los dos procesos sin grabar un PNG intermedio)
-   ========================================================= */
-let baking = false;
-async function bakeClean() {
-  if (!SRC || baking || upRunning || P.mode !== 'clean') return;
-  baking = true; $('#btnBake').disabled = true; showBusy('LIMPIANDO…');
-  try {
-    commitNow(); // punto de deshacer con los ajustes de limpieza
-    const w = SRC.w, h = SRC.h;
-    const res = await wcall({ type: 'render', outW: w, outH: h, rx: 0, ry: 0, rw: w, rh: h, step: 1, approx: false, kind: 'proc', p: params() });
-    const data = new Uint8ClampedArray(res.buf);
-    await setSource({ w, h, data, name: SRC.name, semi: semiPct(data), op: 'LIMPIEZA', gen: ++srcGen }, true);
-    P.mode = 'semi'; swMode.sync(); persist(); commitNow();
-    scheduleRender(0);
-    toast('Limpieza aplicada. Ahora ajusta el semitono y graba el PNG.');
-    track('limpiar-y-semitono');
-  } catch (e) { console.error(e); toast('No se pudo aplicar la limpieza. Prueba con una imagen más pequeña.'); }
-  hideBusy(); baking = false; syncModeUI();
+// Prender/apagar el agrandado: cambia entre la imagen cargada y la agrandada sin volver a calcular ni tocar los ajustes
+function syncUpUI() {
+  P.useUp = !!SRC && SRC !== BASE;
+  swUseUp.sync();
+  $('#swUseUp').querySelectorAll('button').forEach(b => b.disabled = !UP || upRunning);
 }
-$('#btnBake').onclick = bakeClean;
+async function toggleUp(on) {
+  const target = on ? UP : BASE;
+  if (!target || target === SRC || upRunning) { syncUpUI(); return; }
+  await setSource(target); commitNow();
+  $('#upNote').textContent = on ? `Usando la imagen agrandada: ${SRC.w} × ${SRC.h} px.` : `Usando la imagen original: ${SRC.w} × ${SRC.h} px. Tus ajustes no cambian.`;
+}
 
 /* =========================================================
    Exportar PNG con 300 ppp
@@ -1135,7 +1182,7 @@ async function doExport() {
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     toast('PNG grabado a 300 ppp: ' + name);
-    track(P.mode === 'semi' ? 'exportar-semitono' : 'exportar-limpiar');
+    track('exportar-' + { both: 'limpiar-semitono', semi: 'semitono', clean: 'limpiar', none: 'sin-proceso' }[procMode()]);
   } catch (e) { console.error(e); toast('No se pudo procesar a tamaño completo. Prueba con un ancho menor.'); }
   hideBusy(); exporting = false; $('#btnExport').disabled = !SRC;
 }
@@ -1162,7 +1209,10 @@ makeSwitch($('#swCmp'), 'compare', [[false, 'DESPUÉS'], [true, 'COMPARAR']].map
 makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']]);
 makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), () => updateUpSize());
 makeSwitch($('#swUnit'), 'unit', [['px', 'PX'], ['mm', 'MM'], ['cm', 'CM'], ['m', 'M'], ['in', 'PULG']], () => { updateInfo(); syncSizeInputs(true); });
-const swMode = makeSwitch($('#swMode'), 'mode', [['semi', 'SEMITONO'], ['clean', 'LIMPIAR']], () => { syncModeUI(); scheduleRender(0); });
+const onProc = () => { syncModeUI(); updateInfo(); scheduleRender(0); };
+const swClean = makeSwitch($('#swClean'), 'cleanOn', [[true, 'SÍ'], [false, 'NO']], onProc);
+const swSemi = makeSwitch($('#swSemi'), 'semiOn', [[true, 'SÍ'], [false, 'NO']], onProc);
+const swUseUp = makeSwitch($('#swUseUp'), 'useUp', [[true, 'SÍ'], [false, 'NO']], v => toggleUp(v));
 const swKnock = makeSwitch($('#swKnock'), 'knock', [['dark', 'OSCUROS'], ['light', 'CLAROS']], () => { syncKnockLabel(); scheduleRender(0); });
 const SHAPES = [['round', 'REDONDO'], ['ellipse', 'ELIPSE'], ['square', 'CUADRADO'], ['diamond', 'ROMBO'], ['cross', 'CRUZ'], ['line', 'LÍNEA'], ['wave', 'ONDAS'], ['grain', 'GRANULADO']];
 if (!SHAPES.some(([v]) => v === P.shape)) P.shape = 'round';
@@ -1212,7 +1262,8 @@ makeKnob($('#kTono'), { key: 'black', label: 'NEGRO', min: 0, max: 50, step: 1, 
 makeKnob($('#kTono'), { key: 'solid', label: 'SÓLIDO', min: 50, max: 100, step: 1, def: 92, fmt: v => v + '%', onChange: rr, help: 'Desde aquí la tinta queda sólida, sin puntos' });
 makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 0.05, def: 1, fmt: v => v.toFixed(2), onChange: rr, help: 'Más de 1 = puntos más pequeños en medios tonos' });
 makeKnob($('#kTono'), { key: 'intensity', label: 'INTENSIDAD', min: 0, max: 100, step: 1, def: 50, fmt: v => v + '%', onChange: rr, help: 'Aviva el color de los puntos para compensar la trama' });
-makeKnob($('#kTono'), { key: 'alphaCut', label: 'CORTE ALFA', min: 1, max: 99, step: 1, def: 55, fmt: v => v + '%', onChange: rr, help: 'Modo LIMPIAR: por debajo de esta opacidad se vuelve transparente' });
+makeKnob($('#kLimpia'), { key: 'alphaCut', label: 'CORTE ALFA', min: 1, max: 99, step: 1, def: 55, fmt: v => v + '%', onChange: rr, help: 'LIMPIAR: por debajo de esta opacidad se vuelve transparente' });
+makeKnob($('#kLimpia'), { key: 'choke', label: 'CONTRAER', min: 0, max: 1, step: 0.05, def: 0, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Recorta el borde hacia adentro: quita la película o halo blanco del contorno' });
 makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: () => { updateInfo(); view.cx = null; scheduleRender(); } });
 const kOutInfo = document.createElement('div'); kOutInfo.style.gridColumn = '2 / -1'; kOutInfo.style.alignSelf = 'center';
 kOutInfo.innerHTML = `<div class="sizes">
@@ -1227,13 +1278,22 @@ $('#kOut').appendChild(kOutInfo);
   el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applySizeInput(which); el.select(); } else if (e.key === 'Escape') { syncSizeInputs(true); el.blur(); } });
   el.addEventListener('focus', () => el.select());
 });
+const MODE_NOTES = {
+  both: 'LIMPIAR + SEMITONO: quita el fondo y lo tenue, y convierte el resto en puntos. Un solo PNG.',
+  semi: 'SEMITONO: convierte sombras y degradados en puntos sólidos.',
+  clean: 'LIMPIAR: deja el diseño sin puntos, sin semitransparencias y sin fondo.',
+  none: 'SIN PROCESOS: graba la imagen tal cual, con sus semitransparencias.',
+};
 function syncModeUI() {
-  const semi = P.mode === 'semi';
+  const semi = P.semiOn, clean = P.cleanOn;
   const grain = P.shape === 'grain';
   ['minDot', 'solid', 'curve', 'intensity'].forEach(k => knobs[k].disable(!semi));
   ['lpi', 'angle'].forEach(k => knobs[k].disable(!semi || grain));
-  knobs.alphaCut.disable(semi);
-  $('#btnBake').disabled = !SRC || semi || baking;
+  knobs.alphaCut.disable(!clean);
+  knobs.black.disable(!semi && !clean);
+  knobs.choke.disable(!semi && !clean);
+  $('#swKnock').querySelectorAll('button').forEach(b => b.disabled = !semi && !clean);
+  $('#modeNote').textContent = MODE_NOTES[procMode()];
   $('#swShape').querySelectorAll('button').forEach(b => b.disabled = !semi);
   $('#cellInfo').textContent = semi && !grain ? (25.4 / P.lpi).toFixed(2) + ' mm' : '—';
 }
@@ -1242,7 +1302,7 @@ function syncKnockLabel() {
   k.wrap.querySelector('.klabel').textContent = lbl; k.el.setAttribute('aria-label', lbl);
   k.el.title = dark ? 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' : 'Todo lo más claro que esto desaparece (se ve la camiseta)';
 }
-syncModeUI(); syncKnockLabel(); updateInfo();
+syncModeUI(); syncKnockLabel(); syncUpUI(); updateInfo();
 
 const SHIRTS = [['#111111', 'Negro'], ['#f4f2ee', 'Blanco'], ['#b3202a', 'Rojo'], ['#1d2a4d', 'Azul marino'], ['#4b5320', 'Verde militar'], ['#c3b091', 'Caqui'], ['#f2c230', 'Amarillo'], ['#7d7d7d', 'Gris']];
 function buildShirts() {
@@ -1269,8 +1329,8 @@ buildShirts();
 /* =========================================================
    Deshacer / Rehacer
    ========================================================= */
-const HKEYS = ['mode', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'widthCm', 'shirt'];
-const HNAMES = { mode: 'MODO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', widthCm: 'ANCHO', shirt: 'CAMISETA' };
+const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'choke', 'widthCm', 'shirt'];
+const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', widthCm: 'ANCHO', shirt: 'CAMISETA' };
 const hist = { stack: [], i: -1 };
 let commitT = null, applying = false;
 function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
@@ -1298,17 +1358,17 @@ async function applySnap(s, from, verb) {
   applying = true;
   try {
     for (const k of HKEYS) { P[k] = s.p[k]; if (knobs[k]) knobs[k].show(); }
-    swMode.sync(); swKnock.sync(); swShape.sync(); syncModeUI(); syncKnockLabel();
+    swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); syncModeUI(); syncKnockLabel();
     scr.style.setProperty('--shirt', P.shirt); buildShirts();
     store.set('tramaluz.p', JSON.stringify(P));
-    if (s.src !== SRC && s.src) { await setSource(s.src, false); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
+    if (s.src !== SRC && s.src) { await setSource(s.src); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
     else { updateInfo(); scheduleRender(0); }
   } finally { applying = false; }
   syncHistUI();
   const what = diffNames(s, from); if (what) toast(`${verb} · ${what}`, 1600);
 }
-async function undo() { if (upRunning || baking) return; commitNow(); if (hist.i <= 0) return; hist.i--; await applySnap(hist.stack[hist.i], hist.stack[hist.i + 1], 'DESHACER'); }
-async function redo() { if (upRunning || baking) return; commitNow(); if (hist.i >= hist.stack.length - 1) return; hist.i++; await applySnap(hist.stack[hist.i], hist.stack[hist.i - 1], 'REHACER'); }
+async function undo() { if (upRunning) return; commitNow(); if (hist.i <= 0) return; hist.i--; await applySnap(hist.stack[hist.i], hist.stack[hist.i + 1], 'DESHACER'); }
+async function redo() { if (upRunning) return; commitNow(); if (hist.i >= hist.stack.length - 1) return; hist.i++; await applySnap(hist.stack[hist.i], hist.stack[hist.i - 1], 'REHACER'); }
 $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
 document.addEventListener('keydown', e => {
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
