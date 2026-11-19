@@ -18,6 +18,8 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:image" content="https://felezeta.github.io/Tramaluz/og.png">
 <meta name="twitter:card" content="summary_large_image">
+<!-- Estadísticas de visitas con GoatCounter: anónimas y sin cookies. Solo cuenta visitas y acciones; nunca envía imágenes. -->
+<script data-goatcounter="https://TU-CODIGO.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous&family=Michroma&family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700&display=swap">
@@ -476,6 +478,8 @@ const DPI = 300;
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 let toastT = null;
 function toast(msg, ms = 3800) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms); }
+// Cuenta una acción en GoatCounter (solo el nombre de la acción, nunca la imagen). Si el contador no cargó, no hace nada.
+function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: name, event: true }); } catch (e) {} }
 
 /* =========================================================
    Parámetros
@@ -709,6 +713,7 @@ async function loadFile(file) {
     lastDraw = null;
     await setSource(img, false);
     resetHistory();
+    track('imagen-cargada');
   } catch (e) { console.error(e); toast('No pude abrir esa imagen.'); }
   hideBusy();
 }
@@ -1061,6 +1066,7 @@ async function upscale() {
     const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out) };
     await setSource(img, true);
     commitNow();
+    track('agrandar-ia-x' + target);
     $('#upNote').textContent = `Listo: ${sw} × ${sh} → ${ow} × ${oh} px. Si no te gusta, dale DESHACER.`;
     meter.style.width = '100%';
   } catch (e) {
@@ -1100,6 +1106,7 @@ async function doExport() {
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
     toast('PNG grabado a 300 ppp: ' + name);
+    track(P.mode === 'semi' ? 'exportar-semitono' : 'exportar-limpiar');
   } catch (e) { console.error(e); toast('No se pudo procesar a tamaño completo. Prueba con un ancho menor.'); }
   hideBusy(); exporting = false; $('#btnExport').disabled = !SRC;
 }
