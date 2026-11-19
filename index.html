@@ -19,7 +19,7 @@
 <meta name="twitter:image" content="https://felezeta.github.io/Tramaluz/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <!-- Estadísticas de visitas con GoatCounter: anónimas y sin cookies. Solo cuenta visitas y acciones; nunca envía imágenes. -->
-<script data-goatcounter="https://TU-CODIGO.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://felezeta.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous&family=Michroma&family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700&display=swap">
@@ -324,6 +324,10 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
             <div><span class="swlabel">PROCESO</span><div class="sw" role="radiogroup" aria-label="Proceso" id="swMode"></div></div>
             <div><span class="swlabel">QUITAR</span><div class="sw" role="radiogroup" aria-label="Qué quitar" id="swKnock"></div></div>
           </div>
+          <div class="row" style="align-items:center">
+            <button class="btn brown" type="button" id="btnBake" disabled>APLICAR LIMPIEZA</button>
+          </div>
+          <p class="note">En LIMPIAR: deja la imagen limpia y pasa a SEMITONO, sin grabar ni volver a cargar. Si no te gusta, DESHACER.</p>
         </div>
 
         <div class="group" id="gTrama">
@@ -388,7 +392,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>100%</dt><dd>El número muestra el zoom actual; tócalo para ver los puntos a tamaño real, como saldrán impresos.</dd>
           <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
           <dt>COMPARAR</dt><dd>Divide la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea.</dd>
-          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, modo, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
+          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, modo, forma, camiseta, ancho, limpieza aplicada y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
         </dl>
       </section>
@@ -423,6 +427,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         <dl class="hdl">
           <dt>SEMITONO</dt><dd>Convierte sombras y degradados en puntos sólidos. Así no queda velo blanco.</dd>
           <dt>LIMPIAR</dt><dd>Deja el diseño igual, sin puntos, pero quita las semitransparencias y el fondo.</dd>
+          <dt>APLICAR LIMPIEZA</dt><dd>Solo en LIMPIAR. Fija la limpieza en la imagen y pasa a SEMITONO para tramarla encima, sin grabar un PNG intermedio. Elige antes el color de la camiseta: los bordes suaves se mezclan con ese color.</dd>
           <dt>OSCUROS</dt><dd>Para camiseta oscura: lo negro desaparece y se ve la tela.</dd>
           <dt>CLAROS</dt><dd>Para camiseta clara: lo blanco desaparece.</dd>
         </dl>
@@ -688,13 +693,14 @@ function wcall(msg, transfer) { const id = ++jobSeq; msg.id = id; return new Pro
    ========================================================= */
 let SRC = null;      // {w,h,data:Uint8ClampedArray,name, semi}
 let ORIGINAL = null; // copia antes de agrandar
+let srcGen = 0;      // numera las imágenes derivadas (agrandado, limpieza) para el historial
 async function setSource(img, keepOriginal) {
   SRC = img;
   if (!keepOriginal) ORIGINAL = null;
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
   ['btnUp', 'btnExport'].forEach(id => $('#' + id).disabled = false);
-  updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
+  syncModeUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
 async function loadFile(file) {
@@ -1014,7 +1020,7 @@ function srScale(model, x, N) {
 }
 let upRunning = false;
 async function upscale() {
-  if (!SRC || upRunning) return;
+  if (!SRC || upRunning || baking) return;
   const target = P.scale, sw = SRC.w, sh = SRC.h, ow = sw * target, oh = sh * target;
   if (ow * oh > 50e6 || Math.max(ow, oh) > 12000) { toast(`Quedaría de ${ow} × ${oh} px, demasiado grande. Baja la escala o usa una imagen más pequeña.`); return; }
   upRunning = true; $('#btnUp').disabled = true; const meter = $('#upMeter i'); meter.style.width = '0%';
@@ -1063,7 +1069,7 @@ async function upscale() {
       bc.imageSmoothingQuality = 'high'; bc.drawImage(a, 0, 0, ow, oh);
       const bd = bc.getImageData(0, 0, ow, oh).data; for (let i = 0; i < out.length; i += 4) out[i + 3] = bd[i];
     }
-    const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out) };
+    const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen };
     await setSource(img, true);
     commitNow();
     track('agrandar-ia-x' + target);
@@ -1075,6 +1081,29 @@ async function upscale() {
   upRunning = false; $('#btnUp').disabled = !SRC;
 }
 $('#btnUp').onclick = upscale;
+
+/* =========================================================
+   Aplicar limpieza: fija LIMPIAR en la imagen y pasa a SEMITONO
+   (así se hacen los dos procesos sin grabar un PNG intermedio)
+   ========================================================= */
+let baking = false;
+async function bakeClean() {
+  if (!SRC || baking || upRunning || P.mode !== 'clean') return;
+  baking = true; $('#btnBake').disabled = true; showBusy('LIMPIANDO…');
+  try {
+    commitNow(); // punto de deshacer con los ajustes de limpieza
+    const w = SRC.w, h = SRC.h;
+    const res = await wcall({ type: 'render', outW: w, outH: h, rx: 0, ry: 0, rw: w, rh: h, step: 1, approx: false, kind: 'proc', p: params() });
+    const data = new Uint8ClampedArray(res.buf);
+    await setSource({ w, h, data, name: SRC.name, semi: semiPct(data), op: 'LIMPIEZA', gen: ++srcGen }, true);
+    P.mode = 'semi'; swMode.sync(); persist(); commitNow();
+    scheduleRender(0);
+    toast('Limpieza aplicada. Ahora ajusta el semitono y graba el PNG.');
+    track('limpiar-y-semitono');
+  } catch (e) { console.error(e); toast('No se pudo aplicar la limpieza. Prueba con una imagen más pequeña.'); }
+  hideBusy(); baking = false; syncModeUI();
+}
+$('#btnBake').onclick = bakeClean;
 
 /* =========================================================
    Exportar PNG con 300 ppp
@@ -1204,6 +1233,7 @@ function syncModeUI() {
   ['minDot', 'solid', 'curve', 'intensity'].forEach(k => knobs[k].disable(!semi));
   ['lpi', 'angle'].forEach(k => knobs[k].disable(!semi || grain));
   knobs.alphaCut.disable(semi);
+  $('#btnBake').disabled = !SRC || semi || baking;
   $('#swShape').querySelectorAll('button').forEach(b => b.disabled = !semi);
   $('#cellInfo').textContent = semi && !grain ? (25.4 / P.lpi).toFixed(2) + ' mm' : '—';
 }
@@ -1240,7 +1270,7 @@ buildShirts();
    Deshacer / Rehacer
    ========================================================= */
 const HKEYS = ['mode', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'widthCm', 'shirt'];
-const HNAMES = { mode: 'MODO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', widthCm: 'ANCHO', shirt: 'CAMISETA', src: 'AGRANDADO IA' };
+const HNAMES = { mode: 'MODO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', widthCm: 'ANCHO', shirt: 'CAMISETA' };
 const hist = { stack: [], i: -1 };
 let commitT = null, applying = false;
 function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
@@ -1258,7 +1288,10 @@ function resetHistory() { clearTimeout(commitT); hist.stack = [snap()]; hist.i =
 function syncHistUI() { $('#btnUndo').disabled = hist.i <= 0; $('#btnRedo').disabled = hist.i >= hist.stack.length - 1; }
 function diffNames(a, b) {
   const n = HKEYS.filter(k => a.p[k] !== b.p[k]).map(k => HNAMES[k]);
-  if (a.src !== b.src) n.unshift(HNAMES.src);
+  if (a.src !== b.src) { // nombra el proceso de la imagen más reciente de las dos
+    const nw = ((a.src && a.src.gen) || 0) > ((b.src && b.src.gen) || 0) ? a.src : b.src;
+    n.unshift((nw && nw.op) || 'IMAGEN');
+  }
   return n.slice(0, 3).join(', ') + (n.length > 3 ? '…' : '');
 }
 async function applySnap(s, from, verb) {
@@ -1274,8 +1307,8 @@ async function applySnap(s, from, verb) {
   syncHistUI();
   const what = diffNames(s, from); if (what) toast(`${verb} · ${what}`, 1600);
 }
-async function undo() { if (upRunning) return; commitNow(); if (hist.i <= 0) return; hist.i--; await applySnap(hist.stack[hist.i], hist.stack[hist.i + 1], 'DESHACER'); }
-async function redo() { if (upRunning) return; commitNow(); if (hist.i >= hist.stack.length - 1) return; hist.i++; await applySnap(hist.stack[hist.i], hist.stack[hist.i - 1], 'REHACER'); }
+async function undo() { if (upRunning || baking) return; commitNow(); if (hist.i <= 0) return; hist.i--; await applySnap(hist.stack[hist.i], hist.stack[hist.i + 1], 'DESHACER'); }
+async function redo() { if (upRunning || baking) return; commitNow(); if (hist.i >= hist.stack.length - 1) return; hist.i++; await applySnap(hist.stack[hist.i], hist.stack[hist.i - 1], 'REHACER'); }
 $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
 document.addEventListener('keydown', e => {
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
