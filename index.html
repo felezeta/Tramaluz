@@ -191,6 +191,17 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 .minfo dd{margin:0;color:var(--vfd);font-family:var(--mono);font-size:14px;text-shadow:0 0 6px rgba(255,179,71,.5);overflow-wrap:anywhere}
 .minfo .warn,.vfd .warn{color:#ff7a4a}
 .minfo .ok{color:var(--led-g);text-shadow:0 0 6px rgba(125,255,106,.45)}
+.alerts{list-style:none;margin:0 0 12px;padding:10px 12px;display:flex;flex-direction:column;gap:9px;background:var(--vfd-bg);border-radius:8px;box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.45)}
+.alerts li{display:flex;gap:9px;align-items:flex-start;color:var(--vfd);font-size:13px;line-height:1.4}
+.alerts li .led{margin-top:4px}
+.alerts li b{display:block;font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:#f0d7a8;margin-bottom:2px}
+.alerts li.r b{color:#ff7a4a}
+.alerts li.a b{color:var(--led-a)}
+.alerts li.g b{color:var(--led-g)}
+.swrow{display:flex;gap:6px;flex-wrap:wrap}
+.htable{border-collapse:collapse;margin:12px 0 0;width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.htable th,.htable td{border:1px solid var(--ink3);padding:5px 6px;text-align:center}
+.htable th{font-family:var(--label);font-size:8.5px;letter-spacing:.1em}
 #srcInfo{overflow-wrap:anywhere}
 .sizes{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
 .fld{display:flex;flex-direction:column}
@@ -308,22 +319,17 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <h3>AGRANDAR CON IA</h3><button class="qhelp" type="button" data-help="h-ia" aria-label="Ayuda: Agrandar con IA">?</button>
           <div class="row">
             <div><span class="swlabel">MODELO</span><div class="sw" role="radiogroup" aria-label="Modelo" id="swModel"></div></div>
-            <div><span class="swlabel">ESCALA</span><div class="sw tight" role="radiogroup" aria-label="Escala" id="swScale"></div></div>
+            <div><span class="swlabel">ESCALA · TOCA PARA AGRANDAR</span><div class="sw tight" role="radiogroup" aria-label="Escala del agrandado" id="swScale"></div></div>
           </div>
-          <div class="row"><div class="vfd grow" id="upSize">SALDRÁ: —</div></div>
-          <div class="row" style="align-items:center">
-            <button class="btn brown" type="button" id="btnUp" disabled>AGRANDAR</button>
-            <div class="meter" id="upMeter" aria-hidden="true"><i></i></div>
-          </div>
-          <div class="row"><div><span class="swlabel">USAR AGRANDADA</span><div class="sw tight" role="radiogroup" aria-label="Usar la imagen agrandada" id="swUseUp"></div></div></div>
-          <p class="note" id="upNote">Usa ANIME para ilustraciones y GENERAL para fotos. Corre en tu tarjeta de video.</p>
+          <div class="row"><div class="vfd grow" id="upSize">—</div></div>
+          <div class="row" style="align-items:center"><div class="meter" id="upMeter" aria-hidden="true"><i></i></div></div>
+          <p class="note" id="upNote">Toca ×2 a ×7 para agrandar; tócalo otra vez para volver a la original. ANIME para ilustraciones, GENERAL para fotos.</p>
         </div>
 
         <div class="group">
           <h3>PROCESOS</h3><button class="qhelp" type="button" data-help="h-modo" aria-label="Ayuda: Procesos">?</button>
           <div class="row">
-            <div><span class="swlabel">LIMPIAR</span><div class="sw tight" role="radiogroup" aria-label="Limpiar: encendido o apagado" id="swClean"></div></div>
-            <div><span class="swlabel">SEMITONO</span><div class="sw tight" role="radiogroup" aria-label="Semitono: encendido o apagado" id="swSemi"></div></div>
+            <div><span class="swlabel">PRENDER / APAGAR</span><div class="swrow"><div class="sw" role="group" aria-label="Limpiar" id="swClean"></div><div class="sw" role="group" aria-label="Semitono" id="swSemi"></div></div></div>
             <div><span class="swlabel">QUITAR</span><div class="sw" role="radiogroup" aria-label="Qué quitar" id="swKnock"></div></div>
           </div>
           <div class="knobs" id="kLimpia" style="margin-top:12px"></div>
@@ -347,8 +353,20 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         </div>
 
         <div class="group">
+          <h3>TAMAÑO</h3><button class="qhelp" type="button" data-help="h-tamano" aria-label="Ayuda: Tamaño">?</button>
+          <div class="row">
+            <div><span class="swlabel">USO · NINGUNO = LIBRE</span><div class="sw tight" role="radiogroup" aria-label="Uso del diseño" id="swUse"></div></div>
+          </div>
+          <div class="row" id="rowTalla" style="margin-top:10px"><div><span class="swlabel">TALLA</span><div class="sw tight" role="radiogroup" aria-label="Talla" id="swTalla"></div></div></div>
+          <div class="knobs" id="kOut" style="margin-top:12px"></div>
+          <div class="row" style="margin-top:10px"><div><span class="swlabel">ACOMODAR EN EL ÁREA</span><div class="sw tight" role="radiogroup" aria-label="Cómo se acomoda en el área" id="swFit"></div></div></div>
+          <p class="note" id="sizeNote"></p>
+        </div>
+
+        <div class="group">
           <h3>SALIDA</h3><button class="qhelp" type="button" data-help="h-salida" aria-label="Ayuda: Salida">?</button>
-          <div class="knobs" id="kOut"></div>
+          <span class="swlabel">AVISOS</span>
+          <ul class="alerts" id="alerts" aria-live="polite"></ul>
           <div class="out-actions">
             <button class="btn orange big" type="button" id="btnExport" disabled><span class="led" id="expLed"></span>GRABAR PNG 300 PPP</button>
           </div>
@@ -374,7 +392,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <li><b>CARGAR</b> tu diseño (PNG, JPG o WebP), o arrástralo a la pantalla.</li>
           <li>Toca el color de la <b>CAMISETA</b>.</li>
           <li>Prende o apaga los <b>PROCESOS</b> y ajusta <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
-          <li>Pon el <b>ANCHO</b> en cm y dale <b>GRABAR PNG</b>.</li>
+          <li>En <b>TAMAÑO</b> elige el uso y la talla (o el ancho), revisa los <b>AVISOS</b> y dale <b>GRABAR PNG</b>.</li>
         </ol>
         <p class="tip">Toca cualquier <b>?</b> de la app para ver solo esa parte. Tus imágenes nunca salen de tu computador.</p>
       </section>
@@ -391,7 +409,8 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>− · +</dt><dd>Aleja o acerca. También con la <b>rueda del mouse</b> sobre la imagen (acerca justo donde está el puntero) o <b>pellizcando</b> en el celular. Es solo lupa: no cambia el archivo ni agranda la imagen (para eso está AGRANDAR CON IA).</dd>
           <dt>100%</dt><dd>El número muestra el zoom actual; tócalo para ver los puntos a tamaño real, como saldrán impresos.</dd>
           <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
-          <dt>COMPARAR</dt><dd>Divide la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea.</dd>
+          <dt>COMPARAR</dt><dd>Tócalo para dividir la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea. Tócalo otra vez para quitarlo.</dd>
+          <dt>LÍNEA PUNTEADA</dt><dd>Marca el borde del archivo cuando el tamaño es exacto (CENTRAR, LLENAR o ESTIRAR).</dd>
           <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
         </dl>
@@ -405,7 +424,8 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
       <section class="hsec" id="h-medidas"><h4>MEDIDAS</h4>
         <dl class="hdl">
           <dt>VER EN</dt><dd>Cambia todas las medidas de la app a píxeles, milímetros, centímetros, metros o pulgadas.</dd>
-          <dt>ORIGINAL</dt><dd>Los píxeles de la imagen que cargaste.</dd>
+          <dt>IMAGEN</dt><dd>Los píxeles de la imagen que se está usando (la cargada, o la agrandada con IA).</dd>
+          <dt>DISEÑO</dt><dd>Aparece cuando el archivo mide distinto que el diseño (CENTRAR o LLENAR).</dd>
           <dt>SIN AGRANDAR</dt><dd>Hasta qué tamaño se imprime nítida (300 ppp) sin agrandarla.</dd>
           <dt>IMPRESIÓN</dt><dd>Ancho × alto que tendrá impresa.</dd>
           <dt>ARCHIVO FINAL</dt><dd>Los píxeles del PNG que vas a grabar.</dd>
@@ -417,28 +437,26 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         <dl class="hdl">
           <dt>ANIME</dt><dd>Para dibujos e ilustraciones con líneas limpias.</dd>
           <dt>GENERAL</dt><dd>Para fotos y texturas.</dd>
-          <dt>×2 A ×7</dt><dd>Cuántas veces más grande. De ×5 a ×7 la IA pasa dos veces por la imagen: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
-          <dt>SALDRÁ</dt><dd>El tamaño que tendrá la imagen después de agrandar, antes de darle al botón.</dd>
-          <dt>AGRANDAR</dt><dd>Empieza. La barra verde muestra el avance.</dd>
-          <dt>USAR AGRANDADA</dt><dd>Después de agrandar: <b>NO</b> vuelve a la imagen original y <b>SÍ</b> usa otra vez la agrandada, sin volver a calcular y sin perder tus ajustes.</dd>
+          <dt>×2 A ×7</dt><dd>Toca uno para agrandar la imagen esas veces; la barra verde muestra el avance. Tócalo otra vez (o mientras trabaja) para apagarlo y volver a la original, sin perder tus ajustes. De ×5 a ×7 la IA pasa dos veces: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
+          <dt>DISPLAY</dt><dd>Los píxeles de la imagen que se está usando. Pasa el mouse sobre cada escala para ver cuánto quedaría.</dd>
         </dl>
-        <p class="tip">Si no te gusta el resultado, dale DESHACER. Agranda antes de ajustar la trama. Corre en tu computador: la primera vez descarga el modelo y en equipos sin buena tarjeta de video es más lento.</p>
+        <p class="tip">Si en AVISOS dice que la imagen se revienta, agranda con el número que te sugiere. Agranda antes de ajustar la trama. Corre en tu computador: la primera vez descarga el modelo y en equipos sin buena tarjeta de video es más lento.</p>
       </section>
       <section class="hsec" id="h-modo"><h4>PROCESOS</h4>
         <dl class="hdl">
           <dt>LIMPIAR</dt><dd>Quita el fondo y lo que tenga menos opacidad que el CORTE ALFA, y deja sólido lo demás.</dd>
           <dt>SEMITONO</dt><dd>Convierte sombras y degradados en puntos sólidos. Así no queda velo blanco.</dd>
-          <dt>LOS DOS EN SÍ</dt><dd>Primero limpia y luego hace el semitono, en un solo paso y en un solo PNG. Todas las perillas de TONO funcionan y los colores se conservan.</dd>
+          <dt>LOS DOS PRENDIDOS</dt><dd>Primero limpia y luego hace el semitono, en un solo paso y en un solo PNG. Todas las perillas de TONO funcionan y los colores se conservan.</dd>
           <dt>SOLO LIMPIAR</dt><dd>Deja el diseño sin puntos. Los bordes suaves se mezclan con el color de la camiseta.</dd>
-          <dt>LOS DOS EN NO</dt><dd>Graba la imagen tal cual a 300 ppp (por ejemplo, solo agrandada). Ojo: conserva las semitransparencias del original.</dd>
-          <dt>CORTE ALFA</dt><dd>Solo con LIMPIAR en SÍ: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
+          <dt>LOS DOS APAGADOS</dt><dd>Graba la imagen tal cual a 300 ppp (por ejemplo, solo agrandada). Ojo: conserva las semitransparencias del original.</dd>
+          <dt>CORTE ALFA</dt><dd>Solo con LIMPIAR prendido: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
           <dt>CONTRAER</dt><dd>Recorta el contorno del diseño hacia adentro para quitar la película o halo blanco del borde. Sube de a poco: 0,05 a 0,15 mm suele bastar. Funciona con LIMPIAR y con SEMITONO.</dd>
           <dt>OSCUROS</dt><dd>Para camiseta oscura: lo negro desaparece y se ve la tela.</dd>
           <dt>CLAROS</dt><dd>Para camiseta clara: lo blanco desaparece.</dd>
         </dl>
         <p class="tip">OSCUROS o CLAROS se elige solo cuando tocas el color de la camiseta. Quita por tono: también borra los negros (o blancos) de adentro del diseño.</p>
       </section>
-      <section class="hsec" id="h-trama"><h4>TRAMA · SOLO CON SEMITONO EN SÍ</h4>
+      <section class="hsec" id="h-trama"><h4>TRAMA · SOLO CON SEMITONO PRENDIDO</h4>
         <dl class="hdl">
           <dt>LPI</dt><dd>Cantidad de puntos. Menos = puntos grandes y visibles. Más = puntos finos. Para DTF, entre 35 y 55.</dd>
           <dt>ÁNGULO</dt><dd>Inclinación de la trama. 22,5° o 45° se ven más naturales.</dd>
@@ -464,11 +482,32 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         </dl>
         <p class="tip">El color de la camiseta no se graba en el archivo: solo cambia la vista y el modo OSCUROS/CLAROS.</p>
       </section>
+      <section class="hsec" id="h-tamano"><h4>TAMAÑO</h4>
+        <dl class="hdl">
+          <dt>USO</dt><dd><b>FRENTE</b>, <b>ESPALDA</b> y <b>PECHO</b> (logo pequeño) de camiseta, o <b>TAZA</b> (11 oz, 21 × 9 cm). Ponen el área recomendada. Tócalo otra vez para apagarlo y quedar en <b>LIBRE</b>, donde tú pones las medidas.</dd>
+          <dt>TALLA</dt><dd>De XS a XXL: cada talla tiene su área máxima, porque un diseño de L se ve enorme en una XS.</dd>
+          <dt>ANCHO</dt><dd>Perilla o casilla para el ancho del área. El rollo de 58 cm imprime hasta unos 56 cm.</dd>
+          <dt>ALTO</dt><dd>Alto del área. Si lo dejas vacío (AUTO), el alto sale solo según la forma del diseño.</dd>
+          <dt>AJUSTAR</dt><dd>El diseño crece hasta tocar el ancho o el alto del área, sin deformarse. El PNG mide solo el diseño. Lo normal para camisetas.</dd>
+          <dt>CENTRAR</dt><dd>El PNG mide exactamente el área y el diseño va centrado adentro, sin deformarse; lo que sobra queda transparente. Para tazas y plantillas.</dd>
+          <dt>LLENAR</dt><dd>El diseño cubre toda el área sin deformarse, pero se recorta lo que sobra por los lados o por arriba y abajo.</dd>
+          <dt>ESTIRAR</dt><dd>El diseño se estira hasta el tamaño exacto. Ojo: si la forma no coincide, se deforma (los círculos salen ovalados).</dd>
+        </dl>
+        <table class="htable">
+          <tr><th>TALLA</th><th>FRENTE</th><th>ESPALDA</th><th>PECHO</th></tr>
+          <tr><td>XS</td><td>23 × 30</td><td>24 × 32</td><td>7 × 7</td></tr>
+          <tr><td>S</td><td>25 × 33</td><td>26 × 35</td><td>8 × 8</td></tr>
+          <tr><td>M</td><td>27 × 36</td><td>28 × 38</td><td>9 × 9</td></tr>
+          <tr><td>L</td><td>30 × 40</td><td>30 × 40</td><td>9 × 9</td></tr>
+          <tr><td>XL</td><td>30 × 40</td><td>32 × 42</td><td>10 × 10</td></tr>
+          <tr><td>XXL</td><td>32 × 42</td><td>34 × 44</td><td>10 × 10</td></tr>
+        </table>
+        <p class="tip">Medidas máximas en cm (ancho × alto) para camiseta de adulto, armadas con las guías de varios talleres de DTF. Son un punto de partida: mídelas sobre la prenda antes de imprimir. La taza usa 21 × 9 cm; revisa la plantilla de tu proveedor.</p>
+      </section>
       <section class="hsec" id="h-salida"><h4>SALIDA</h4>
         <dl class="hdl">
-          <dt>ANCHO</dt><dd>Perilla para el tamaño real de impresión. El alto se calcula solo. El rollo de 58 cm imprime hasta unos 56 cm.</dd>
-          <dt>EXACTO</dt><dd>Escribe el ancho o el alto en la unidad elegida y dale Enter: la otra medida se ajusta sola.</dd>
-          <dt>GRABAR PNG</dt><dd>Guarda el archivo final a 300 ppp, sin semitransparencias, listo para el RIP. Queda en tu carpeta de Descargas.</dd>
+          <dt>AVISOS</dt><dd>Te dice si la imagen se va a reventar (pixelar), si se estira, si se recorta o si queda mal dimensionada, y cómo arreglarlo. Luz roja = arréglalo antes de imprimir; ámbar = revisa; verde = todo bien.</dd>
+          <dt>GRABAR PNG</dt><dd>Guarda el archivo final a 300 ppp, sin semitransparencias, listo para el RIP. Queda en tu carpeta de Descargas. La luz del botón repite la de los avisos.</dd>
         </dl>
       </section>
     </div>
@@ -497,19 +536,23 @@ function track(name) { try { if (window.goatcounter && window.goatcounter.count)
 const P = {
   cleanOn: false,      // proceso LIMPIAR encendido
   semiOn: true,        // proceso SEMITONO encendido (los dos juntos: limpia y luego hace semitono)
-  useUp: false,        // usar la imagen agrandada con IA (no se guarda: depende de la imagen)
   knock: 'dark',       // dark: quita oscuros (camiseta oscura) | light: quita claros
   shape: 'round',      // round | square | line
   lpi: 45, angle: 22.5, minDot: 0.25,
   black: 8, solid: 92, curve: 1.0, intensity: 50, alphaCut: 55, choke: 0,
-  widthCm: 30,
+  widthCm: 30,         // ancho del área de impresión (cm)
+  heightCm: 0,         // alto del área (cm); 0 = AUTO, según la forma del diseño
+  fit: 'fit',          // cómo se acomoda en el área: fit (ajustar) | center | fill | stretch
+  use: '',             // uso: '' (libre) | front | back | chest | mug
+  talla: 'L',          // XS | S | M | L | XL | XXL
   shirt: '#111111',
   zoom: 'fit', compare: false,
-  model: 'anime', scale: 4, unit: 'cm',
+  model: 'anime', unit: 'cm',
+  scale: 0,            // agrandado con IA aplicado: 0 = ninguno, 2…7 (no se guarda: depende de la imagen)
 };
 try { const saved = JSON.parse(store.get('tramaluz.p') || 'null');
   if (saved && !('semiOn' in saved) && saved.mode) { P.cleanOn = saved.mode === 'clean'; P.semiOn = saved.mode !== 'clean'; } // ajustes de la versión con MODO
-  if (saved) for (const k of ['cleanOn','semiOn','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','choke','shirt','model','scale','unit']) if (k in saved) P[k] = saved[k]; } catch (e) {}
+  if (saved) for (const k of ['cleanOn','semiOn','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','choke','shirt','model','unit','widthCm','heightCm','fit','use','talla']) if (k in saved) P[k] = saved[k]; } catch (e) {}
 let saveT = null;
 function persist() { clearTimeout(saveT); saveT = setTimeout(() => store.set('tramaluz.p', JSON.stringify(P)), 400); scheduleCommit(); }
 
@@ -564,15 +607,24 @@ function makeKnob(parent, o) {
   knobs[o.key] = k;
   return k;
 }
-function makeSwitch(container, key, options, onChange) {
+// opts.off: valor que queda al tocar el botón que ya está hundido (se suelta, como un botón análogo).
+// Sin opts.off siempre queda uno hundido.
+function makeSwitch(container, key, options, onChange, opts = {}) {
   container.innerHTML = '';
   const btns = options.map(([v, label]) => {
     const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio');
     b.innerHTML = '<span class="led"></span><span></span>'; b.lastChild.textContent = label; b.dataset.v = v;
-    b.addEventListener('click', () => { if (P[key] === v) return; P[key] = v; sync(); persist(); onChange && onChange(v); });
+    b.addEventListener('click', () => {
+      if (P[key] === v) { if (!('off' in opts)) return; P[key] = opts.off; } else P[key] = v;
+      sync(); persist(); onChange && onChange(P[key]);
+    });
     container.appendChild(b); return b;
   });
-  function sync() { btns.forEach(b => { const on = String(P[key]) === String(b.dataset.v); b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; }); }
+  function sync() {
+    let any = false;
+    btns.forEach(b => { const on = String(P[key]) === String(b.dataset.v); any = any || on; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+    if (!any && btns[0]) btns[0].tabIndex = 0;
+  }
   container.addEventListener('keydown', e => {
     if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
     e.preventDefault(); const i = options.findIndex(([v]) => String(v) === String(P[key]));
@@ -643,9 +695,10 @@ function buildLut(shape){
 function lutFor(s){ return LUT[s]||(LUT[s]=buildLut(s)); }
 function render(m){
   const {outW,outH,rx,ry,rw,rh,step,kind,approx,p}=m;
+  const ix=m.ix||0, iy=m.iy||0, iw=m.iw||outW, ih=m.ih||outH; // dónde va la imagen dentro del archivo (CENTRAR, LLENAR)
   const out=new Uint8ClampedArray(rw*rh*4);
   if(!S) return out;
-  const kx=SW/outW, ky=SH/outH;
+  const kx=SW/iw, ky=SH/ih;
   const chk=kind!=='orig'&&p.mode!=='none'&&p.chokePx>0? p.chokePx*kx : 0; if(chk>0&&!D) D=distField();
   const cell=p.cell, ang=p.angle*Math.PI/180, cs=Math.cos(ang)/cell, sn=Math.sin(ang)/cell;
   const grain=p.shape==='grain'; const lut=grain?null:lutFor(p.shape); if(grain&&!BN) BN=blueNoise(64);
@@ -654,10 +707,10 @@ function render(m){
   const dark=p.knock==='dark'; const sr=p.shirt[0]/255, sg=p.shirt[1]/255, sb=p.shirt[2]/255;
   let o=0;
   for(let j=0;j<rh;j++){
-    const Y=ry+(j+0.5)*step; let syp=Y*ky-0.5; if(syp<0)syp=0; if(syp>SH-1)syp=SH-1;
+    const Y=ry+(j+0.5)*step; if(Y<iy||Y>=iy+ih){ o+=rw*4; continue; } let syp=(Y-iy)*ky-0.5; if(syp<0)syp=0; if(syp>SH-1)syp=SH-1;
     const y0=syp|0, y1=Math.min(y0+1,SH-1), fy=syp-y0;
     for(let i=0;i<rw;i++,o+=4){
-      const X=rx+(i+0.5)*step; let sxp=X*kx-0.5; if(sxp<0)sxp=0; if(sxp>SW-1)sxp=SW-1;
+      const X=rx+(i+0.5)*step; if(X<ix||X>=ix+iw) continue; let sxp=(X-ix)*kx-0.5; if(sxp<0)sxp=0; if(sxp>SW-1)sxp=SW-1;
       const x0=sxp|0, x1=Math.min(x0+1,SW-1), fx=sxp-x0;
       const a00=(y0*SW+x0)*4,a01=(y0*SW+x1)*4,a10=(y1*SW+x0)*4,a11=(y1*SW+x1)*4;
       const w00=(1-fx)*(1-fy),w01=fx*(1-fy),w10=(1-fx)*fy,w11=fx*fy;
@@ -728,7 +781,7 @@ async function setSource(img) {
   if (img.op === 'AGRANDADO IA') UP = img;
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
-  ['btnUp', 'btnExport'].forEach(id => $('#' + id).disabled = false);
+  $('#btnExport').disabled = false;
   syncModeUI(); syncUpUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
@@ -746,6 +799,7 @@ async function loadFile(file) {
     const img = { w, h, data: id.data, name: file.name.replace(/\.[^.]+$/, '') };
     img.semi = semiPct(img.data);
     lastDraw = null;
+    upJob++; // si estaba agrandando otra imagen, se cancela
     BASE = img; UP = null;
     await setSource(img);
     resetHistory();
@@ -763,11 +817,104 @@ scr.addEventListener('drop', e => { const f = e.dataTransfer.files && e.dataTran
 /* =========================================================
    Medidas de salida
    ========================================================= */
+// Tamaño del archivo y dónde va la imagen adentro. El área es ANCHO × ALTO (ALTO 0 = AUTO, según la forma del diseño).
+// fit: ajustar (cabe sin deformar; el PNG mide el diseño) · center (PNG del área, diseño centrado)
+//      fill (PNG del área, se recorta lo que sobra) · stretch (PNG del área, se deforma)
 function outSize() {
-  if (!SRC) return { w: 0, h: 0, hcm: 0 };
-  const w = Math.round(P.widthCm / 2.54 * DPI);
-  const h = Math.max(1, Math.round(w * SRC.h / SRC.w));
-  return { w, h, hcm: h / DPI * 2.54 };
+  if (!SRC) return { w: 0, h: 0, wcm: 0, hcm: 0, ix: 0, iy: 0, iw: 0, ih: 0, iwcm: 0, ihcm: 0, fit: 'auto' };
+  const asp = SRC.h / SRC.w, W = P.widthCm, H = P.heightCm, fit = H ? P.fit : 'auto';
+  let iwcm, ihcm;
+  if (fit === 'auto') { iwcm = W; ihcm = W * asp; }
+  else if (fit === 'fit' || fit === 'center') { iwcm = Math.min(W, H / asp); ihcm = iwcm * asp; }
+  else if (fit === 'fill') { iwcm = Math.max(W, H / asp); ihcm = iwcm * asp; }
+  else { iwcm = W; ihcm = H; }
+  const exact = fit === 'center' || fit === 'fill' || fit === 'stretch';
+  const wcm = exact ? W : iwcm, hcm = exact ? H : ihcm;
+  const px = cm => Math.max(1, Math.round(cm / 2.54 * DPI));
+  const w = px(wcm), h = px(hcm), iw = px(iwcm), ih = px(ihcm);
+  return { w, h, wcm, hcm, iw, ih, ix: Math.round((w - iw) / 2), iy: Math.round((h - ih) / 2), iwcm, ihcm, fit };
+}
+// Resolución real (ppp) a la que se imprime la imagen; si se estira, cuenta el lado más exigido
+function effPpi(img = SRC) { const o = outSize(); return Math.min(img.w / (o.iwcm / 2.54), img.h / (o.ihcm / 2.54)); }
+
+/* ---- Tamaños por uso y talla (cm, ancho × alto máximos). Armados con guías de talleres de DTF;
+        30 × 40 en L y XL es la medida con la que trabaja el taller. ---- */
+const USES = { front: 'FRENTE', back: 'ESPALDA', chest: 'PECHO', mug: 'TAZA' };
+const SIZES = {
+  front: { XS: [23, 30], S: [25, 33], M: [27, 36], L: [30, 40], XL: [30, 40], XXL: [32, 42] },
+  back:  { XS: [24, 32], S: [26, 35], M: [28, 38], L: [30, 40], XL: [32, 42], XXL: [34, 44] },
+  chest: { XS: [7, 7],   S: [8, 8],   M: [9, 9],   L: [9, 9],   XL: [10, 10], XXL: [10, 10] },
+};
+const MUG = [21, 9]; // taza 11 oz
+function applyPreset() {
+  if (P.use) {
+    const s = P.use === 'mug' ? MUG : SIZES[P.use][P.talla];
+    P.widthCm = s[0]; P.heightCm = s[1]; P.fit = P.use === 'mug' ? 'center' : 'fit';
+    swFit.sync(); persist();
+  }
+  syncSizeUI(); updateInfo(); syncSizeInputs(true); view.cx = null; scheduleRender();
+}
+// Cambio manual de medidas: deja de ser una talla estándar y queda LIBRE
+function sizeChanged() {
+  if (P.use) { P.use = ''; swUse.sync(); }
+  persist(); syncSizeUI(); updateInfo(); view.cx = null; scheduleRender();
+}
+function syncSizeUI() {
+  const garment = !!P.use && P.use !== 'mug';
+  $('#rowTalla').style.display = garment ? '' : 'none';
+  $('#swFit').querySelectorAll('button').forEach(b => b.disabled = !P.heightCm);
+  $('#sizeNote').textContent = !P.use
+    ? (P.heightCm ? `LIBRE: área de ${fmtPair(P.widthCm, P.heightCm)}.` : `LIBRE: ${fmtLen(P.widthCm)} de ancho; el alto sale solo. Pon un ALTO para elegir cómo se acomoda.`)
+    : P.use === 'mug' ? `TAZA 11 oz: área de ${fmtPair(P.widthCm, P.heightCm)}. Revisa la plantilla de tu proveedor.`
+    : `${USES[P.use]} talla ${P.talla}: área máxima de ${fmtPair(P.widthCm, P.heightCm)}.`;
+}
+
+/* ---- Avisos para quien no sabe del tema: qué va a salir mal y cómo arreglarlo ---- */
+function computeAlerts() {
+  const A = [], add = (lvl, title, text) => A.push({ lvl, title, text });
+  const o = outSize(), ppi = effPpi(), base = BASE || SRC;
+  if (ppi < 200) {
+    const need = Math.ceil(DPI / effPpi(base) - 1e-6);
+    const fix = need <= 7 ? `Agrándala ×${Math.max(2, need)} en AGRANDAR CON IA, o elige un tamaño menor.` : 'Ni agrandando ×7 alcanza: elige un tamaño menor o consigue la imagen con más resolución.';
+    if (ppi < 150) add('r', 'SE VA A REVENTAR (PIXELADA)', `A este tamaño la imagen queda a ${nf0.format(ppi)} ppp; para DTF se necesitan 300 (mínimo 200). Se verán cuadritos y bordes borrosos. ${fix}`);
+    else add('a', 'CALIDAD JUSTA', `${nf0.format(ppi)} ppp: se imprime, pero los bordes pueden salir algo borrosos. ${fix}`);
+  }
+  if (o.fit === 'stretch') {
+    const d = (P.widthCm / P.heightCm) / (SRC.w / SRC.h), pct = Math.abs(d - 1) * 100, dir = d > 1 ? 'a lo ancho' : 'a lo alto';
+    if (pct >= 10) add('r', 'SE DEFORMA MUCHO', `Se estira ${nf0.format(pct)}% ${dir}: los círculos salen ovalados y las letras aplastadas. Usa AJUSTAR o CENTRAR (sin deformar), o LLENAR (recorta).`);
+    else if (pct >= 2) add('a', 'SE ESTIRA UN POCO', `Se estira ${nf1.format(pct)}% ${dir}. Casi no se nota, pero revisa letras y logos redondos.`);
+  }
+  if (o.fit === 'fill') {
+    const cutW = o.iwcm - o.wcm, cutH = o.ihcm - o.hcm, lost = (1 - (o.wcm * o.hcm) / (o.iwcm * o.ihcm)) * 100;
+    if (lost >= 1) add(lost >= 20 ? 'r' : 'a', 'SE RECORTA EL DISEÑO', `Para llenar el área se cortan ${cutW > cutH ? fmtLen(cutW / 2) + ' a cada lado' : fmtLen(cutH / 2) + ' arriba y abajo'} (el ${nf0.format(lost)}% del diseño). Revisa que no se corte nada importante, o usa CENTRAR.`);
+  }
+  if (o.fit === 'center') {
+    const padW = o.wcm - o.iwcm, padH = o.hcm - o.ihcm, empty = (1 - (o.iwcm * o.ihcm) / (o.wcm * o.hcm)) * 100;
+    if (empty >= 5) add('a', 'QUEDA ESPACIO VACÍO', `El diseño mide ${fmtPair(o.iwcm, o.ihcm)} y quedan ${padW > padH ? fmtLen(padW / 2) + ' a cada lado' : fmtLen(padH / 2) + ' arriba y abajo'} sin imprimir. Para cubrir toda el área usa LLENAR (recorta) o ESTIRAR (deforma).`);
+  }
+  if (o.fit === 'fit' && Math.min(o.wcm / P.widthCm, o.hcm / P.heightCm) < 0.8)
+    add('i', 'NO LLENA EL ÁREA (ES NORMAL)', `Por su forma, el diseño sale de ${fmtPair(o.wcm, o.hcm)} en un área de ${fmtPair(P.widthCm, P.heightCm)}; así no se deforma. Si necesitas el tamaño exacto, usa CENTRAR.`);
+  if (P.semiOn && P.shape !== 'grain') {
+    const cells = Math.min(o.iwcm, o.ihcm) / 2.54 * P.lpi;
+    if (cells < 40) add('a', 'MUY PEQUEÑO PARA LA TRAMA', `Con ${P.lpi} LPI caben solo unos ${nf0.format(cells)} puntos de lado a lado y los degradados se verán toscos. Sube el LPI o apaga SEMITONO.`);
+  }
+  if (P.semiOn && P.minDot < 0.2) add('a', 'PUNTOS MUY FINOS', `PUNTO MÍN en ${P.minDot.toFixed(2).replace('.', ',')} mm: los puntos menores a 0,20 mm se suelen despegar al lavar.`);
+  if (procMode() === 'none' && SRC.semi >= 0.5) add('a', 'CONSERVA SEMITRANSPARENCIAS', `Con LIMPIAR y SEMITONO apagados, el ${nf0.format(SRC.semi)}% de la imagen queda semitransparente: en DTF puede salir con velo blanco o despegarse.`);
+  if (o.w * o.h > 80e6) add('a', 'ARCHIVO MUY GRANDE', `${o.w} × ${o.h} px: puede tardar mucho o fallar al grabar.`);
+  if (!A.some(a => a.lvl === 'r' || a.lvl === 'a')) A.unshift({ lvl: 'g', title: 'LISTO PARA IMPRIMIR', text: `${fmtPair(o.wcm, o.hcm)} a ${nf0.format(ppi)} ppp reales.` });
+  return A;
+}
+function renderAlerts() {
+  const ul = $('#alerts'); if (!ul) return; ul.innerHTML = '';
+  const list = SRC ? computeAlerts() : [{ lvl: 'i', title: 'SIN IMAGEN', text: 'Carga un diseño y aquí te aviso si algo va a salir mal.' }];
+  for (const a of list) {
+    const li = document.createElement('li'); li.className = a.lvl;
+    const led = document.createElement('span'); led.className = 'led' + (a.lvl === 'i' ? '' : ' ' + a.lvl);
+    const div = document.createElement('div'), b = document.createElement('b'); b.textContent = a.title;
+    div.append(b, document.createTextNode(a.text)); li.append(led, div); ul.appendChild(li);
+  }
+  const worst = list.some(a => a.lvl === 'r') ? 'r' : list.some(a => a.lvl === 'a') ? 'a' : SRC ? 'g' : '';
+  $('#expLed').className = 'led' + (worst ? ' ' + worst : '');
 }
 function cellPx() { return DPI / P.lpi; }
 function params() {
@@ -806,56 +953,57 @@ function renderMeasures() {
     dl.append(dt, dd);
   };
   if (!SRC) { add('IMAGEN', 'Carga un diseño para ver sus medidas'); return; }
-  const o = outSize(), ppi = SRC.w / (P.widthCm / 2.54);
-  add('ORIGINAL', `${SRC.w} × ${SRC.h} px`);
-  add('SIN AGRANDAR', 'hasta ' + fmtPair(SRC.w / DPI * 2.54, SRC.h / DPI * 2.54) + ' nítido');
-  add('IMPRESIÓN', fmtPair(P.widthCm, o.hcm));
+  const o = outSize(), ppi = effPpi(), base = BASE || SRC;
+  add('IMAGEN', `${SRC.w} × ${SRC.h} px` + (SRC !== base && SRC.upScale ? ` (agrandada ×${SRC.upScale})` : ''));
+  add('SIN AGRANDAR', 'nítida hasta ' + fmtPair(base.w / DPI * 2.54, base.h / DPI * 2.54));
+  add('IMPRESIÓN', fmtPair(o.wcm, o.hcm));
+  if (o.w !== o.iw || o.h !== o.ih) add('DISEÑO', fmtPair(o.iwcm, o.ihcm) + (o.fit === 'fill' ? ' · se recorta' : o.fit === 'center' ? ' · centrado' : ''));
   add('ARCHIVO FINAL', `${o.w} × ${o.h} px · 300 ppp`);
-  const need = Math.ceil(DPI / ppi - 1e-6);
   if (ppi >= 250) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'BUENA', 'ok');
   else if (ppi >= 200) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'ACEPTABLE', 'ok');
-  else add('CALIDAD', `${nf0.format(ppi)} ppp`, need <= 7 ? `BAJA: AGRANDA ×${Math.max(2, need)}` : 'MUY BAJA: REDUCE EL ANCHO');
+  else add('CALIDAD', `${nf0.format(ppi)} ppp`, ppi < 150 ? 'SE REVIENTA: MIRA LOS AVISOS' : 'BAJA: MIRA LOS AVISOS');
   const keepSemi = procMode() === 'none';
   add('SEMITRANSP.', `${nf0.format(SRC.semi)}% en el original → ` + (keepSemi ? 'se conservan al grabar' : '0% al grabar'), keepSemi && SRC.semi >= 0.5 ? 'OJO EN DTF' : null);
   add('LARGO EN ROLLO', fmtLen(o.hcm));
 }
 function updateUpSize() {
-  const el = $('#upSize'); if (!el) return; el.innerHTML = '';
-  if (!SRC) { el.textContent = 'SALDRÁ: —'; return; }
-  const N = P.scale, ow = SRC.w * N, oh = SRC.h * N, big = ow * oh > 50e6 || Math.max(ow, oh) > 12000;
-  el.textContent = `SALDRÁ: ${ow} × ${oh} px` + (P.unit === 'px' ? '' : ` · ${fmtPair(ow / DPI * 2.54, oh / DPI * 2.54)} a 300 ppp`);
-  if (big || N >= 5) { const w = document.createElement('span'); w.className = big ? 'warn' : ''; w.textContent = big ? ' · MUY GRANDE: BAJA LA ESCALA' : ' · DOS PASADAS'; el.appendChild(w); }
+  const el = $('#upSize'); if (!el) return;
+  $('#swScale').querySelectorAll('button').forEach(b => { const n = +b.dataset.v; b.title = BASE ? `×${n}: quedaría de ${BASE.w * n} × ${BASE.h * n} px` : ''; });
+  if (!SRC) { el.textContent = '—'; return; }
+  el.textContent = upRunning ? `AGRANDANDO ×${P.scale}…`
+    : SRC !== BASE && SRC.upScale ? `AGRANDADA ×${SRC.upScale} (${SRC.upModel === 'general' ? 'GENERAL' : 'ANIME'}) · ${SRC.w} × ${SRC.h} px`
+    : `SIN AGRANDAR · ${SRC.w} × ${SRC.h} px`;
 }
 function syncSizeInputs(force) {
   const iw = $('#inW'), ih = $('#inH'); if (!iw) return;
   document.querySelectorAll('.unitTxt').forEach(e => e.textContent = UNITS[P.unit]);
-  iw.disabled = ih.disabled = !SRC;
-  if (!SRC) { iw.value = ih.value = ''; return; }
-  const o = outSize();
-  if (force || document.activeElement !== iw) iw.value = P.unit === 'px' ? String(o.w) : fmtNum(P.unit, cmTo(P.unit, P.widthCm), false);
-  if (force || document.activeElement !== ih) ih.value = P.unit === 'px' ? String(o.h) : fmtNum(P.unit, cmTo(P.unit, o.hcm), false);
+  iw.disabled = ih.disabled = false;
+  const val = cm => P.unit === 'px' ? String(Math.round(cm / 2.54 * DPI)) : fmtNum(P.unit, cmTo(P.unit, cm), false);
+  if (force || document.activeElement !== iw) iw.value = val(P.widthCm);
+  if (force || document.activeElement !== ih) ih.value = P.heightCm ? val(P.heightCm) : '';
 }
 function applySizeInput(which) {
-  if (!SRC) return;
-  const el = which === 'w' ? $('#inW') : $('#inH'); const v = parseLen(el.value, P.unit);
+  const el = which === 'w' ? $('#inW') : $('#inH'), raw = el.value.trim();
+  if (which === 'h' && raw === '') { if (P.heightCm) { P.heightCm = 0; sizeChanged(); } syncSizeInputs(true); return; } // vacío = AUTO
+  const v = parseLen(raw, P.unit);
   if (!(v > 0)) { syncSizeInputs(true); return; }
-  const wcm = which === 'w' ? toCm(P.unit, v) : toCm(P.unit, v) * SRC.w / SRC.h;
-  const lim = clamp(wcm, 3, 56);
-  if (lim !== wcm) toast(wcm > 56 ? 'El rollo de 58 cm imprime hasta 56 cm de ancho.' : 'El mínimo es 3 cm de ancho.');
-  if (Math.abs(lim - P.widthCm) > 1e-6) { P.widthCm = +lim.toFixed(5); persist(); view.cx = null; scheduleRender(); }
-  updateInfo(); syncSizeInputs(true);
+  const cm = toCm(P.unit, v), max = which === 'w' ? 56 : 100, lim = clamp(cm, 3, max);
+  if (lim !== cm) toast(cm < 3 ? 'El mínimo es 3 cm.' : which === 'w' ? 'El rollo de 58 cm imprime hasta 56 cm de ancho.' : 'El alto máximo es 100 cm.');
+  const key = which === 'w' ? 'widthCm' : 'heightCm';
+  if (Math.abs(lim - P[key]) > 1e-6) { P[key] = +lim.toFixed(5); sizeChanged(); }
+  syncSizeInputs(true);
 }
 function updateInfo() {
   knobs.widthCm && knobs.widthCm.show();
-  renderMeasures(); updateUpSize(); syncSizeInputs();
+  renderMeasures(); updateUpSize(); syncSizeInputs(); renderAlerts();
   if (!SRC) return;
-  const o = outSize(), ppi = SRC.w / (P.widthCm / 2.54);
+  const o = outSize(), ppi = effPpi();
   const si = $('#srcInfo'); si.textContent = `${SRC.name} · ${SRC.w} × ${SRC.h} px`;
   if (ppi < 200) { const w = document.createElement('span'); w.className = 'warn'; w.textContent = ' · BAJA RESOLUCIÓN'; si.appendChild(w); }
   const st = procMode() === 'none' ? 'SIN PROCESAR' : '0% SEMITRANSPARENTE';
   $('#status').textContent = P.unit === 'px'
     ? `SALIDA ${o.w} × ${o.h} px · 300 ppp · ${st}`
-    : `SALIDA ${fmtPair(P.widthCm, o.hcm)} · ${o.w} × ${o.h} px · ${st}`;
+    : `SALIDA ${fmtPair(o.wcm, o.hcm)} · ${o.w} × ${o.h} px · ${st}`;
 }
 
 /* =========================================================
@@ -915,7 +1063,7 @@ async function doRender() {
   const rw = Math.max(1, Math.ceil((x1 - x0) / step)), rh = Math.max(1, Math.ceil((y1 - y0) / step));
   const job = { x0, y0, rw, rh, ow: rw * step, oh: rh * step, approx: step > 1.5 };
   showBusy('PROCESANDO…');
-  const base = { type: 'render', outW: o.w, outH: o.h, rx: x0, ry: y0, rw, rh, step, approx: job.approx, p };
+  const base = { type: 'render', outW: o.w, outH: o.h, ix: o.ix, iy: o.iy, iw: o.iw, ih: o.ih, rx: x0, ry: y0, rw, rh, step, approx: job.approx, p };
   const tasks = [wcall({ ...base, kind: 'proc' })];
   if (P.compare) tasks.push(wcall({ ...base, kind: 'orig' }));
   let res;
@@ -939,6 +1087,11 @@ function draw() {
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, sx, cv.height); ctx.clip(); ctx.drawImage(imgOrig, dx, dy, dw, dh); ctx.restore();
     ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, cv.width - sx, cv.height); ctx.clip(); ctx.drawImage(imgProc, dx, dy, dw, dh); ctx.restore();
   } else ctx.drawImage(imgProc, dx, dy, dw, dh);
+  if (P.heightCm && P.fit !== 'fit') { // borde del archivo cuando el tamaño es exacto (CENTRAR, LLENAR, ESTIRAR)
+    const [r, g, b] = hexToRgb(P.shirt), light = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.5;
+    ctx.save(); ctx.setLineDash([8, 6]); ctx.lineWidth = 1.5; ctx.strokeStyle = light ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.6)';
+    ctx.strokeRect(-L.left * L.z + 0.75, -L.top * L.z + 0.75, L.o.w * L.z - 1.5, L.o.h * L.z - 1.5); ctx.restore();
+  }
   const showSplit = P.compare;
   $('#divider').hidden = !showSplit; $('#tagL').hidden = !showSplit; $('#tagR').hidden = !showSplit;
   if (showSplit) $('#divider').style.left = (view.split * 100) + '%';
@@ -1076,19 +1229,24 @@ function bleedEdges(data, w, h, passes = 8) {
   }
   return out;
 }
-async function upscale() {
-  if (!SRC || upRunning) return;
-  const target = P.scale, sw = SRC.w, sh = SRC.h, ow = sw * target, oh = sh * target;
-  if (ow * oh > 50e6 || Math.max(ow, oh) > 12000) { toast(`Quedaría de ${ow} × ${oh} px, demasiado grande. Baja la escala o usa una imagen más pequeña.`); return; }
-  upRunning = true; $('#btnUp').disabled = true; syncUpUI(); const meter = $('#upMeter i'); meter.style.width = '0%';
+// Agranda siempre desde la imagen cargada (BASE). Si se cancela (tocando otra vez la escala o cargando otra imagen), se detiene.
+const CANCEL = new Error('cancelado');
+let upJob = 0;
+async function upscale(target) {
+  if (!BASE || upRunning) return;
+  const base = BASE, sw = base.w, sh = base.h, ow = sw * target, oh = sh * target;
+  if (ow * oh > 50e6 || Math.max(ow, oh) > 12000) { toast(`Con ×${target} quedaría de ${ow} × ${oh} px, demasiado grande. Usa una escala menor.`); syncUpUI(); return; }
+  const job = ++upJob, modelName = P.model;
+  upRunning = true; syncUpUI(); const meter = $('#upMeter i'); meter.style.width = '0%';
   $('#upNote').textContent = 'Cargando el motor de IA…';
   try {
     const backend = await ensureTf();
     if (backend !== 'webgl') $('#upNote').textContent = 'Tu navegador no deja usar la tarjeta de video; esto va a ser lento.';
-    const model = await getModel(P.model);
+    const model = await getModel(modelName);
+    if (job !== upJob) throw CANCEL;
     const TILE = 128, PAD = 24;
     const out = new Uint8ClampedArray(ow * oh * 4);
-    const src = bleedEdges(SRC.data, sw, sh);
+    const src = bleedEdges(base.data, sw, sh);
     const tiles = []; for (let y = 0; y < sh; y += TILE) for (let x = 0; x < sw; x += TILE) tiles.push([x, y]);
     let done = 0; const t0 = performance.now();
     for (const [tx, ty] of tiles) {
@@ -1113,8 +1271,9 @@ async function upscale() {
       }
       done++; meter.style.width = (done / tiles.length * 100) + '%';
       const el = (performance.now() - t0) / 1000, eta = el / done * (tiles.length - done);
-      $('#upNote').textContent = `Agrandando… ${done}/${tiles.length} partes · faltan ~${nf0.format(eta)} s`;
+      $('#upNote').textContent = `Agrandando ×${target}… ${done}/${tiles.length} partes · faltan ~${nf0.format(eta)} s. Toca ×${target} otra vez para cancelar.`;
       await tf.nextFrame();
+      if (job !== upJob) throw CANCEL;
     }
     // transparencia: se agranda aparte con suavizado
     let hasAlpha = false; for (let i = 3; i < src.length; i += 4) if (src[i] < 255) { hasAlpha = true; break; }
@@ -1126,31 +1285,42 @@ async function upscale() {
       bc.imageSmoothingQuality = 'high'; bc.drawImage(a, 0, 0, ow, oh);
       const bd = bc.getImageData(0, 0, ow, oh).data; for (let i = 0; i < out.length; i += 4) out[i + 3] = bd[i];
     }
-    const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen };
+    if (job !== upJob || BASE !== base) throw CANCEL;
+    const img = { w: ow, h: oh, data: out, name: base.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen, upScale: target, upModel: modelName };
     await setSource(img);
     commitNow();
     track('agrandar-ia-x' + target);
-    $('#upNote').textContent = `Listo: ${sw} × ${sh} → ${ow} × ${oh} px. Si no te gusta, dale DESHACER.`;
+    $('#upNote').textContent = `Listo: ${sw} × ${sh} → ${ow} × ${oh} px. Toca ×${target} otra vez para volver a la original.`;
     meter.style.width = '100%';
   } catch (e) {
-    console.error(e); $('#upNote').textContent = 'No se pudo agrandar: ' + (e.message || 'error') + '. Prueba con una imagen más pequeña.';
+    meter.style.width = '0%';
+    if (e === CANCEL) {
+      $('#upNote').textContent = 'Agrandado apagado: imagen original.';
+      if (BASE === base && SRC !== BASE) { upRunning = false; await setSource(BASE); commitNow(); }
+    } else { console.error(e); $('#upNote').textContent = 'No se pudo agrandar: ' + (e.message || 'error') + '. Prueba con una escala menor.'; }
   }
-  upRunning = false; $('#btnUp').disabled = !SRC; syncUpUI();
+  upRunning = false; syncUpUI();
 }
-$('#btnUp').onclick = upscale;
-
-// Prender/apagar el agrandado: cambia entre la imagen cargada y la agrandada sin volver a calcular ni tocar los ajustes
+// La escala hundida es la que está aplicada; ninguna hundida = imagen original
 function syncUpUI() {
-  P.useUp = !!SRC && SRC !== BASE;
-  swUseUp.sync();
-  $('#swUseUp').querySelectorAll('button').forEach(b => b.disabled = !UP || upRunning);
+  if (!upRunning) P.scale = (SRC && SRC !== BASE && SRC.upScale) || 0;
+  swScale.sync();
+  $('#swScale').querySelectorAll('button').forEach(b => b.disabled = !BASE || (upRunning && +b.dataset.v !== P.scale));
+  $('#swModel').querySelectorAll('button').forEach(b => b.disabled = upRunning);
+  updateUpSize();
 }
-async function toggleUp(on) {
-  const target = on ? UP : BASE;
-  if (!target || target === SRC || upRunning) { syncUpUI(); return; }
-  await setSource(target); commitNow();
-  $('#upNote').textContent = on ? `Usando la imagen agrandada: ${SRC.w} × ${SRC.h} px.` : `Usando la imagen original: ${SRC.w} × ${SRC.h} px. Tus ajustes no cambian.`;
+async function onScale(v) {
+  if (upRunning) { upJob++; return; } // tocar la escala que está trabajando la apaga
+  if (!BASE) { syncUpUI(); return; }
+  if (!v) {
+    if (SRC !== BASE) { await setSource(BASE); commitNow(); }
+    $('#upNote').textContent = `Sin agrandar: ${BASE.w} × ${BASE.h} px.`; $('#upMeter i').style.width = '0%'; return;
+  }
+  if (UP && UP.upScale === v && UP.upModel === P.model) { await setSource(UP); commitNow(); $('#upNote').textContent = `Agrandada ×${v}: ${UP.w} × ${UP.h} px (ya estaba calculada).`; return; }
+  await upscale(v);
 }
+// Cambiar de modelo con la imagen agrandada la vuelve a agrandar con el modelo nuevo
+function onModel() { if (!upRunning && SRC && SRC !== BASE && SRC.upScale) onScale(SRC.upScale); }
 
 /* =========================================================
    Exportar PNG con 300 ppp
@@ -1173,11 +1343,12 @@ async function doExport() {
   exporting = true; $('#btnExport').disabled = true; showBusy('GRABANDO…');
   try {
     const o = outSize(); const p = params();
-    const res = await wcall({ type: 'export', outW: o.w, outH: o.h, rx: 0, ry: 0, rw: o.w, rh: o.h, step: 1, approx: false, kind: 'proc', p });
+    const res = await wcall({ type: 'export', outW: o.w, outH: o.h, ix: o.ix, iy: o.iy, iw: o.iw, ih: o.ih, rx: 0, ry: 0, rw: o.w, rh: o.h, step: 1, approx: false, kind: 'proc', p });
     let blob = res.blob;
     if (!blob) { const c = document.createElement('canvas'); c.width = res.w; c.height = res.h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(res.buf), res.w, res.h), 0, 0); blob = await new Promise(r => c.toBlob(r, 'image/png')); }
     blob = await withDpi(blob, DPI);
-    const name = `${SRC.name}_DTF_${nf0.format(P.widthCm)}cm.png`.replace(/\s+/g, '_');
+    const cmTxt = v => String(Math.round(v * 10) / 10).replace('.', ',');
+    const name = `${SRC.name}_DTF_${cmTxt(o.wcm)}x${cmTxt(o.hcm)}cm.png`.replace(/\s+/g, '_');
     const url = URL.createObjectURL(blob); const a = document.createElement('a');
     a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
@@ -1205,14 +1376,13 @@ $('#helpModal').addEventListener('click', e => { if (e.target.id === 'helpModal'
    Armado de la interfaz
    ========================================================= */
 syncZoomUI();
-makeSwitch($('#swCmp'), 'compare', [[false, 'DESPUÉS'], [true, 'COMPARAR']].map(([v, l]) => [v, l]), () => scheduleRender(0));
-makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']]);
-makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), () => updateUpSize());
+makeSwitch($('#swCmp'), 'compare', [[true, 'COMPARAR']], () => scheduleRender(0), { off: false });
+makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']], onModel);
+const swScale = makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), v => onScale(v), { off: 0 });
 makeSwitch($('#swUnit'), 'unit', [['px', 'PX'], ['mm', 'MM'], ['cm', 'CM'], ['m', 'M'], ['in', 'PULG']], () => { updateInfo(); syncSizeInputs(true); });
 const onProc = () => { syncModeUI(); updateInfo(); scheduleRender(0); };
-const swClean = makeSwitch($('#swClean'), 'cleanOn', [[true, 'SÍ'], [false, 'NO']], onProc);
-const swSemi = makeSwitch($('#swSemi'), 'semiOn', [[true, 'SÍ'], [false, 'NO']], onProc);
-const swUseUp = makeSwitch($('#swUseUp'), 'useUp', [[true, 'SÍ'], [false, 'NO']], v => toggleUp(v));
+const swClean = makeSwitch($('#swClean'), 'cleanOn', [[true, 'LIMPIAR']], onProc, { off: false });
+const swSemi = makeSwitch($('#swSemi'), 'semiOn', [[true, 'SEMITONO']], onProc, { off: false });
 const swKnock = makeSwitch($('#swKnock'), 'knock', [['dark', 'OSCUROS'], ['light', 'CLAROS']], () => { syncKnockLabel(); scheduleRender(0); });
 const SHAPES = [['round', 'REDONDO'], ['ellipse', 'ELIPSE'], ['square', 'CUADRADO'], ['diamond', 'ROMBO'], ['cross', 'CRUZ'], ['line', 'LÍNEA'], ['wave', 'ONDAS'], ['grain', 'GRANULADO']];
 if (!SHAPES.some(([v]) => v === P.shape)) P.shape = 'round';
@@ -1264,12 +1434,12 @@ makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 
 makeKnob($('#kTono'), { key: 'intensity', label: 'INTENSIDAD', min: 0, max: 100, step: 1, def: 50, fmt: v => v + '%', onChange: rr, help: 'Aviva el color de los puntos para compensar la trama' });
 makeKnob($('#kLimpia'), { key: 'alphaCut', label: 'CORTE ALFA', min: 1, max: 99, step: 1, def: 55, fmt: v => v + '%', onChange: rr, help: 'LIMPIAR: por debajo de esta opacidad se vuelve transparente' });
 makeKnob($('#kLimpia'), { key: 'choke', label: 'CONTRAER', min: 0, max: 1, step: 0.05, def: 0, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Recorta el borde hacia adentro: quita la película o halo blanco del contorno' });
-makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: () => { updateInfo(); view.cx = null; scheduleRender(); } });
+makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: sizeChanged });
 const kOutInfo = document.createElement('div'); kOutInfo.style.gridColumn = '2 / -1'; kOutInfo.style.alignSelf = 'center';
 kOutInfo.innerHTML = `<div class="sizes">
-  <label class="fld"><span class="swlabel">ANCHO EXACTO</span><span class="inp"><input id="inW" type="text" inputmode="decimal" autocomplete="off" disabled><em class="unitTxt">cm</em></span></label>
-  <label class="fld"><span class="swlabel">ALTO EXACTO</span><span class="inp"><input id="inH" type="text" inputmode="decimal" autocomplete="off" disabled><em class="unitTxt">cm</em></span></label>
-  <p class="note" style="margin:0;flex-basis:100%">Escribe una medida y dale Enter; la otra se ajusta sola. El rollo de 58 cm imprime hasta 56 cm de ancho.</p>
+  <label class="fld"><span class="swlabel">ANCHO</span><span class="inp"><input id="inW" type="text" inputmode="decimal" autocomplete="off"><em class="unitTxt">cm</em></span></label>
+  <label class="fld"><span class="swlabel">ALTO</span><span class="inp"><input id="inH" type="text" inputmode="decimal" autocomplete="off" placeholder="AUTO"><em class="unitTxt">cm</em></span></label>
+  <p class="note" style="margin:0;flex-basis:100%">Escribe y dale Enter. ALTO vacío = AUTO (sale según la forma del diseño). El rollo de 58 cm imprime hasta 56 cm de ancho.</p>
 </div>`;
 $('#kOut').appendChild(kOutInfo);
 [['#inW', 'w'], ['#inH', 'h']].forEach(([id, which]) => {
@@ -1278,6 +1448,11 @@ $('#kOut').appendChild(kOutInfo);
   el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applySizeInput(which); el.select(); } else if (e.key === 'Escape') { syncSizeInputs(true); el.blur(); } });
   el.addEventListener('focus', () => el.select());
 });
+if (!(P.use in USES)) P.use = '';
+if (!SIZES.front[P.talla]) P.talla = 'L';
+const swUse = makeSwitch($('#swUse'), 'use', Object.entries(USES), applyPreset, { off: '' });
+const swTalla = makeSwitch($('#swTalla'), 'talla', ['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(t => [t, t]), applyPreset);
+const swFit = makeSwitch($('#swFit'), 'fit', [['fit', 'AJUSTAR'], ['center', 'CENTRAR'], ['fill', 'LLENAR'], ['stretch', 'ESTIRAR']], () => { updateInfo(); view.cx = null; scheduleRender(); });
 const MODE_NOTES = {
   both: 'LIMPIAR + SEMITONO: quita el fondo y lo tenue, y convierte el resto en puntos. Un solo PNG.',
   semi: 'SEMITONO: convierte sombras y degradados en puntos sólidos.',
@@ -1302,7 +1477,7 @@ function syncKnockLabel() {
   k.wrap.querySelector('.klabel').textContent = lbl; k.el.setAttribute('aria-label', lbl);
   k.el.title = dark ? 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' : 'Todo lo más claro que esto desaparece (se ve la camiseta)';
 }
-syncModeUI(); syncKnockLabel(); syncUpUI(); updateInfo();
+syncModeUI(); syncKnockLabel(); syncUpUI(); syncSizeUI(); updateInfo();
 
 const SHIRTS = [['#111111', 'Negro'], ['#f4f2ee', 'Blanco'], ['#b3202a', 'Rojo'], ['#1d2a4d', 'Azul marino'], ['#4b5320', 'Verde militar'], ['#c3b091', 'Caqui'], ['#f2c230', 'Amarillo'], ['#7d7d7d', 'Gris']];
 function buildShirts() {
@@ -1329,8 +1504,8 @@ buildShirts();
 /* =========================================================
    Deshacer / Rehacer
    ========================================================= */
-const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'choke', 'widthCm', 'shirt'];
-const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', widthCm: 'ANCHO', shirt: 'CAMISETA' };
+const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'choke', 'use', 'talla', 'widthCm', 'heightCm', 'fit', 'shirt'];
+const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', use: 'USO', talla: 'TALLA', widthCm: 'ANCHO', heightCm: 'ALTO', fit: 'ACOMODAR', shirt: 'CAMISETA' };
 const hist = { stack: [], i: -1 };
 let commitT = null, applying = false;
 function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
@@ -1358,7 +1533,7 @@ async function applySnap(s, from, verb) {
   applying = true;
   try {
     for (const k of HKEYS) { P[k] = s.p[k]; if (knobs[k]) knobs[k].show(); }
-    swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); syncModeUI(); syncKnockLabel();
+    swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); swUse.sync(); swTalla.sync(); swFit.sync(); syncModeUI(); syncKnockLabel(); syncSizeUI(); syncSizeInputs(true);
     scr.style.setProperty('--shirt', P.shirt); buildShirts();
     store.set('tramaluz.p', JSON.stringify(P));
     if (s.src !== SRC && s.src) { await setSource(s.src); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
