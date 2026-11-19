@@ -12,7 +12,11 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Tramaluz · Semitono para DTF gratis">
 <meta property="og:description" content="Semitono, sin velo blanco y agrandado con IA. Gratis, en tu navegador.">
-<meta property="og:image" content="og.png">
+<meta property="og:url" content="https://felezeta.github.io/Tramaluz/">
+<meta property="og:image" content="https://felezeta.github.io/Tramaluz/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://felezeta.github.io/Tramaluz/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -199,6 +203,10 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 .shapes button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shapes button[aria-checked="true"]{border-color:var(--orange);box-shadow:inset 0 2px 3px rgba(0,0,0,.3),0 0 0 1.5px var(--orange);transform:translateY(1px)}
 .shapes button[disabled]{opacity:.4;cursor:not-allowed}
+.zoomctl button{justify-content:center}
+.zoomctl #zOut,.zoomctl #zIn{font-family:var(--mono);font-size:18px;line-height:1;padding:5px 11px 4px;letter-spacing:0}
+.zoomctl .zval{min-width:64px;font-family:var(--mono);font-size:13px;letter-spacing:0}
+.zoomctl button[aria-pressed="true"]{background:linear-gradient(180deg,#bfae86,#d8c9a4);box-shadow:inset 0 2px 3px rgba(0,0,0,.35);transform:translateY(1px)}
 @media (max-width:1040px){
   .body{grid-template-columns:1fr}
   .screenwrap{top:0;z-index:6;background:var(--plate);margin-inline:-8px;padding:8px 8px 10px;border-radius:0 0 12px 12px;box-shadow:0 12px 12px -12px rgba(0,0,0,.5)}
@@ -261,7 +269,12 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         </div>
         <div class="screenbar">
           <div>
-            <div class="sw" role="radiogroup" aria-label="Zoom de la pantalla" id="swZoom" title="Solo cambia lo que ves en pantalla, no el archivo"></div>
+            <div class="sw zoomctl" role="group" aria-label="Zoom de la pantalla (no cambia el archivo)" title="Solo cambia lo que ves en pantalla, no el archivo">
+              <button type="button" id="zFit" aria-pressed="true">VER TODO</button>
+              <button type="button" id="zOut" aria-label="Alejar" title="Alejar (rueda del mouse)">−</button>
+              <button type="button" id="z100" class="zval" title="Ver los puntos a tamaño real"><span id="zoomVal">—</span></button>
+              <button type="button" id="zIn" aria-label="Acercar" title="Acercar (rueda del mouse)">+</button>
+            </div>
           </div>
           <div class="sw" role="radiogroup" aria-label="Comparar" id="swCmp"></div>
           <div class="sw hist" role="group" aria-label="Historial">
@@ -369,7 +382,9 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
       <section class="hsec" id="h-pantalla"><h4>PANTALLA</h4>
         <dl class="hdl">
           <dt>VER TODO</dt><dd>Muestra el diseño completo. Los puntos se ven como un tono suave.</dd>
-          <dt>ZOOM 100% · 200%</dt><dd>Solo es lupa: no cambia el archivo ni agranda la imagen (para eso está AGRANDAR CON IA). Muestra los puntos reales, como saldrán impresos. Arrastra la imagen para moverte. Doble clic en la imagen salta al ZOOM 100% en ese lugar.</dd>
+          <dt>− · +</dt><dd>Aleja o acerca. También con la <b>rueda del mouse</b> sobre la imagen (acerca justo donde está el puntero) o <b>pellizcando</b> en el celular. Es solo lupa: no cambia el archivo ni agranda la imagen (para eso está AGRANDAR CON IA).</dd>
+          <dt>100%</dt><dd>El número muestra el zoom actual; tócalo para ver los puntos a tamaño real, como saldrán impresos.</dd>
+          <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
           <dt>COMPARAR</dt><dd>Divide la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea.</dd>
           <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, modo, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
@@ -675,7 +690,7 @@ async function setSource(img, keepOriginal) {
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
   ['btnUp', 'btnExport'].forEach(id => $('#' + id).disabled = false);
-  updateInfo(); view.cx = null; scheduleRender();
+  updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
 async function loadFile(file) {
@@ -691,6 +706,7 @@ async function loadFile(file) {
     const id = ctx.getImageData(0, 0, w, h);
     const img = { w, h, data: id.data, name: file.name.replace(/\.[^.]+$/, '') };
     img.semi = semiPct(img.data);
+    lastDraw = null;
     await setSource(img, false);
     resetHistory();
   } catch (e) { console.error(e); toast('No pude abrir esa imagen.'); }
@@ -801,10 +817,12 @@ function updateInfo() {
    Vista previa
    ========================================================= */
 const cv = $('#cv'), ctx = cv.getContext('2d');
-const view = { cx: null, cy: null, split: 0.5 };
+// z = píxeles de pantalla por píxel del archivo (null = ver todo); cx, cy = centro de la vista en píxeles del archivo
+const view = { z: null, cx: null, cy: null, split: 0.5 };
 let renderT = null, renderSeq = 0;
 const imgProc = document.createElement('canvas'), imgOrig = document.createElement('canvas');
 let lastDraw = null;
+const ZMAX = 16, ZSTEPS = [0.1, 0.125, 0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16];
 function scheduleRender(delay = 60) { clearTimeout(renderT); renderT = setTimeout(doRender, delay); }
 function fitCanvas() {
   const r = scr.getBoundingClientRect(); const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -812,25 +830,47 @@ function fitCanvas() {
   if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
   return { W, H, dpr };
 }
+function layout() {
+  const { W, H, dpr } = fitCanvas(); const o = outSize();
+  const zf = Math.min(W / o.w, H / o.h), z = view.z == null ? zf : view.z;
+  const hw = W / (2 * z), hh = H / (2 * z);
+  let cx = view.z == null || view.cx == null ? o.w / 2 : view.cx, cy = view.z == null || view.cy == null ? o.h / 2 : view.cy;
+  cx = o.w <= 2 * hw ? o.w / 2 : clamp(cx, hw, o.w - hw);
+  cy = o.h <= 2 * hh ? o.h / 2 : clamp(cy, hh, o.h - hh);
+  if (view.z != null) { view.cx = cx; view.cy = cy; }
+  return { W, H, dpr, o, z, zf, left: cx - hw, top: cy - hh };
+}
+function syncZoomUI() {
+  const has = !!SRC; $('#zoomVal').textContent = has ? Math.round(layout().z * 100) + '%' : '—';
+  $('#zFit').setAttribute('aria-pressed', String(view.z == null));
+  ['zFit', 'zOut', 'z100', 'zIn'].forEach(id => $('#' + id).disabled = !has);
+  scr.classList.toggle('pan', has && view.z != null);
+}
+// Acerca/aleja dejando quieto el punto (mx, my) de la pantalla
+function setZoom(z, mx, my) {
+  if (!SRC) return;
+  const L = layout(); z = clamp(z, Math.min(L.zf, 1), ZMAX);
+  if (mx == null) { mx = L.W / 2; my = L.H / 2; }
+  const px = L.left + mx / L.z, py = L.top + my / L.z;
+  if (z <= L.zf * 1.03) view.z = null;
+  else { view.z = z; view.cx = px - mx / z + L.W / (2 * z); view.cy = py - my / z + L.H / (2 * z); }
+  draw(); scheduleRender(90);
+}
+function zoomStep(dir) {
+  if (!SRC) return; const z = layout().z;
+  const next = dir > 0 ? ZSTEPS.find(v => v > z * 1.01) : [...ZSTEPS].reverse().find(v => v < z * 0.99);
+  setZoom(next == null ? (dir > 0 ? ZMAX : 0) : next);
+}
 async function doRender() {
   if (!SRC) return;
-  const seq = ++renderSeq;
-  const { W, H } = fitCanvas(); const o = outSize(); const p = params();
-  let job;
-  if (P.zoom === 'fit') {
-    const s = Math.min(W / o.w, H / o.h); const rw = Math.max(1, Math.round(o.w * s)), rh = Math.max(1, Math.round(o.h * s));
-    const step = o.w / rw;
-    job = { rx: 0, ry: 0, rw, rh, step, approx: step > 1.5, dx: Math.round((W - rw) / 2), dy: Math.round((H - rh) / 2), scale: 1 };
-  } else {
-    const z = P.zoom === 'z200' ? 2 : 1;
-    const rw = Math.min(o.w, Math.ceil(W / z)), rh = Math.min(o.h, Math.ceil(H / z));
-    if (view.cx == null) { view.cx = o.w / 2; view.cy = o.h / 2; }
-    view.cx = clamp(view.cx, rw / 2, o.w - rw / 2); view.cy = clamp(view.cy, rh / 2, o.h - rh / 2);
-    const rx = Math.round(view.cx - rw / 2), ry = Math.round(view.cy - rh / 2);
-    job = { rx, ry, rw, rh, step: 1, approx: false, dx: Math.round((W - rw * z) / 2), dy: Math.round((H - rh * z) / 2), scale: z };
-  }
+  const seq = ++renderSeq; const L = layout(), o = L.o, p = params();
+  const x0 = Math.max(0, Math.floor(L.left)), y0 = Math.max(0, Math.floor(L.top));
+  const x1 = Math.min(o.w, Math.ceil(L.left + L.W / L.z)), y1 = Math.min(o.h, Math.ceil(L.top + L.H / L.z));
+  const step = L.z >= 1 ? 1 : 1 / L.z;
+  const rw = Math.max(1, Math.ceil((x1 - x0) / step)), rh = Math.max(1, Math.ceil((y1 - y0) / step));
+  const job = { x0, y0, rw, rh, ow: rw * step, oh: rh * step, approx: step > 1.5 };
   showBusy('PROCESANDO…');
-  const base = { type: 'render', outW: o.w, outH: o.h, rx: job.rx, ry: job.ry, rw: job.rw, rh: job.rh, step: job.step, approx: job.approx, p };
+  const base = { type: 'render', outW: o.w, outH: o.h, rx: x0, ry: y0, rw, rh, step, approx: job.approx, p };
   const tasks = [wcall({ ...base, kind: 'proc' })];
   if (P.compare) tasks.push(wcall({ ...base, kind: 'orig' }));
   let res;
@@ -842,54 +882,80 @@ async function doRender() {
   hideBusy();
 }
 function putTo(c, m) { c.width = m.w; c.height = m.h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(m.buf), m.w, m.h), 0, 0); }
+// Dibuja lo último que calculó el motor, ya movido/escalado a la vista actual (respuesta inmediata al arrastrar o hacer zoom)
 function draw() {
-  const j = lastDraw; if (!j) return;
-  ctx.clearRect(0, 0, cv.width, cv.height);
-  ctx.imageSmoothingEnabled = j.scale === 1 ? true : false; ctx.imageSmoothingQuality = 'high';
-  const w = j.rw * j.scale, h = j.rh * j.scale;
+  syncZoomUI();
+  const j = lastDraw; ctx.clearRect(0, 0, cv.width, cv.height); if (!j) return;
+  const L = layout();
+  const dx = (j.x0 - L.left) * L.z, dy = (j.y0 - L.top) * L.z, dw = j.ow * L.z, dh = j.oh * L.z;
+  ctx.imageSmoothingEnabled = dw / j.rw < 1.5; ctx.imageSmoothingQuality = 'high';
   if (P.compare && imgOrig.width) {
     const sx = Math.round(cv.width * view.split);
-    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, sx, cv.height); ctx.clip(); ctx.drawImage(imgOrig, j.dx, j.dy, w, h); ctx.restore();
-    ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, cv.width - sx, cv.height); ctx.clip(); ctx.drawImage(imgProc, j.dx, j.dy, w, h); ctx.restore();
-  } else ctx.drawImage(imgProc, j.dx, j.dy, w, h);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, sx, cv.height); ctx.clip(); ctx.drawImage(imgOrig, dx, dy, dw, dh); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, cv.width - sx, cv.height); ctx.clip(); ctx.drawImage(imgProc, dx, dy, dw, dh); ctx.restore();
+  } else ctx.drawImage(imgProc, dx, dy, dw, dh);
   const showSplit = P.compare;
   $('#divider').hidden = !showSplit; $('#tagL').hidden = !showSplit; $('#tagR').hidden = !showSplit;
   if (showSplit) $('#divider').style.left = (view.split * 100) + '%';
-  scr.classList.toggle('pan', P.zoom !== 'fit');
 }
 let busyN = 0;
 function showBusy(t) { busyN++; const b = $('#busy'); b.textContent = t; b.hidden = false; }
 function hideBusy() { busyN = Math.max(0, busyN - 1); if (!busyN) $('#busy').hidden = true; }
-new ResizeObserver(() => scheduleRender(120)).observe(scr);
+new ResizeObserver(() => { draw(); scheduleRender(120); }).observe(scr);
 
-// Arrastrar: mover vista en zoom o la división antes/después
-let panDrag = null;
-$('#divider').addEventListener('pointerdown', e => { e.stopPropagation(); const d = $('#divider'); d.setPointerCapture(e.pointerId); panDrag = { split: true }; });
-$('#divider').addEventListener('pointermove', e => { if (!panDrag || !panDrag.split) return; const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); });
-$('#divider').addEventListener('pointerup', () => panDrag = null);
+// ---- Gestos: arrastrar (mover), pellizcar (zoom), rueda (zoom en el puntero), doble clic, línea antes/después
+const ptrs = new Map(); let gest = null;
+const capture = (el, id) => { try { el.setPointerCapture(id); } catch (e) {} };
+const toDev = (e) => { const r = scr.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2); return [(e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr]; };
+function setSplit(clientX) { const r = scr.getBoundingClientRect(); view.split = clamp((clientX - r.left) / r.width, 0.02, 0.98); draw(); }
+$('#divider').addEventListener('pointerdown', e => { e.stopPropagation(); capture($('#divider'), e.pointerId); gest = { split: true, divider: true }; });
+$('#divider').addEventListener('pointermove', e => { if (gest && gest.divider) setSplit(e.clientX); });
+$('#divider').addEventListener('pointerup', () => { gest = null; });
 scr.addEventListener('pointerdown', e => {
   if (!SRC || e.target.closest('.empty')) return;
-  if (P.zoom === 'fit') {
-    if (!P.compare) return;
-    scr.setPointerCapture(e.pointerId); panDrag = { split: true, onScreen: true };
-    const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); return;
+  capture(scr, e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const L = layout();
+  if (ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()];
+    gest = { pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: L.z }; return;
   }
-  scr.setPointerCapture(e.pointerId); panDrag = { x: e.clientX, y: e.clientY, cx: view.cx, cy: view.cy };
+  if (P.compare && view.z == null) { gest = { split: true }; setSplit(e.clientX); return; }
+  gest = { pan: true, x: e.clientX, y: e.clientY, left: L.left, top: L.top };
 });
 scr.addEventListener('pointermove', e => {
-  if (panDrag && panDrag.onScreen) { const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); return; }
-  if (!panDrag || panDrag.split) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2), z = P.zoom === 'z200' ? 2 : 1;
-  view.cx = panDrag.cx - (e.clientX - panDrag.x) * dpr / z; view.cy = panDrag.cy - (e.clientY - panDrag.y) * dpr / z;
-  scheduleRender(40);
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (!gest) return;
+  if (gest.pinch && ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const [mx, my] = toDev({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
+    setZoom(gest.z0 * d / gest.d0, mx, my); return;
+  }
+  if (gest.split) { setSplit(e.clientX); return; }
+  if (gest.pan && view.z != null) {
+    const L = layout(), dpr = L.dpr;
+    view.cx = gest.left - (e.clientX - gest.x) * dpr / L.z + L.W / (2 * L.z);
+    view.cy = gest.top - (e.clientY - gest.y) * dpr / L.z + L.H / (2 * L.z);
+    draw(); scheduleRender(90);
+  }
 });
-scr.addEventListener('pointerup', () => { if (panDrag && (!panDrag.split || panDrag.onScreen)) panDrag = null; });
+const endPtr = e => { ptrs.delete(e.pointerId); if (ptrs.size === 0) gest = null; else if (gest && gest.pinch && ptrs.size < 2) gest = null; };
+scr.addEventListener('pointerup', endPtr); scr.addEventListener('pointercancel', endPtr);
+scr.addEventListener('wheel', e => {
+  if (!SRC) return; e.preventDefault();
+  let d = e.deltaY; if (e.deltaMode === 1) d *= 33; else if (e.deltaMode === 2) d *= 300;
+  const [mx, my] = toDev(e); setZoom(layout().z * Math.exp(-clamp(d, -300, 300) * 0.0018), mx, my);
+}, { passive: false });
 scr.addEventListener('dblclick', e => {
-  if (!SRC || P.zoom !== 'fit' || !lastDraw) return;
-  const r = scr.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), j = lastDraw;
-  const px = ((e.clientX - r.left) * dpr - j.dx) * j.step, py = ((e.clientY - r.top) * dpr - j.dy) * j.step;
-  view.cx = px; view.cy = py; P.zoom = 'z100'; swZoom.sync(); scheduleRender(0);
+  if (!SRC || e.target.closest('.empty')) return;
+  const [mx, my] = toDev(e);
+  if (view.z == null) setZoom(Math.max(1, layout().zf * 2), mx, my);
+  else { view.z = null; draw(); scheduleRender(0); }
 });
+$('#zFit').onclick = () => { view.z = null; draw(); scheduleRender(0); };
+$('#z100').onclick = () => setZoom(1);
+$('#zIn').onclick = () => zoomStep(1);
+$('#zOut').onclick = () => zoomStep(-1);
 
 /* =========================================================
    Agrandar con IA (Real-ESRGAN en TF.js, por mosaicos)
@@ -1055,7 +1121,7 @@ $('#helpModal').addEventListener('click', e => { if (e.target.id === 'helpModal'
 /* =========================================================
    Armado de la interfaz
    ========================================================= */
-const swZoom = makeSwitch($('#swZoom'), 'zoom', [['fit', 'VER TODO'], ['z100', 'ZOOM 100%'], ['z200', 'ZOOM 200%']], () => { view.cx = null; scheduleRender(0); });
+syncZoomUI();
 makeSwitch($('#swCmp'), 'compare', [[false, 'DESPUÉS'], [true, 'COMPARAR']].map(([v, l]) => [v, l]), () => scheduleRender(0));
 makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']]);
 makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), () => updateUpSize());
