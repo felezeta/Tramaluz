@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tramaluz · Semitono para DTF gratis</title>
+<meta name="description" content="Convierte tus diseños en semitono para DTF, quita el velo blanco y las semitransparencias y agranda con IA. Gratis y en tu navegador.">
+<meta name="theme-color" content="#2c1a10">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tramaluz · Semitono para DTF gratis">
+<meta property="og:description" content="Semitono, sin velo blanco y agrandado con IA. Gratis, en tu navegador.">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous&family=Michroma&family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --wood1:#2c1a10; --wood2:#4b2d19; --wood3:#6a4124;
+  --plate:#e6dbc1; --plate2:#d6c7a3; --plate3:#c7b48a;
+  --ink:#2c1f16; --ink2:#6a5341; --ink3:#8f7660;
+  --orange:#e0602a; --orange2:#b8471a; --mustard:#d9a13b; --mustard2:#ad7b22;
+  --brown:#6e4327; --brown2:#4d2d19;
+  --vfd-bg:#150d08; --vfd:#ffb347; --vfd-dim:#7a5124;
+  --led-r:#ff4a35; --led-g:#7dff6a; --led-a:#ffb020;
+  --screen:#100a07;
+  --knob1:#3a2c23; --knob2:#14100d;
+  --display:"Righteous","Arial Black",system-ui,sans-serif;
+  --label:"Michroma","Eurostile","Arial",system-ui,sans-serif;
+  --mono:"Share Tech Mono",ui-monospace,Consolas,monospace;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{background:var(--wood1)}
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:15px;padding-inline:16px;padding-block:18px 40px;
+  background:radial-gradient(1200px 600px at 50% -10%, #3d2516 0%, var(--wood1) 70%);}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* ---------- chasis ---------- */
+.rack{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:22px 1fr 22px;border-radius:14px;overflow:clip;
+  box-shadow:0 30px 60px rgba(0,0,0,.55),0 2px 0 rgba(255,255,255,.05) inset}
+.cheek{background:
+  repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 5px),
+  linear-gradient(180deg,var(--wood3),var(--wood2) 40%,var(--wood3) 70%,var(--wood2));}
+.plate{background:
+   repeating-linear-gradient(0deg,rgba(255,255,255,.12) 0 1px,transparent 1px 3px),
+   linear-gradient(180deg,var(--plate),var(--plate2));
+  padding:18px 20px 16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* ---------- cabecera ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:12px}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:34px;line-height:1;color:var(--ink);letter-spacing:.01em;position:relative}
+.logo b{color:var(--orange);font-weight:400}
+.model{font-family:var(--label);font-size:9.5px;letter-spacing:.14em;color:var(--ink2)}
+.stripes{display:flex;gap:3px;align-items:center}
+.stripes i{display:block;width:26px;height:6px;border-radius:1px}
+.topright{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.plan{display:flex;align-items:center;gap:8px;background:var(--vfd-bg);color:var(--vfd);font-family:var(--mono);font-size:14px;
+  padding:6px 12px;border-radius:6px;box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.4);text-shadow:0 0 6px rgba(255,179,71,.6);white-space:nowrap}
+.led{width:9px;height:9px;border-radius:50%;background:#3a2a20;box-shadow:0 0 0 1px #0007 inset;flex:none}
+.led.g{background:var(--led-g);box-shadow:0 0 8px var(--led-g)}
+.led.a{background:var(--led-a);box-shadow:0 0 8px var(--led-a)}
+.led.r{background:var(--led-r);box-shadow:0 0 8px var(--led-r)}
+.power{display:flex;align-items:center;gap:6px;font-family:var(--label);font-size:9px;letter-spacing:.14em;color:var(--ink2)}
+
+/* ---------- cuerpo ---------- */
+.body{display:grid;grid-template-columns:minmax(0,1fr) 452px;gap:18px;align-items:start}
+.screenwrap{display:flex;flex-direction:column;gap:10px;min-width:0;position:sticky;top:12px}
+.bezel{background:linear-gradient(180deg,#2a1d15,#140d09);border-radius:16px;padding:14px;box-shadow:0 2px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.4),0 10px 20px rgba(0,0,0,.25)}
+.screen{position:relative;height:min(68vh,640px);min-height:340px;border-radius:10px;overflow:hidden;background:var(--shirt,#111);
+  box-shadow:0 0 0 2px #000 inset,0 0 30px rgba(0,0,0,.6) inset;touch-action:none}
+.screen::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:soft-light;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px)}
+.screen canvas{position:absolute;inset:0;width:100%;height:100%}
+.screen.pan{cursor:grab}.screen.pan:active{cursor:grabbing}
+.divider{position:absolute;top:0;bottom:0;width:2px;background:var(--vfd);box-shadow:0 0 8px var(--vfd);transform:translateX(-1px);cursor:ew-resize}
+.divider::after{content:"";position:absolute;top:50%;left:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--vfd-bg);border:2px solid var(--vfd)}
+.tagl,.tagr{position:absolute;top:10px;font-family:var(--label);font-size:9px;letter-spacing:.14em;color:var(--vfd);background:rgba(21,13,8,.75);padding:4px 8px;border-radius:4px;pointer-events:none}
+.tagl{left:10px}.tagr{right:10px}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;color:#d8c7a8;background:#120c08}
+.empty h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;color:var(--vfd)}
+.empty p{margin:0;max-width:44ch;color:#bba889;line-height:1.5}
+.empty.over{outline:3px dashed var(--vfd);outline-offset:-14px}
+.busy{position:absolute;inset:auto 12px 12px auto;font-family:var(--mono);font-size:13px;color:var(--vfd);background:rgba(21,13,8,.85);padding:5px 10px;border-radius:4px}
+.screenbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.vfd{background:var(--vfd-bg);color:var(--vfd);font-family:var(--mono);font-size:13.5px;padding:7px 10px;border-radius:6px;
+  box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.45);text-shadow:0 0 6px rgba(255,179,71,.55);font-variant-numeric:tabular-nums;min-height:32px}
+.vfd .warn{color:#ff7a4a}
+.vfd.grow{flex:1;min-width:220px}
+
+/* ---------- controles ---------- */
+.controls{display:flex;flex-direction:column;gap:12px}
+.group{border:1.5px solid var(--ink);border-radius:10px;padding:16px 12px 12px;position:relative;background:rgba(255,255,255,.12)}
+.group>h3{position:absolute;top:-9px;left:12px;margin:0;background:var(--plate);padding:0 8px;font-family:var(--label);font-size:9.5px;letter-spacing:.16em;color:var(--ink);font-weight:400}
+.row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.row+.row{margin-top:12px}
+.knobs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 6px}
+.knobs.five{grid-template-columns:repeat(5,1fr)}
+.qhelp{position:absolute;top:-12px;right:12px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);background:var(--plate);font-family:var(--label);font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;color:var(--ink)}
+.qhelp:hover{background:var(--mustard)}
+.sheet.help{max-width:720px}
+.help h4{font-family:var(--label);font-weight:400;font-size:10px;letter-spacing:.16em;margin:0 0 10px;color:var(--orange2)}
+.hsec{border:1.5px solid var(--ink);border-radius:8px;padding:12px;background:rgba(255,255,255,.25);scroll-margin-top:12px;transition:box-shadow .3s}
+.hsec.flash{box-shadow:0 0 0 3px var(--orange)}
+.hdl{display:grid;grid-template-columns:minmax(96px,auto) 1fr;gap:8px 14px;margin:0}
+.hdl dt{font-family:var(--label);font-size:8.5px;letter-spacing:.12em;padding-top:4px}
+.hdl dd{margin:0;font-size:14.5px;line-height:1.45}
+.steps{margin:0;padding-left:22px;line-height:1.6;font-size:15px}
+.tip{font-size:13.5px;color:var(--ink2);margin:8px 0 0;line-height:1.45}
+.k{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.knob{width:58px;height:58px;border-radius:50%;position:relative;touch-action:none;cursor:ns-resize;
+  background:conic-gradient(from -135deg,var(--ink) 0 1.5deg,transparent 1.5deg 27deg,var(--ink) 27deg 28.5deg,transparent 28.5deg 54deg,var(--ink) 54deg 55.5deg,transparent 55.5deg 81deg,var(--ink) 81deg 82.5deg,transparent 82.5deg 108deg,var(--ink) 108deg 109.5deg,transparent 109.5deg 135deg,var(--ink) 135deg 136.5deg,transparent 136.5deg 162deg,var(--ink) 162deg 163.5deg,transparent 163.5deg 189deg,var(--ink) 189deg 190.5deg,transparent 190.5deg 216deg,var(--ink) 216deg 217.5deg,transparent 217.5deg 243deg,var(--ink) 243deg 244.5deg,transparent 244.5deg 270deg,var(--ink) 270deg 271.5deg,transparent 271.5deg 360deg)}
+.knob .cap{position:absolute;inset:7px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#6b5646 0%,var(--knob1) 35%,var(--knob2) 100%);
+  box-shadow:0 3px 5px rgba(0,0,0,.45),0 0 0 2px #0b0806,inset 0 1px 1px rgba(255,255,255,.25);transform:rotate(var(--rot,0deg))}
+.knob .cap::before{content:"";position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.06) 0 4deg,transparent 4deg 8deg)}
+.knob .cap::after{content:"";position:absolute;top:4px;left:50%;width:3px;height:14px;margin-left:-1.5px;border-radius:2px;background:var(--plate)}
+.knob:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+.knob[aria-disabled="true"]{opacity:.35;pointer-events:none}
+.klabel{font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--ink);text-align:center;white-space:nowrap}
+.kval{font-family:var(--mono);font-size:12.5px;background:var(--vfd-bg);color:var(--vfd);padding:2px 6px;border-radius:4px;min-width:54px;text-align:center;text-shadow:0 0 5px rgba(255,179,71,.5);font-variant-numeric:tabular-nums}
+.sw{display:inline-flex;background:var(--ink);padding:3px;border-radius:7px;gap:3px}
+.sw button{border:0;background:linear-gradient(180deg,#e9dfc6,#c9b88f);color:var(--ink);font-family:var(--label);font-size:8.5px;letter-spacing:.1em;
+  padding:9px 9px 7px;border-radius:4px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 0 #8d7a57;white-space:nowrap}
+.sw button .led{width:7px;height:7px}
+.sw button[disabled]{opacity:.4;cursor:not-allowed}
+.sw.hist button{padding:8px 10px 7px}
+.sw.hist button:active:not([disabled]){box-shadow:inset 0 2px 3px rgba(0,0,0,.35);transform:translateY(1px)}
+.sw.hist svg{flex:none}
+.sw button[aria-checked="true"]{background:linear-gradient(180deg,#bfae86,#d8c9a4);box-shadow:0 0 0 #000,inset 0 2px 3px rgba(0,0,0,.35);transform:translateY(1px)}
+.sw button[aria-checked="true"] .led{background:var(--led-r);box-shadow:0 0 6px var(--led-r)}
+.swlabel{font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--ink2);margin-bottom:5px;display:block}
+.btn{border:0;border-radius:8px;padding:12px 16px 10px;font-family:var(--label);font-size:10px;letter-spacing:.14em;
+  background:linear-gradient(180deg,#f0e6cf,#cdbd94);color:var(--ink);box-shadow:0 3px 0 #8d7a57,0 4px 8px rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:8px}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #8d7a57}
+.btn.orange{background:linear-gradient(180deg,#f07a42,var(--orange));color:#fff4e8;box-shadow:0 3px 0 var(--orange2),0 4px 8px rgba(0,0,0,.25)}
+.btn.mustard{background:linear-gradient(180deg,#ebbd5c,var(--mustard));color:var(--ink);box-shadow:0 3px 0 var(--mustard2),0 4px 8px rgba(0,0,0,.2)}
+.btn.brown{background:linear-gradient(180deg,#8a5634,var(--brown));color:#f5e8d2;box-shadow:0 3px 0 var(--brown2),0 4px 8px rgba(0,0,0,.25)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.btn.big{font-size:11px;padding:15px 20px 13px;flex:1;justify-content:center}
+.chip-btn{border:1.5px solid var(--ink);background:transparent;border-radius:6px;padding:7px 10px;font-family:var(--label);font-size:9px;letter-spacing:.14em}
+.chip-btn:hover{background:rgba(0,0,0,.06)}
+.meter{height:12px;border-radius:3px;background:var(--vfd-bg);box-shadow:0 0 0 2px #0006 inset;overflow:hidden;flex:1;min-width:120px}
+.meter i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--led-g) 0 6px,transparent 6px 8px);transition:width .15s}
+.meter.amber i{background:repeating-linear-gradient(90deg,var(--vfd) 0 6px,transparent 6px 8px)}
+.shirts{display:flex;flex-wrap:wrap;gap:8px}
+.shirt{width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);box-shadow:0 2px 0 rgba(0,0,0,.25);position:relative}
+.shirt[aria-pressed="true"]::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--orange)}
+.shirt.custom{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);overflow:hidden}
+.shirt.custom input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.note{font-size:13px;color:var(--ink2);line-height:1.45;margin:8px 0 0}
+.note b{color:var(--ink)}
+.out-actions{display:flex;gap:10px;align-items:stretch;margin-top:12px}
+footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--ink2);border-top:2px solid var(--ink);padding-top:10px}
+
+/* ---------- modal usuarios ---------- */
+.modal{position:fixed;inset:0;background:rgba(10,6,4,.6);display:flex;align-items:flex-start;justify-content:center;padding:calc(30px + env(safe-area-inset-top,0px)) 16px 30px;overflow:auto;z-index:20}
+.sheet{width:100%;max-width:640px;background:linear-gradient(180deg,var(--plate),var(--plate2));border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden}
+.sheet header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:2px solid var(--ink)}
+.sheet h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.sheet .in{padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.ulist{display:flex;flex-direction:column;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;background:rgba(255,255,255,.25)}
+.urow{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 10px;border-top:1px solid rgba(44,31,22,.25)}
+.urow:first-child{border-top:0}
+.urow img{width:34px;height:34px;border-radius:50%}
+.uname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.umeta{font-size:12.5px;color:var(--ink2)}
+.ucount{font-family:var(--mono);font-size:14px;background:var(--vfd-bg);color:var(--vfd);padding:3px 8px;border-radius:4px;white-space:nowrap}
+.limitbox{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;gap:6px}
+.step button{width:32px;height:32px;border-radius:6px;border:1.5px solid var(--ink);background:transparent;font-size:18px;line-height:1}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--vfd-bg);color:var(--vfd);font-family:var(--mono);
+  padding:10px 16px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:40;max-width:calc(100% - 32px);text-shadow:0 0 6px rgba(255,179,71,.5)}
+
+.sw.tight button{padding:9px 7px 7px;gap:4px}
+.minfo{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;background:var(--vfd-bg);border-radius:8px;padding:10px 12px;box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.45);font-variant-numeric:tabular-nums}
+.minfo dt{font-family:var(--label);font-size:8px;letter-spacing:.12em;color:#c08a45;padding-top:4px;white-space:nowrap}
+.minfo dd{margin:0;color:var(--vfd);font-family:var(--mono);font-size:14px;text-shadow:0 0 6px rgba(255,179,71,.5);overflow-wrap:anywhere}
+.minfo .warn,.vfd .warn{color:#ff7a4a}
+.minfo .ok{color:var(--led-g);text-shadow:0 0 6px rgba(125,255,106,.45)}
+#srcInfo{overflow-wrap:anywhere}
+.sizes{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.fld{display:flex;flex-direction:column}
+.inp{display:inline-flex;align-items:center;background:var(--vfd-bg);border-radius:6px;box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.45);padding-right:8px}
+.inp:focus-within{box-shadow:0 0 0 2px var(--orange)}
+.inp input{width:96px;background:transparent;border:0;color:var(--vfd);font-family:var(--mono);font-size:16px;padding:8px 6px 8px 10px;text-shadow:0 0 6px rgba(255,179,71,.5);outline:none}
+.inp input:disabled{opacity:.45}
+.inp em{font-style:normal;font-family:var(--mono);font-size:12px;color:#c08a45}
+.shapes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:2px}
+.shapes button{border:1.5px solid var(--ink);border-radius:7px;background:linear-gradient(180deg,#efe6d0,#d4c39c);padding:6px 3px 5px;display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:0 2px 0 #8d7a57;font-family:var(--label);font-size:7px;letter-spacing:.06em;color:var(--ink);min-width:0}
+.shapes button canvas{width:44px;height:44px;border-radius:4px;display:block}
+.shapes button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shapes button[aria-checked="true"]{border-color:var(--orange);box-shadow:inset 0 2px 3px rgba(0,0,0,.3),0 0 0 1.5px var(--orange);transform:translateY(1px)}
+.shapes button[disabled]{opacity:.4;cursor:not-allowed}
+@media (max-width:1040px){
+  .body{grid-template-columns:1fr}
+  .screenwrap{top:0;z-index:6;background:var(--plate);margin-inline:-8px;padding:8px 8px 10px;border-radius:0 0 12px 12px;box-shadow:0 12px 12px -12px rgba(0,0,0,.5)}
+  .bezel{padding:8px;border-radius:12px}
+  .screen{height:clamp(180px,40vh,460px);min-height:0}
+  .screenbar{gap:6px}
+  .vfd.grow{font-size:12px;min-width:0;flex-basis:100%;min-height:0;padding:5px 8px;order:3}
+  .screenbar .qhelp{order:2}
+  .empty{gap:8px;padding:14px}.empty h2{font-size:21px}.empty p{font-size:13.5px}
+}
+@media (max-width:520px){
+  .rack{grid-template-columns:8px 1fr 8px}
+  .plate{padding:14px 12px}
+  .logo{font-size:28px}
+  .knobs{grid-template-columns:repeat(2,1fr)}
+  .knobs.five{grid-template-columns:repeat(3,1fr)}
+  .sw.hist .lbl{display:none}
+  .minfo{grid-template-columns:1fr;gap:0 0}.minfo dt{padding-top:7px}
+  .inp input{width:82px}
+  .hdl{grid-template-columns:1fr;gap:2px}.hdl dd{margin-bottom:8px}
+  .urow{grid-template-columns:34px minmax(0,1fr);}
+  .urow .ucount,.urow .btn{grid-column:2}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="rack">
+  <div class="cheek" aria-hidden="true"></div>
+  <main class="plate">
+    <header class="top">
+      <div class="brand">
+        <span class="logo">Trama<b>luz</b></span>
+        <span class="model">PROCESADOR DE SEMITONO DTF · MODELO TL-80</span>
+        <span class="stripes" aria-hidden="true"><i style="background:var(--mustard)"></i><i style="background:var(--orange)"></i><i style="background:var(--brown)"></i></span>
+      </div>
+      <div class="topright">
+        <div class="plan" title="Gratis y sin límites"><span class="led g"></span><span>GRATIS · SIN LÍMITES</span></div>
+        <button class="chip-btn" id="btnHelp" type="button" data-help="h-inicio">? MANUAL</button>
+        <div class="power"><span class="led g"></span>ENCENDIDO</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <section class="screenwrap" aria-label="Vista previa">
+        <div class="bezel">
+          <div class="screen" id="screen">
+            <canvas id="cv"></canvas>
+            <div class="divider" id="divider" hidden></div>
+            <span class="tagl" id="tagL" hidden>ANTES</span>
+            <span class="tagr" id="tagR" hidden>DESPUÉS</span>
+            <div class="busy" id="busy" hidden>PROCESANDO…</div>
+            <div class="empty" id="empty">
+              <h2>Carga un diseño</h2>
+              <p>Arrastra aquí un PNG o JPG, o usa el botón <b>CARGAR</b>. Tramaluz lo convierte en semitono para DTF, sin velo blanco y sin semitransparencias. Tu imagen no se sube a ningún lado: todo pasa en tu computador.</p>
+              <button class="btn mustard" type="button" id="btnLoad2">CARGAR IMAGEN</button>
+              <button class="chip-btn" type="button" data-help="h-inicio" style="color:#d8c7a8;border-color:#8a7458">¿CÓMO FUNCIONA?</button>
+            </div>
+          </div>
+        </div>
+        <div class="screenbar">
+          <div>
+            <div class="sw" role="radiogroup" aria-label="Zoom de la pantalla" id="swZoom" title="Solo cambia lo que ves en pantalla, no el archivo"></div>
+          </div>
+          <div class="sw" role="radiogroup" aria-label="Comparar" id="swCmp"></div>
+          <div class="sw hist" role="group" aria-label="Historial">
+            <button type="button" id="btnUndo" disabled title="Deshacer (Ctrl+Z)" aria-label="Deshacer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">DESHACER</span></button>
+            <button type="button" id="btnRedo" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer"><span class="lbl">REHACER</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+          </div>
+          <div class="vfd grow" id="status" aria-live="polite">SIN IMAGEN</div>
+          <button class="qhelp" style="position:static;flex:none" type="button" data-help="h-pantalla" aria-label="Ayuda: pantalla">?</button>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Controles">
+        <div class="group">
+          <h3>FUENTE</h3><button class="qhelp" type="button" data-help="h-fuente" aria-label="Ayuda: Fuente">?</button>
+          <div class="row" style="align-items:center">
+            <button class="btn mustard" type="button" id="btnLoad">CARGAR</button>
+            <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <div class="vfd grow" id="srcInfo">—</div>
+          </div>
+        </div>
+
+        <div class="group">
+          <h3>MEDIDAS</h3><button class="qhelp" type="button" data-help="h-medidas" aria-label="Ayuda: Medidas">?</button>
+          <div><span class="swlabel">VER EN</span><div class="sw tight" role="radiogroup" aria-label="Unidad de medida" id="swUnit"></div></div>
+          <dl class="minfo" id="mInfo"></dl>
+        </div>
+
+        <div class="group">
+          <h3>AGRANDAR CON IA</h3><button class="qhelp" type="button" data-help="h-ia" aria-label="Ayuda: Agrandar con IA">?</button>
+          <div class="row">
+            <div><span class="swlabel">MODELO</span><div class="sw" role="radiogroup" aria-label="Modelo" id="swModel"></div></div>
+            <div><span class="swlabel">ESCALA</span><div class="sw tight" role="radiogroup" aria-label="Escala" id="swScale"></div></div>
+          </div>
+          <div class="row"><div class="vfd grow" id="upSize">SALDRÁ: —</div></div>
+          <div class="row" style="align-items:center">
+            <button class="btn brown" type="button" id="btnUp" disabled>AGRANDAR</button>
+            <div class="meter" id="upMeter" aria-hidden="true"><i></i></div>
+          </div>
+          <p class="note" id="upNote">Usa ANIME para ilustraciones y GENERAL para fotos. Corre en tu tarjeta de video.</p>
+        </div>
+
+        <div class="group">
+          <h3>MODO</h3><button class="qhelp" type="button" data-help="h-modo" aria-label="Ayuda: Modo">?</button>
+          <div class="row">
+            <div><span class="swlabel">PROCESO</span><div class="sw" role="radiogroup" aria-label="Proceso" id="swMode"></div></div>
+            <div><span class="swlabel">QUITAR</span><div class="sw" role="radiogroup" aria-label="Qué quitar" id="swKnock"></div></div>
+          </div>
+        </div>
+
+        <div class="group" id="gTrama">
+          <h3>TRAMA</h3><button class="qhelp" type="button" data-help="h-trama" aria-label="Ayuda: Trama">?</button>
+          <div class="knobs" id="kTrama"></div>
+          <div style="margin-top:12px"><span class="swlabel">FORMA DEL PUNTO</span><div class="shapes" role="radiogroup" aria-label="Forma del punto" id="swShape"></div></div>
+        </div>
+
+        <div class="group">
+          <h3>TONO</h3><button class="qhelp" type="button" data-help="h-tono" aria-label="Ayuda: Tono">?</button>
+          <div class="knobs five" id="kTono"></div>
+        </div>
+
+        <div class="group">
+          <h3>CAMISETA</h3><button class="qhelp" type="button" data-help="h-camiseta" aria-label="Ayuda: Camiseta">?</button>
+          <div class="shirts" id="shirts"></div>
+        </div>
+
+        <div class="group">
+          <h3>SALIDA</h3><button class="qhelp" type="button" data-help="h-salida" aria-label="Ayuda: Salida">?</button>
+          <div class="knobs" id="kOut"></div>
+          <div class="out-actions">
+            <button class="btn orange big" type="button" id="btnExport" disabled><span class="led" id="expLed"></span>GRABAR PNG 300 PPP</button>
+          </div>
+          <p class="note" id="expNote"></p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <span>SEMITONO · LIMPIEZA DE TRANSPARENCIA · AGRANDADO IA</span>
+      <span>AGRANDADO CON REAL-ESRGAN · <a href="LICENCIAS.txt" style="color:inherit">LICENCIAS</a></span>
+    </footer>
+  </main>
+  <div class="cheek" aria-hidden="true"></div>
+</div>
+
+<div class="modal" id="helpModal" hidden>
+  <div class="sheet help" role="dialog" aria-modal="true" aria-labelledby="hTitle">
+    <header><h2 id="hTitle">Manual de uso</h2><button class="chip-btn" type="button" id="hClose">CERRAR</button></header>
+    <div class="in">
+      <section class="hsec" id="h-inicio"><h4>EN 4 PASOS</h4>
+        <ol class="steps">
+          <li><b>CARGAR</b> tu diseño (PNG, JPG o WebP), o arrástralo a la pantalla.</li>
+          <li>Toca el color de la <b>CAMISETA</b>.</li>
+          <li>Ajusta <b>MODO</b>, <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
+          <li>Pon el <b>ANCHO</b> en cm y dale <b>GRABAR PNG</b>.</li>
+        </ol>
+        <p class="tip">Toca cualquier <b>?</b> de la app para ver solo esa parte. Tus imágenes nunca salen de tu computador.</p>
+      </section>
+      <section class="hsec" id="h-perillas"><h4>PERILLAS</h4>
+        <dl class="hdl">
+          <dt>GIRAR</dt><dd>Arrastra hacia arriba para subir y hacia abajo para bajar. También sirve la rueda del mouse.</dd>
+          <dt>FINO</dt><dd>Mantén Shift mientras arrastras para mover poquito.</dd>
+          <dt>RESET</dt><dd>Doble clic vuelve al valor de fábrica.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-pantalla"><h4>PANTALLA</h4>
+        <dl class="hdl">
+          <dt>VER TODO</dt><dd>Muestra el diseño completo. Los puntos se ven como un tono suave.</dd>
+          <dt>ZOOM 100% · 200%</dt><dd>Solo es lupa: no cambia el archivo ni agranda la imagen (para eso está AGRANDAR CON IA). Muestra los puntos reales, como saldrán impresos. Arrastra la imagen para moverte. Doble clic en la imagen salta al ZOOM 100% en ese lugar.</dd>
+          <dt>COMPARAR</dt><dd>Divide la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea.</dd>
+          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, modo, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
+          <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-fuente"><h4>FUENTE</h4>
+        <dl class="hdl">
+          <dt>CARGAR</dt><dd>Abre tu imagen.</dd>
+          <dt>DISPLAY</dt><dd>Nombre y píxeles de la imagen. Todos los detalles están en MEDIDAS.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-medidas"><h4>MEDIDAS</h4>
+        <dl class="hdl">
+          <dt>VER EN</dt><dd>Cambia todas las medidas de la app a píxeles, milímetros, centímetros, metros o pulgadas.</dd>
+          <dt>ORIGINAL</dt><dd>Los píxeles de la imagen que cargaste.</dd>
+          <dt>SIN AGRANDAR</dt><dd>Hasta qué tamaño se imprime nítida (300 ppp) sin agrandarla.</dd>
+          <dt>IMPRESIÓN</dt><dd>Ancho × alto que tendrá impresa.</dd>
+          <dt>ARCHIVO FINAL</dt><dd>Los píxeles del PNG que vas a grabar.</dd>
+          <dt>CALIDAD</dt><dd>Resolución real a ese tamaño. Con menos de 200 ppp se ve pixelada, y te dice cuánto agrandar con IA.</dd>
+          <dt>LARGO EN ROLLO</dt><dd>Cuánto rollo ocupa el diseño, para calcular el precio.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-ia"><h4>AGRANDAR CON IA</h4>
+        <dl class="hdl">
+          <dt>ANIME</dt><dd>Para dibujos e ilustraciones con líneas limpias.</dd>
+          <dt>GENERAL</dt><dd>Para fotos y texturas.</dd>
+          <dt>×2 A ×7</dt><dd>Cuántas veces más grande. De ×5 a ×7 la IA pasa dos veces por la imagen: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
+          <dt>SALDRÁ</dt><dd>El tamaño que tendrá la imagen después de agrandar, antes de darle al botón.</dd>
+          <dt>AGRANDAR</dt><dd>Empieza. La barra verde muestra el avance.</dd>
+        </dl>
+        <p class="tip">Si no te gusta el resultado, dale DESHACER. Agranda antes de ajustar la trama. Corre en tu computador: la primera vez descarga el modelo y en equipos sin buena tarjeta de video es más lento.</p>
+      </section>
+      <section class="hsec" id="h-modo"><h4>MODO</h4>
+        <dl class="hdl">
+          <dt>SEMITONO</dt><dd>Convierte sombras y degradados en puntos sólidos. Así no queda velo blanco.</dd>
+          <dt>LIMPIAR</dt><dd>Deja el diseño igual, sin puntos, pero quita las semitransparencias y el fondo.</dd>
+          <dt>OSCUROS</dt><dd>Para camiseta oscura: lo negro desaparece y se ve la tela.</dd>
+          <dt>CLAROS</dt><dd>Para camiseta clara: lo blanco desaparece.</dd>
+        </dl>
+        <p class="tip">OSCUROS o CLAROS se elige solo cuando tocas el color de la camiseta. Quita por tono: también borra los negros (o blancos) de adentro del diseño.</p>
+      </section>
+      <section class="hsec" id="h-trama"><h4>TRAMA · SOLO EN SEMITONO</h4>
+        <dl class="hdl">
+          <dt>LPI</dt><dd>Cantidad de puntos. Menos = puntos grandes y visibles. Más = puntos finos. Para DTF, entre 35 y 55.</dd>
+          <dt>ÁNGULO</dt><dd>Inclinación de la trama. 22,5° o 45° se ven más naturales.</dd>
+          <dt>PUNTO MÍN</dt><dd>Borra los puntos más pequeños que esto, porque en DTF se despegan al lavar. Entre 0,25 y 0,35 mm.</dd>
+          <dt>CELDA</dt><dd>Solo informa el tamaño de cada celda de la trama.</dd>
+          <dt>FORMA</dt><dd><b>Redondo</b>: el clásico. <b>Elipse</b>: medios tonos más suaves (puntos en cadena). <b>Cuadrado</b> y <b>rombo</b>: look gráfico. <b>Cruz</b>: trama tipo rejilla. <b>Línea</b> y <b>ondas</b>: efecto grabado o retro. <b>Granulado</b>: puntos al azar sin patrón, como grano de película. Para línea, ondas y cruz se ven mejor con LPI bajo (20 a 35).</dd>
+          <dt>GRANULADO</dt><dd>El tamaño del grano lo da PUNTO MÍN (no bajes de 0,25 mm para que no se despegue). LPI y ÁNGULO no aplican.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-tono"><h4>TONO</h4>
+        <dl class="hdl">
+          <dt>NEGRO / BLANCO</dt><dd>Lo más oscuro (o claro) que este % desaparece. Súbelo si queda fondo; bájalo si se borran partes del diseño.</dd>
+          <dt>SÓLIDO</dt><dd>Desde este % la tinta queda llena, sin puntos.</dd>
+          <dt>CURVA</dt><dd>Más de 1 = puntos más pequeños y más tela a la vista. Menos de 1 = más tinta.</dd>
+          <dt>INTENSIDAD</dt><dd>Aviva el color de los puntos para que no se vea lavado.</dd>
+          <dt>CORTE ALFA</dt><dd>Solo en LIMPIAR: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
+        </dl>
+      </section>
+      <section class="hsec" id="h-camiseta"><h4>CAMISETA</h4>
+        <dl class="hdl">
+          <dt>COLORES</dt><dd>Muestra el diseño sobre ese color de tela.</dd>
+          <dt>RUEDA</dt><dd>Escoge cualquier otro color.</dd>
+        </dl>
+        <p class="tip">El color de la camiseta no se graba en el archivo: solo cambia la vista y el modo OSCUROS/CLAROS.</p>
+      </section>
+      <section class="hsec" id="h-salida"><h4>SALIDA</h4>
+        <dl class="hdl">
+          <dt>ANCHO</dt><dd>Perilla para el tamaño real de impresión. El alto se calcula solo. El rollo de 58 cm imprime hasta unos 56 cm.</dd>
+          <dt>EXACTO</dt><dd>Escribe el ancho o el alto en la unidad elegida y dale Enter: la otra medida se ajusta sola.</dd>
+          <dt>GRABAR PNG</dt><dd>Guarda el archivo final a 300 ppp, sin semitransparencias, listo para el RIP. Queda en tu carpeta de Descargas.</dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* =========================================================
+   Utilidades
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const nf1 = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+const nf0 = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
+const DPI = 300;
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+let toastT = null;
+function toast(msg, ms = 3800) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ms); }
+
+/* =========================================================
+   Parámetros
+   ========================================================= */
+const P = {
+  mode: 'semi',        // semi | clean
+  knock: 'dark',       // dark: quita oscuros (camiseta oscura) | light: quita claros
+  shape: 'round',      // round | square | line
+  lpi: 45, angle: 22.5, minDot: 0.25,
+  black: 8, solid: 92, curve: 1.0, intensity: 50, alphaCut: 55,
+  widthCm: 30,
+  shirt: '#111111',
+  zoom: 'fit', compare: false,
+  model: 'anime', scale: 4, unit: 'cm',
+};
+try { const saved = JSON.parse(store.get('tramaluz.p') || 'null'); if (saved) for (const k of ['mode','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','shirt','model','scale','unit']) if (k in saved) P[k] = saved[k]; } catch (e) {}
+let saveT = null;
+function persist() { clearTimeout(saveT); saveT = setTimeout(() => store.set('tramaluz.p', JSON.stringify(P)), 400); scheduleCommit(); }
+
+/* =========================================================
+   Controles: perillas e interruptores
+   ========================================================= */
+const knobs = {};
+function makeKnob(parent, o) {
+  const wrap = document.createElement('div'); wrap.className = 'k';
+  wrap.innerHTML = `<div class="knob" role="slider" tabindex="0"><div class="cap"></div></div><div class="klabel"></div><div class="kval"></div>`;
+  const el = wrap.querySelector('.knob'), lab = wrap.querySelector('.klabel'), val = wrap.querySelector('.kval');
+  lab.textContent = o.label; el.setAttribute('aria-label', o.aria || o.label); el.title = o.help || '';
+  el.setAttribute('aria-valuemin', o.min); el.setAttribute('aria-valuemax', o.max);
+  const k = {
+    el, wrap,
+    get v() { return P[o.key]; },
+    show() {
+      const v = P[o.key], f = clamp((v - o.min) / (o.max - o.min), 0, 1);
+      el.querySelector('.cap').style.setProperty('--rot', (-135 + 270 * f) + 'deg');
+      val.textContent = o.fmt(v); el.setAttribute('aria-valuenow', v); el.setAttribute('aria-valuetext', o.fmt(v));
+    },
+    set(v, fire = true) {
+      v = clamp(Math.round(v / o.step) * o.step, o.min, o.max); v = +v.toFixed(4);
+      const changed = v !== P[o.key]; P[o.key] = v; k.show();
+      if (changed && fire) { persist(); o.onChange && o.onChange(v); }
+    },
+    disable(d) { el.setAttribute('aria-disabled', d ? 'true' : 'false'); el.tabIndex = d ? -1 : 0; }
+  };
+  let drag = null;
+  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); drag = { y: e.clientY, x: e.clientX, v: P[o.key] }; el.focus(); });
+  el.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const d = (drag.y - e.clientY) + (e.clientX - drag.x) * 0.5;
+    const span = o.max - o.min; const sens = e.shiftKey ? 600 : 180;
+    k.set(drag.v + d / sens * span);
+  });
+  const end = () => drag = null;
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('wheel', e => { e.preventDefault(); k.set(P[o.key] - Math.sign(e.deltaY) * o.step * (e.shiftKey ? 1 : (o.wheel || 1))); }, { passive: false });
+  el.addEventListener('keydown', e => {
+    const big = (o.max - o.min) / 10;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { k.set(P[o.key] + o.step); e.preventDefault(); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { k.set(P[o.key] - o.step); e.preventDefault(); }
+    else if (e.key === 'PageUp') { k.set(P[o.key] + big); e.preventDefault(); }
+    else if (e.key === 'PageDown') { k.set(P[o.key] - big); e.preventDefault(); }
+    else if (e.key === 'Home') { k.set(o.min); e.preventDefault(); }
+    else if (e.key === 'End') { k.set(o.max); e.preventDefault(); }
+  });
+  el.addEventListener('dblclick', () => k.set(o.def));
+  parent.appendChild(wrap);
+  k.set(P[o.key], false);
+  knobs[o.key] = k;
+  return k;
+}
+function makeSwitch(container, key, options, onChange) {
+  container.innerHTML = '';
+  const btns = options.map(([v, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio');
+    b.innerHTML = '<span class="led"></span><span></span>'; b.lastChild.textContent = label; b.dataset.v = v;
+    b.addEventListener('click', () => { if (P[key] === v) return; P[key] = v; sync(); persist(); onChange && onChange(v); });
+    container.appendChild(b); return b;
+  });
+  function sync() { btns.forEach(b => { const on = String(P[key]) === String(b.dataset.v); b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; }); }
+  container.addEventListener('keydown', e => {
+    if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+    e.preventDefault(); const i = options.findIndex(([v]) => String(v) === String(P[key]));
+    const n = (i + (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1) + options.length) % options.length;
+    btns[n].click(); btns[n].focus();
+  });
+  sync(); return { sync };
+}
+
+/* =========================================================
+   Motor de semitono (Web Worker)
+   ========================================================= */
+// Forma del punto: devuelve un valor que ordena qué parte de la celda se llena primero
+function spot(shape, u, v) {
+  const au = Math.abs(u), av = Math.abs(v);
+  switch (shape) {
+    case 'square': return Math.max(au, av);
+    case 'diamond': return au + av;
+    case 'ellipse': return u * u + (v / 0.62) * (v / 0.62);
+    case 'cross': return Math.min(au, av) + 0.02 * (au + av);
+    case 'line': return av;
+    case 'wave': { let d = v - 0.16 * Math.sin(2 * Math.PI * (u + 0.5)); d -= Math.round(d); return Math.abs(d); }
+    default: return u * u + v * v;
+  }
+}
+// Ruido azul (void-and-cluster): umbrales sin patrón visible para el granulado
+function blueNoise(n) {
+  const N = n * n, sig = 1.5, K = new Float32Array(N);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const dx = Math.min(x, n - x), dy = Math.min(y, n - y); K[y * n + x] = Math.exp(-(dx * dx + dy * dy) / (2 * sig * sig)); }
+  const E = new Float32Array(N), on = new Uint8Array(N), rank = new Int32Array(N);
+  const upd = (p, sgn) => { const px = p % n, py = (p / n) | 0; for (let y = 0; y < n; y++) { let ky = y - py; if (ky < 0) ky += n; const kr = ky * n, er = y * n; for (let x = 0; x < n; x++) { let kx = x - px; if (kx < 0) kx += n; E[er + x] += sgn * K[kr + kx]; } } };
+  let seed = 20261119; const rnd = () => ((seed = (Math.imul(seed, 1103515245) + 12345) >>> 0) / 4294967296);
+  const init = Math.max(1, Math.floor(N * 0.1)); let cnt = 0;
+  while (cnt < init) { const p = (rnd() * N) | 0; if (!on[p]) { on[p] = 1; upd(p, 1); cnt++; } }
+  const tight = () => { let b = -1, bv = -1e9; for (let i = 0; i < N; i++) if (on[i] && E[i] > bv) { bv = E[i]; b = i; } return b; };
+  const hole = () => { let b = -1, bv = 1e9; for (let i = 0; i < N; i++) if (!on[i] && E[i] < bv) { bv = E[i]; b = i; } return b; };
+  for (let it = 0; it < N; it++) { const t = tight(); on[t] = 0; upd(t, -1); const h = hole(); on[h] = 1; upd(h, 1); if (h === t) break; }
+  const on0 = on.slice(), E0 = E.slice();
+  for (let r = cnt - 1; r >= 0; r--) { const t = tight(); on[t] = 0; upd(t, -1); rank[t] = r; }
+  on.set(on0); E.set(E0);
+  for (let r = cnt; r < N; r++) { const h = hole(); on[h] = 1; upd(h, 1); rank[h] = r; }
+  const out = new Float32Array(N); for (let i = 0; i < N; i++) out[i] = (rank[i] + 0.5) / N; return out;
+}
+const workerSrc = `${spot.toString()}
+${blueNoise.toString()}
+let S=null,SW=0,SH=0,BN=null; const LUT={}; const N=128;
+function buildLut(shape){
+  const vals=new Float32Array(N*N), idx=new Uint32Array(N*N);
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){const u=(i+0.5)/N-0.5,v=(j+0.5)/N-0.5; const s=spot(shape,u,v);
+    vals[i*N+j]=s+(i*N+j)*1e-9; idx[i*N+j]=i*N+j;}
+  const order=Array.from(idx).sort((a,b)=>vals[a]-vals[b]); const lut=new Float32Array(N*N);
+  order.forEach((k,r)=>lut[k]=(r+0.5)/(N*N)); return lut;
+}
+function lutFor(s){ return LUT[s]||(LUT[s]=buildLut(s)); }
+function render(m){
+  const {outW,outH,rx,ry,rw,rh,step,kind,approx,p}=m;
+  const out=new Uint8ClampedArray(rw*rh*4);
+  if(!S) return out;
+  const kx=SW/outW, ky=SH/outH;
+  const cell=p.cell, ang=p.angle*Math.PI/180, cs=Math.cos(ang)/cell, sn=Math.sin(ang)/cell;
+  const grain=p.shape==='grain'; const lut=grain?null:lutFor(p.shape); if(grain&&!BN) BN=blueNoise(64);
+  const lo=p.black/100, hi=Math.max(p.solid/100,lo+0.01), span=hi-lo, gam=p.curve, inten=p.intensity/100;
+  const cmin=p.cmin, cmax=1-p.cmin, acut=p.alphaCut/100;
+  const dark=p.knock==='dark'; const sr=p.shirt[0]/255, sg=p.shirt[1]/255, sb=p.shirt[2]/255;
+  let o=0;
+  for(let j=0;j<rh;j++){
+    const Y=ry+(j+0.5)*step; let syp=Y*ky-0.5; if(syp<0)syp=0; if(syp>SH-1)syp=SH-1;
+    const y0=syp|0, y1=Math.min(y0+1,SH-1), fy=syp-y0;
+    for(let i=0;i<rw;i++,o+=4){
+      const X=rx+(i+0.5)*step; let sxp=X*kx-0.5; if(sxp<0)sxp=0; if(sxp>SW-1)sxp=SW-1;
+      const x0=sxp|0, x1=Math.min(x0+1,SW-1), fx=sxp-x0;
+      const a00=(y0*SW+x0)*4,a01=(y0*SW+x1)*4,a10=(y1*SW+x0)*4,a11=(y1*SW+x1)*4;
+      const w00=(1-fx)*(1-fy),w01=fx*(1-fy),w10=(1-fx)*fy,w11=fx*fy;
+      const A00=S[a00+3]*w00,A01=S[a01+3]*w01,A10=S[a10+3]*w10,A11=S[a11+3]*w11;
+      const A=A00+A01+A10+A11; if(A<=0.5){continue;}
+      let r=(S[a00]*A00+S[a01]*A01+S[a10]*A10+S[a11]*A11)/A/255;
+      let g=(S[a00+1]*A00+S[a01+1]*A01+S[a10+1]*A10+S[a11+1]*A11)/A/255;
+      let b=(S[a00+2]*A00+S[a01+2]*A01+S[a10+2]*A10+S[a11+2]*A11)/A/255;
+      const a=A/255;
+      if(kind==='orig'){ out[o]=r*255; out[o+1]=g*255; out[o+2]=b*255; out[o+3]=A; continue; }
+      const lum=0.2126*r+0.7152*g+0.0722*b;
+      if(p.mode==='clean'){
+        const v=dark? lum*a : (1-lum)*a;
+        if(a<acut || v<lo) continue;
+        out[o]=(r*a+sr*(1-a))*255; out[o+1]=(g*a+sg*(1-a))*255; out[o+2]=(b*a+sb*(1-a))*255; out[o+3]=255; continue;
+      }
+      const v=dark? lum*a : (1-lum)*a;
+      let c=(v-lo)/span; if(c<=0) continue; if(c>1)c=1; if(gam!==1)c=Math.pow(c,gam);
+      if(c<cmin){ if(c<cmin*0.5) continue; c=cmin; } if(c>cmax) c=1;
+      let alpha;
+      if(approx){ alpha=c; }
+      else {
+        if(c<1){ let t;
+          if(grain){ const gx=Math.floor(X/p.grain), gy=Math.floor(Y/p.grain); t=BN[((gy&63)<<6)|(gx&63)]; }
+          else { const u=X*cs+Y*sn, w=-X*sn+Y*cs; const fu=u-Math.floor(u), fv=w-Math.floor(w); t=lut[((fu*N)|0)*N+((fv*N)|0)]; }
+          if(c<=t) continue; }
+        alpha=1;
+      }
+      if(dark){ const mx=Math.max(r,g,b); if(mx>0.001){ r+=(r/mx-r)*inten; g+=(g/mx-g)*inten; b+=(b/mx-b)*inten; } }
+      else { const ir=1-r, ig=1-g, ib=1-b, mx=Math.max(ir,ig,ib); if(mx>0.001){ r=1-(ir+(ir/mx-ir)*inten); g=1-(ig+(ig/mx-ig)*inten); b=1-(ib+(ib/mx-ib)*inten); } }
+      out[o]=r*255; out[o+1]=g*255; out[o+2]=b*255; out[o+3]=alpha*255;
+    }
+  }
+  return out;
+}
+onmessage=async(e)=>{ const m=e.data;
+  try{
+    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; postMessage({type:'ok',id:m.id}); return; }
+    if(m.type==='render'){ const out=render(m); postMessage({type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh},[out.buffer]); return; }
+    if(m.type==='export'){
+      const out=render(m);
+      if(typeof OffscreenCanvas!=='undefined'){
+        const oc=new OffscreenCanvas(m.rw,m.rh); oc.getContext('2d').putImageData(new ImageData(out,m.rw,m.rh),0,0);
+        const blob=await oc.convertToBlob({type:'image/png'}); postMessage({type:'blob',id:m.id,blob}); return;
+      }
+      postMessage({type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh},[out.buffer]);
+    }
+  }catch(err){ postMessage({type:'err',id:m.id,msg:String(err&&err.message||err)}); }
+};`;
+const worker = new Worker(URL.createObjectURL(new Blob([workerSrc], { type: 'text/javascript' })));
+let jobSeq = 0; const pending = new Map();
+worker.onmessage = e => { const m = e.data; const p = pending.get(m.id); if (!p) return; pending.delete(m.id); m.type === 'err' ? p.reject(new Error(m.msg)) : p.resolve(m); };
+function wcall(msg, transfer) { const id = ++jobSeq; msg.id = id; return new Promise((resolve, reject) => { pending.set(id, { resolve, reject }); worker.postMessage(msg, transfer || []); }); }
+
+/* =========================================================
+   Imagen fuente
+   ========================================================= */
+let SRC = null;      // {w,h,data:Uint8ClampedArray,name, semi}
+let ORIGINAL = null; // copia antes de agrandar
+async function setSource(img, keepOriginal) {
+  SRC = img;
+  if (!keepOriginal) ORIGINAL = null;
+  await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
+  $('#empty').hidden = true;
+  ['btnUp', 'btnExport'].forEach(id => $('#' + id).disabled = false);
+  updateInfo(); view.cx = null; scheduleRender();
+}
+function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
+async function loadFile(file) {
+  if (!file) return;
+  if (!/^image\//.test(file.type)) { toast('Ese archivo no es una imagen. Usa PNG, JPG o WebP.'); return; }
+  showBusy('CARGANDO…');
+  try {
+    const bmp = await createImageBitmap(file, { premultiplyAlpha: 'none' });
+    let w = bmp.width, h = bmp.height; const MAXPX = 60e6;
+    if (w * h > MAXPX) { const s = Math.sqrt(MAXPX / (w * h)); w = Math.floor(w * s); h = Math.floor(h * s); toast('La imagen era muy grande; la reduje a ' + w + ' × ' + h + ' px.'); }
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h);
+    const id = ctx.getImageData(0, 0, w, h);
+    const img = { w, h, data: id.data, name: file.name.replace(/\.[^.]+$/, '') };
+    img.semi = semiPct(img.data);
+    await setSource(img, false);
+    resetHistory();
+  } catch (e) { console.error(e); toast('No pude abrir esa imagen.'); }
+  hideBusy();
+}
+$('#btnLoad').onclick = $('#btnLoad2').onclick = () => $('#file').click();
+$('#file').onchange = e => { loadFile(e.target.files[0]); e.target.value = ''; };
+const scr = $('#screen');
+['dragenter', 'dragover'].forEach(t => scr.addEventListener(t, e => { e.preventDefault(); $('#empty').classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => scr.addEventListener(t, e => { e.preventDefault(); $('#empty').classList.remove('over'); }));
+scr.addEventListener('drop', e => { const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadFile(f); });
+
+/* =========================================================
+   Medidas de salida
+   ========================================================= */
+function outSize() {
+  if (!SRC) return { w: 0, h: 0, hcm: 0 };
+  const w = Math.round(P.widthCm / 2.54 * DPI);
+  const h = Math.max(1, Math.round(w * SRC.h / SRC.w));
+  return { w, h, hcm: h / DPI * 2.54 };
+}
+function cellPx() { return DPI / P.lpi; }
+function params() {
+  const cell = cellPx(), d = P.minDot / 25.4 * DPI;
+  const sh = P.shape;
+  const lw = 0.5 * d / cell; // trazo continuo: se adhiere mejor que un punto suelto
+  let cmin = sh === 'grain' ? 0 : (sh === 'line' || sh === 'wave') ? lw : sh === 'cross' ? 2 * lw - lw * lw
+    : (sh === 'square' || sh === 'diamond') ? (d * d) / (cell * cell) : Math.PI * (d / 2) ** 2 / (cell * cell);
+  cmin = clamp(cmin, 0, 0.45);
+  const sc = hexToRgb(P.shirt);
+  return { mode: P.mode, knock: P.knock, shape: P.shape, grain: Math.max(2, Math.round(d)), cell, angle: P.angle, cmin, black: P.black, solid: P.solid, curve: P.curve, intensity: P.intensity, alphaCut: P.alphaCut, shirt: sc };
+}
+function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+const UNITS = { px: 'px', mm: 'mm', cm: 'cm', m: 'm', in: 'pulg' };
+const UDEC = { px: 0, mm: 0, cm: 1, m: 3, in: 2 };
+function cmTo(u, cm) { return u === 'px' ? cm / 2.54 * DPI : u === 'mm' ? cm * 10 : u === 'm' ? cm / 100 : u === 'in' ? cm / 2.54 : cm; }
+function toCm(u, v) { return u === 'px' ? v / DPI * 2.54 : u === 'mm' ? v / 10 : u === 'm' ? v * 100 : u === 'in' ? v * 2.54 : v; }
+function fmtNum(u, v, group = true) { return new Intl.NumberFormat('es-CO', { minimumFractionDigits: UDEC[u], maximumFractionDigits: UDEC[u], useGrouping: false }).format(v); }
+function fmtLen(cm, u = P.unit) { return fmtNum(u, cmTo(u, cm)) + ' ' + UNITS[u]; }
+function fmtPair(wcm, hcm, u = P.unit) { return `${fmtNum(u, cmTo(u, wcm))} × ${fmtNum(u, cmTo(u, hcm))} ${UNITS[u]}`; }
+function parseLen(str, u) {
+  let t = String(str).trim().replace(/\s/g, '');
+  if (u === 'px') return parseInt(t.replace(/[^\d]/g, ''), 10);
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if ((t.match(/\./g) || []).length > 1) t = t.replace(/\./g, '');
+  return parseFloat(t);
+}
+function renderMeasures() {
+  const dl = $('#mInfo'); dl.innerHTML = '';
+  const add = (k, v, extra, cls) => {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v;
+    if (extra) { const w = document.createElement('span'); w.className = cls || 'warn'; w.textContent = ' · ' + extra; dd.appendChild(w); }
+    dl.append(dt, dd);
+  };
+  if (!SRC) { add('IMAGEN', 'Carga un diseño para ver sus medidas'); return; }
+  const o = outSize(), ppi = SRC.w / (P.widthCm / 2.54);
+  add('ORIGINAL', `${SRC.w} × ${SRC.h} px`);
+  add('SIN AGRANDAR', 'hasta ' + fmtPair(SRC.w / DPI * 2.54, SRC.h / DPI * 2.54) + ' nítido');
+  add('IMPRESIÓN', fmtPair(P.widthCm, o.hcm));
+  add('ARCHIVO FINAL', `${o.w} × ${o.h} px · 300 ppp`);
+  const need = Math.ceil(DPI / ppi - 1e-6);
+  if (ppi >= 250) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'BUENA', 'ok');
+  else if (ppi >= 200) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'ACEPTABLE', 'ok');
+  else add('CALIDAD', `${nf0.format(ppi)} ppp`, need <= 7 ? `BAJA: AGRANDA ×${Math.max(2, need)}` : 'MUY BAJA: REDUCE EL ANCHO');
+  add('SEMITRANSP.', `${nf0.format(SRC.semi)}% en el original → 0% al grabar`);
+  add('LARGO EN ROLLO', fmtLen(o.hcm));
+}
+function updateUpSize() {
+  const el = $('#upSize'); if (!el) return; el.innerHTML = '';
+  if (!SRC) { el.textContent = 'SALDRÁ: —'; return; }
+  const N = P.scale, ow = SRC.w * N, oh = SRC.h * N, big = ow * oh > 50e6 || Math.max(ow, oh) > 12000;
+  el.textContent = `SALDRÁ: ${ow} × ${oh} px` + (P.unit === 'px' ? '' : ` · ${fmtPair(ow / DPI * 2.54, oh / DPI * 2.54)} a 300 ppp`);
+  if (big || N >= 5) { const w = document.createElement('span'); w.className = big ? 'warn' : ''; w.textContent = big ? ' · MUY GRANDE: BAJA LA ESCALA' : ' · DOS PASADAS'; el.appendChild(w); }
+}
+function syncSizeInputs(force) {
+  const iw = $('#inW'), ih = $('#inH'); if (!iw) return;
+  document.querySelectorAll('.unitTxt').forEach(e => e.textContent = UNITS[P.unit]);
+  iw.disabled = ih.disabled = !SRC;
+  if (!SRC) { iw.value = ih.value = ''; return; }
+  const o = outSize();
+  if (force || document.activeElement !== iw) iw.value = P.unit === 'px' ? String(o.w) : fmtNum(P.unit, cmTo(P.unit, P.widthCm), false);
+  if (force || document.activeElement !== ih) ih.value = P.unit === 'px' ? String(o.h) : fmtNum(P.unit, cmTo(P.unit, o.hcm), false);
+}
+function applySizeInput(which) {
+  if (!SRC) return;
+  const el = which === 'w' ? $('#inW') : $('#inH'); const v = parseLen(el.value, P.unit);
+  if (!(v > 0)) { syncSizeInputs(true); return; }
+  const wcm = which === 'w' ? toCm(P.unit, v) : toCm(P.unit, v) * SRC.w / SRC.h;
+  const lim = clamp(wcm, 3, 56);
+  if (lim !== wcm) toast(wcm > 56 ? 'El rollo de 58 cm imprime hasta 56 cm de ancho.' : 'El mínimo es 3 cm de ancho.');
+  if (Math.abs(lim - P.widthCm) > 1e-6) { P.widthCm = +lim.toFixed(5); persist(); view.cx = null; scheduleRender(); }
+  updateInfo(); syncSizeInputs(true);
+}
+function updateInfo() {
+  knobs.widthCm && knobs.widthCm.show();
+  renderMeasures(); updateUpSize(); syncSizeInputs();
+  if (!SRC) return;
+  const o = outSize(), ppi = SRC.w / (P.widthCm / 2.54);
+  const si = $('#srcInfo'); si.textContent = `${SRC.name} · ${SRC.w} × ${SRC.h} px`;
+  if (ppi < 200) { const w = document.createElement('span'); w.className = 'warn'; w.textContent = ' · BAJA RESOLUCIÓN'; si.appendChild(w); }
+  $('#status').textContent = P.unit === 'px'
+    ? `SALIDA ${o.w} × ${o.h} px · 300 ppp · 0% SEMITRANSPARENTE`
+    : `SALIDA ${fmtPair(P.widthCm, o.hcm)} · ${o.w} × ${o.h} px · 0% SEMITRANSPARENTE`;
+}
+
+/* =========================================================
+   Vista previa
+   ========================================================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+const view = { cx: null, cy: null, split: 0.5 };
+let renderT = null, renderSeq = 0;
+const imgProc = document.createElement('canvas'), imgOrig = document.createElement('canvas');
+let lastDraw = null;
+function scheduleRender(delay = 60) { clearTimeout(renderT); renderT = setTimeout(doRender, delay); }
+function fitCanvas() {
+  const r = scr.getBoundingClientRect(); const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = Math.max(1, Math.round(r.width * dpr)), H = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  return { W, H, dpr };
+}
+async function doRender() {
+  if (!SRC) return;
+  const seq = ++renderSeq;
+  const { W, H } = fitCanvas(); const o = outSize(); const p = params();
+  let job;
+  if (P.zoom === 'fit') {
+    const s = Math.min(W / o.w, H / o.h); const rw = Math.max(1, Math.round(o.w * s)), rh = Math.max(1, Math.round(o.h * s));
+    const step = o.w / rw;
+    job = { rx: 0, ry: 0, rw, rh, step, approx: step > 1.5, dx: Math.round((W - rw) / 2), dy: Math.round((H - rh) / 2), scale: 1 };
+  } else {
+    const z = P.zoom === 'z200' ? 2 : 1;
+    const rw = Math.min(o.w, Math.ceil(W / z)), rh = Math.min(o.h, Math.ceil(H / z));
+    if (view.cx == null) { view.cx = o.w / 2; view.cy = o.h / 2; }
+    view.cx = clamp(view.cx, rw / 2, o.w - rw / 2); view.cy = clamp(view.cy, rh / 2, o.h - rh / 2);
+    const rx = Math.round(view.cx - rw / 2), ry = Math.round(view.cy - rh / 2);
+    job = { rx, ry, rw, rh, step: 1, approx: false, dx: Math.round((W - rw * z) / 2), dy: Math.round((H - rh * z) / 2), scale: z };
+  }
+  showBusy('PROCESANDO…');
+  const base = { type: 'render', outW: o.w, outH: o.h, rx: job.rx, ry: job.ry, rw: job.rw, rh: job.rh, step: job.step, approx: job.approx, p };
+  const tasks = [wcall({ ...base, kind: 'proc' })];
+  if (P.compare) tasks.push(wcall({ ...base, kind: 'orig' }));
+  let res;
+  try { res = await Promise.all(tasks); } catch (e) { console.error(e); hideBusy(); return; }
+  if (seq !== renderSeq) { hideBusy(); return; }
+  putTo(imgProc, res[0]);
+  if (res[1]) putTo(imgOrig, res[1]);
+  lastDraw = job; draw();
+  hideBusy();
+}
+function putTo(c, m) { c.width = m.w; c.height = m.h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(m.buf), m.w, m.h), 0, 0); }
+function draw() {
+  const j = lastDraw; if (!j) return;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.imageSmoothingEnabled = j.scale === 1 ? true : false; ctx.imageSmoothingQuality = 'high';
+  const w = j.rw * j.scale, h = j.rh * j.scale;
+  if (P.compare && imgOrig.width) {
+    const sx = Math.round(cv.width * view.split);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, sx, cv.height); ctx.clip(); ctx.drawImage(imgOrig, j.dx, j.dy, w, h); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(sx, 0, cv.width - sx, cv.height); ctx.clip(); ctx.drawImage(imgProc, j.dx, j.dy, w, h); ctx.restore();
+  } else ctx.drawImage(imgProc, j.dx, j.dy, w, h);
+  const showSplit = P.compare;
+  $('#divider').hidden = !showSplit; $('#tagL').hidden = !showSplit; $('#tagR').hidden = !showSplit;
+  if (showSplit) $('#divider').style.left = (view.split * 100) + '%';
+  scr.classList.toggle('pan', P.zoom !== 'fit');
+}
+let busyN = 0;
+function showBusy(t) { busyN++; const b = $('#busy'); b.textContent = t; b.hidden = false; }
+function hideBusy() { busyN = Math.max(0, busyN - 1); if (!busyN) $('#busy').hidden = true; }
+new ResizeObserver(() => scheduleRender(120)).observe(scr);
+
+// Arrastrar: mover vista en zoom o la división antes/después
+let panDrag = null;
+$('#divider').addEventListener('pointerdown', e => { e.stopPropagation(); const d = $('#divider'); d.setPointerCapture(e.pointerId); panDrag = { split: true }; });
+$('#divider').addEventListener('pointermove', e => { if (!panDrag || !panDrag.split) return; const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); });
+$('#divider').addEventListener('pointerup', () => panDrag = null);
+scr.addEventListener('pointerdown', e => {
+  if (!SRC || e.target.closest('.empty')) return;
+  if (P.zoom === 'fit') {
+    if (!P.compare) return;
+    scr.setPointerCapture(e.pointerId); panDrag = { split: true, onScreen: true };
+    const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); return;
+  }
+  scr.setPointerCapture(e.pointerId); panDrag = { x: e.clientX, y: e.clientY, cx: view.cx, cy: view.cy };
+});
+scr.addEventListener('pointermove', e => {
+  if (panDrag && panDrag.onScreen) { const r = scr.getBoundingClientRect(); view.split = clamp((e.clientX - r.left) / r.width, 0.02, 0.98); draw(); return; }
+  if (!panDrag || panDrag.split) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), z = P.zoom === 'z200' ? 2 : 1;
+  view.cx = panDrag.cx - (e.clientX - panDrag.x) * dpr / z; view.cy = panDrag.cy - (e.clientY - panDrag.y) * dpr / z;
+  scheduleRender(40);
+});
+scr.addEventListener('pointerup', () => { if (panDrag && (!panDrag.split || panDrag.onScreen)) panDrag = null; });
+scr.addEventListener('dblclick', e => {
+  if (!SRC || P.zoom !== 'fit' || !lastDraw) return;
+  const r = scr.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), j = lastDraw;
+  const px = ((e.clientX - r.left) * dpr - j.dx) * j.step, py = ((e.clientY - r.top) * dpr - j.dy) * j.step;
+  view.cx = px; view.cy = py; P.zoom = 'z100'; swZoom.sync(); scheduleRender(0);
+});
+
+/* =========================================================
+   Agrandar con IA (Real-ESRGAN en TF.js, por mosaicos)
+   ========================================================= */
+let tfReady = null; const models = {};
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('No cargó ' + src)); document.head.appendChild(s); }); }
+async function ensureTf() {
+  if (!tfReady) tfReady = (async () => {
+    await loadScript('vendor/tf.min.js');
+    try { await tf.setBackend('webgl'); } catch (e) {}
+    await tf.ready();
+    return tf.getBackend();
+  })();
+  return tfReady;
+}
+async function getModel(name) {
+  if (models[name]) return models[name];
+  // pesos en float16 (modelos/<nombre>.bin)
+  const [man, bin] = await Promise.all([fetch('modelos/' + name + '.json').then(r => { if (!r.ok) throw new Error('modelo'); return r.json(); }), fetch('modelos/' + name + '.bin').then(r => { if (!r.ok) throw new Error('modelo'); return r.arrayBuffer(); })]);
+  const u16 = new Uint16Array(bin); const f32 = new Float32Array(u16.length);
+  for (let i = 0; i < u16.length; i++) { const h = u16[i], sgn = h & 0x8000 ? -1 : 1, e = (h >> 10) & 31, f = h & 1023; f32[i] = e === 0 ? sgn * f * 5.960464477539063e-8 : e === 31 ? (f ? NaN : sgn * Infinity) : sgn * (1 + f / 1024) * Math.pow(2, e - 15); }
+  const t = info => tf.tensor(f32.subarray(info.offset / 4, info.offset / 4 + info.shape.reduce((a, b) => a * b, 1)), info.shape);
+  models[name] = { scale: man.scale, layers: man.layers.map(L => L.type === 'conv' ? { type: 'conv', w: t(L.w), b: t(L.b) } : { type: 'prelu', a: t(L.a) }) };
+  return models[name];
+}
+// Una pasada del modelo (×4). Libera cada capa al vuelo para no llenar la memoria de video.
+function srPass(model, x) {
+  let y = x;
+  for (const L of model.layers) {
+    const n = L.type === 'conv' ? tf.tidy(() => tf.add(tf.conv2d(y, L.w, 1, 'same'), L.b)) : tf.prelu(y, L.a);
+    if (y !== x) y.dispose(); y = n;
+  }
+  const [, h, w] = x.shape;
+  const out = tf.tidy(() => tf.clipByValue(tf.add(tf.depthToSpace(y, model.scale, 'NHWC'), tf.image.resizeNearestNeighbor(x, [h * model.scale, w * model.scale])), 0, 1));
+  y.dispose(); return out;
+}
+// ×2: ×4 y promedio 2×2 · ×3: ×4 y reducción · ×4: directo · ×5–×7: (×2 → ×4) = ×8 y reducción exacta
+function srScale(model, x, N) {
+  const [, h, w] = x.shape; let y;
+  const swap = t => { y.dispose(); y = t; };
+  if (N <= 4) {
+    y = srPass(model, x);
+    if (N === 2) swap(tf.avgPool(y, 2, 2, 'valid'));
+    else if (N === 3) swap(tf.image.resizeBilinear(y, [h * 3, w * 3], false, true));
+  } else {
+    const a = srPass(model, x), b = tf.avgPool(a, 2, 2, 'valid'); a.dispose();
+    y = srPass(model, b); b.dispose();
+    if (N !== 8) swap(tf.image.resizeBilinear(y, [h * N, w * N], false, true));
+  }
+  swap(tf.clipByValue(y, 0, 1)); return y;
+}
+let upRunning = false;
+async function upscale() {
+  if (!SRC || upRunning) return;
+  const target = P.scale, sw = SRC.w, sh = SRC.h, ow = sw * target, oh = sh * target;
+  if (ow * oh > 50e6 || Math.max(ow, oh) > 12000) { toast(`Quedaría de ${ow} × ${oh} px, demasiado grande. Baja la escala o usa una imagen más pequeña.`); return; }
+  upRunning = true; $('#btnUp').disabled = true; const meter = $('#upMeter i'); meter.style.width = '0%';
+  $('#upNote').textContent = 'Cargando el motor de IA…';
+  try {
+    const backend = await ensureTf();
+    if (backend !== 'webgl') $('#upNote').textContent = 'Tu navegador no deja usar la tarjeta de video; esto va a ser lento.';
+    const model = await getModel(P.model);
+    const TILE = 128, PAD = 24;
+    const out = new Uint8ClampedArray(ow * oh * 4);
+    const src = SRC.data;
+    const tiles = []; for (let y = 0; y < sh; y += TILE) for (let x = 0; x < sw; x += TILE) tiles.push([x, y]);
+    let done = 0; const t0 = performance.now();
+    for (const [tx, ty] of tiles) {
+      const tw = Math.min(TILE, sw - tx), th = Math.min(TILE, sh - ty);
+      const cx0 = Math.max(0, tx - PAD), cy0 = Math.max(0, ty - PAD), cx1 = Math.min(sw, tx + tw + PAD), cy1 = Math.min(sh, ty + th + PAD);
+      const cw = cx1 - cx0, ch = cy1 - cy0;
+      const buf = new Float32Array(cw * ch * 3);
+      for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+        const s = ((cy0 + y) * sw + cx0 + x) * 4, d = (y * cw + x) * 3;
+        buf[d] = src[s] / 255; buf[d + 1] = src[s + 1] / 255; buf[d + 2] = src[s + 2] / 255;
+      }
+      const xt = tf.tensor4d(buf, [1, ch, cw, 3]);
+      const yt = srScale(model, xt, target); xt.dispose();
+      const data = await yt.data(); yt.dispose();
+      const yw = cw * target, ox = (tx - cx0) * target, oy = (ty - cy0) * target;
+      for (let y = 0; y < th * target; y++) {
+        const drow = ((ty * target + y) * ow + tx * target) * 4, srow = ((oy + y) * yw + ox) * 3;
+        for (let x = 0; x < tw * target; x++) {
+          const d = drow + x * 4, s = srow + x * 3;
+          out[d] = data[s] * 255 + 0.5; out[d + 1] = data[s + 1] * 255 + 0.5; out[d + 2] = data[s + 2] * 255 + 0.5; out[d + 3] = 255;
+        }
+      }
+      done++; meter.style.width = (done / tiles.length * 100) + '%';
+      const el = (performance.now() - t0) / 1000, eta = el / done * (tiles.length - done);
+      $('#upNote').textContent = `Agrandando… ${done}/${tiles.length} partes · faltan ~${nf0.format(eta)} s`;
+      await tf.nextFrame();
+    }
+    // transparencia: se agranda aparte con suavizado
+    let hasAlpha = false; for (let i = 3; i < src.length; i += 4) if (src[i] < 255) { hasAlpha = true; break; }
+    if (hasAlpha) {
+      const a = document.createElement('canvas'); a.width = sw; a.height = sh; const ac = a.getContext('2d');
+      const ad = ac.createImageData(sw, sh); for (let i = 0; i < src.length; i += 4) { ad.data[i] = ad.data[i + 1] = ad.data[i + 2] = src[i + 3]; ad.data[i + 3] = 255; }
+      ac.putImageData(ad, 0, 0);
+      const b = document.createElement('canvas'); b.width = ow; b.height = oh; const bc = b.getContext('2d', { willReadFrequently: true });
+      bc.imageSmoothingQuality = 'high'; bc.drawImage(a, 0, 0, ow, oh);
+      const bd = bc.getImageData(0, 0, ow, oh).data; for (let i = 0; i < out.length; i += 4) out[i + 3] = bd[i];
+    }
+    const img = { w: ow, h: oh, data: out, name: SRC.name, semi: semiPct(out) };
+    await setSource(img, true);
+    commitNow();
+    $('#upNote').textContent = `Listo: ${sw} × ${sh} → ${ow} × ${oh} px. Si no te gusta, dale DESHACER.`;
+    meter.style.width = '100%';
+  } catch (e) {
+    console.error(e); $('#upNote').textContent = 'No se pudo agrandar: ' + (e.message || 'error') + '. Prueba con una imagen más pequeña.';
+  }
+  upRunning = false; $('#btnUp').disabled = !SRC;
+}
+$('#btnUp').onclick = upscale;
+
+/* =========================================================
+   Exportar PNG con 300 ppp
+   ========================================================= */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(bytes) { let c = 0xFFFFFFFF; for (let i = 0; i < bytes.length; i++) c = CRC[(c ^ bytes[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+async function withDpi(blob, dpi) {
+  const src = new Uint8Array(await blob.arrayBuffer());
+  const ppm = Math.round(dpi / 0.0254);
+  const chunk = new Uint8Array(21); const dv = new DataView(chunk.buffer);
+  dv.setUint32(0, 9); chunk.set([112, 72, 89, 115], 4); dv.setUint32(8, ppm); dv.setUint32(12, ppm); chunk[16] = 1;
+  dv.setUint32(17, crc32(chunk.subarray(4, 17)));
+  const at = 33; // firma (8) + IHDR (25)
+  const out = new Uint8Array(src.length + 21); out.set(src.subarray(0, at), 0); out.set(chunk, at); out.set(src.subarray(at), at + 21);
+  return new Blob([out], { type: 'image/png' });
+}
+let exporting = false;
+async function doExport() {
+  if (!SRC || exporting) return;
+  exporting = true; $('#btnExport').disabled = true; showBusy('GRABANDO…');
+  try {
+    const o = outSize(); const p = params();
+    const res = await wcall({ type: 'export', outW: o.w, outH: o.h, rx: 0, ry: 0, rw: o.w, rh: o.h, step: 1, approx: false, kind: 'proc', p });
+    let blob = res.blob;
+    if (!blob) { const c = document.createElement('canvas'); c.width = res.w; c.height = res.h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(res.buf), res.w, res.h), 0, 0); blob = await new Promise(r => c.toBlob(r, 'image/png')); }
+    blob = await withDpi(blob, DPI);
+    const name = `${SRC.name}_DTF_${nf0.format(P.widthCm)}cm.png`.replace(/\s+/g, '_');
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast('PNG grabado a 300 ppp: ' + name);
+  } catch (e) { console.error(e); toast('No se pudo procesar a tamaño completo. Prueba con un ancho menor.'); }
+  hideBusy(); exporting = false; $('#btnExport').disabled = !SRC;
+}
+$('#btnExport').onclick = doExport;
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#helpModal').hidden) closeHelp(); });
+let helpOpener = null;
+function openHelp(id, opener) {
+  helpOpener = opener || null; const m = $('#helpModal'); m.hidden = false; m.scrollTop = 0;
+  $('#hClose').focus({ preventScroll: true });
+  const sec = document.getElementById(id);
+  if (sec && id !== 'h-inicio') { sec.scrollIntoView({ block: 'start' }); sec.classList.add('flash'); setTimeout(() => sec.classList.remove('flash'), 1500); }
+}
+function closeHelp() { $('#helpModal').hidden = true; if (helpOpener) helpOpener.focus({ preventScroll: true }); }
+document.querySelectorAll('[data-help]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); openHelp(b.dataset.help, b); }));
+$('#hClose').onclick = closeHelp;
+$('#helpModal').addEventListener('click', e => { if (e.target.id === 'helpModal') closeHelp(); });
+
+/* =========================================================
+   Armado de la interfaz
+   ========================================================= */
+const swZoom = makeSwitch($('#swZoom'), 'zoom', [['fit', 'VER TODO'], ['z100', 'ZOOM 100%'], ['z200', 'ZOOM 200%']], () => { view.cx = null; scheduleRender(0); });
+makeSwitch($('#swCmp'), 'compare', [[false, 'DESPUÉS'], [true, 'COMPARAR']].map(([v, l]) => [v, l]), () => scheduleRender(0));
+makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']]);
+makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), () => updateUpSize());
+makeSwitch($('#swUnit'), 'unit', [['px', 'PX'], ['mm', 'MM'], ['cm', 'CM'], ['m', 'M'], ['in', 'PULG']], () => { updateInfo(); syncSizeInputs(true); });
+const swMode = makeSwitch($('#swMode'), 'mode', [['semi', 'SEMITONO'], ['clean', 'LIMPIAR']], () => { syncModeUI(); scheduleRender(0); });
+const swKnock = makeSwitch($('#swKnock'), 'knock', [['dark', 'OSCUROS'], ['light', 'CLAROS']], () => { syncKnockLabel(); scheduleRender(0); });
+const SHAPES = [['round', 'REDONDO'], ['ellipse', 'ELIPSE'], ['square', 'CUADRADO'], ['diamond', 'ROMBO'], ['cross', 'CRUZ'], ['line', 'LÍNEA'], ['wave', 'ONDAS'], ['grain', 'GRANULADO']];
+if (!SHAPES.some(([v]) => v === P.shape)) P.shape = 'round';
+let iconBN = null; const iconLut = {};
+function shapeIcon(shape) {
+  const D = 88, cell = 22, n = 32, c = document.createElement('canvas'); c.width = c.height = D;
+  const x = c.getContext('2d'), im = x.createImageData(D, D);
+  let lut = null;
+  if (shape === 'grain') iconBN = iconBN || blueNoise(32);
+  else if (!(lut = iconLut[shape])) {
+    const vals = [], idx = [];
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { vals.push(spot(shape, (i + 0.5) / n - 0.5, (j + 0.5) / n - 0.5) + (i * n + j) * 1e-9); idx.push(i * n + j); }
+    lut = new Float32Array(n * n); idx.sort((a, b) => vals[a] - vals[b]).forEach((k, r) => lut[k] = (r + 0.5) / (n * n)); iconLut[shape] = lut;
+  }
+  for (let py = 0; py < D; py++) for (let px = 0; px < D; px++) {
+    const cov = 0.1 + 0.62 * (px / D) * 0.6 + 0.62 * (py / D) * 0.4; let t;
+    if (shape === 'grain') t = iconBN[((py >> 2) & 31) * 32 + ((px >> 2) & 31)];
+    else { const fu = ((px + 0.5) / cell) % 1, fv = ((py + 0.5) / cell) % 1; t = lut[((fu * n) | 0) * n + ((fv * n) | 0)]; }
+    const o = (py * D + px) * 4, ink = cov > t;
+    im.data[o] = ink ? 44 : 246; im.data[o + 1] = ink ? 31 : 238; im.data[o + 2] = ink ? 22 : 220; im.data[o + 3] = 255;
+  }
+  x.putImageData(im, 0, 0); c.setAttribute('aria-hidden', 'true'); return c;
+}
+function makeShapePicker(container, onChange) {
+  container.innerHTML = '';
+  const btns = SHAPES.map(([v, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.v = v; b.title = label;
+    const sp = document.createElement('span'); sp.textContent = label; b.append(shapeIcon(v), sp);
+    b.addEventListener('click', () => { if (P.shape === v) return; P.shape = v; sync(); persist(); onChange && onChange(v); });
+    container.appendChild(b); return b;
+  });
+  function sync() { btns.forEach(b => { const on = P.shape === b.dataset.v; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; }); }
+  container.addEventListener('keydown', e => {
+    const k = { ArrowLeft: -1, ArrowUp: -4, ArrowRight: 1, ArrowDown: 4 }[e.key]; if (!k) return;
+    e.preventDefault(); const i = SHAPES.findIndex(([v]) => v === P.shape); const nI = (i + k + SHAPES.length) % SHAPES.length;
+    btns[nI].click(); btns[nI].focus();
+  });
+  sync(); return { sync };
+}
+const swShape = makeShapePicker($('#swShape'), () => { syncModeUI(); scheduleRender(0); });
+const rr = () => scheduleRender();
+makeKnob($('#kTrama'), { key: 'lpi', label: 'LPI', min: 15, max: 75, step: 1, def: 45, fmt: v => nf0.format(v), onChange: () => { syncModeUI(); rr(); }, help: 'Líneas por pulgada: menos LPI = puntos más grandes' });
+makeKnob($('#kTrama'), { key: 'angle', label: 'ÁNGULO', min: 0, max: 90, step: 0.5, def: 22.5, wheel: 5, fmt: v => nf1.format(v) + '°', onChange: rr });
+makeKnob($('#kTrama'), { key: 'minDot', label: 'PUNTO MÍN', min: 0, max: 0.8, step: 0.05, def: 0.25, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Puntos más pequeños que esto se eliminan (se despegan en DTF)' });
+const kCell = document.createElement('div'); kCell.className = 'k'; kCell.innerHTML = '<div style="height:58px;display:flex;align-items:center"><span class="kval" id="cellInfo"></span></div><div class="klabel">CELDA</div>'; $('#kTrama').appendChild(kCell);
+makeKnob($('#kTono'), { key: 'black', label: 'NEGRO', min: 0, max: 50, step: 1, def: 8, fmt: v => v + '%', onChange: rr, help: 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' });
+makeKnob($('#kTono'), { key: 'solid', label: 'SÓLIDO', min: 50, max: 100, step: 1, def: 92, fmt: v => v + '%', onChange: rr, help: 'Desde aquí la tinta queda sólida, sin puntos' });
+makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 0.05, def: 1, fmt: v => v.toFixed(2), onChange: rr, help: 'Más de 1 = puntos más pequeños en medios tonos' });
+makeKnob($('#kTono'), { key: 'intensity', label: 'INTENSIDAD', min: 0, max: 100, step: 1, def: 50, fmt: v => v + '%', onChange: rr, help: 'Aviva el color de los puntos para compensar la trama' });
+makeKnob($('#kTono'), { key: 'alphaCut', label: 'CORTE ALFA', min: 1, max: 99, step: 1, def: 55, fmt: v => v + '%', onChange: rr, help: 'Modo LIMPIAR: por debajo de esta opacidad se vuelve transparente' });
+makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: () => { updateInfo(); view.cx = null; scheduleRender(); } });
+const kOutInfo = document.createElement('div'); kOutInfo.style.gridColumn = '2 / -1'; kOutInfo.style.alignSelf = 'center';
+kOutInfo.innerHTML = `<div class="sizes">
+  <label class="fld"><span class="swlabel">ANCHO EXACTO</span><span class="inp"><input id="inW" type="text" inputmode="decimal" autocomplete="off" disabled><em class="unitTxt">cm</em></span></label>
+  <label class="fld"><span class="swlabel">ALTO EXACTO</span><span class="inp"><input id="inH" type="text" inputmode="decimal" autocomplete="off" disabled><em class="unitTxt">cm</em></span></label>
+  <p class="note" style="margin:0;flex-basis:100%">Escribe una medida y dale Enter; la otra se ajusta sola. El rollo de 58 cm imprime hasta 56 cm de ancho.</p>
+</div>`;
+$('#kOut').appendChild(kOutInfo);
+[['#inW', 'w'], ['#inH', 'h']].forEach(([id, which]) => {
+  const el = $(id);
+  el.addEventListener('change', () => applySizeInput(which));
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applySizeInput(which); el.select(); } else if (e.key === 'Escape') { syncSizeInputs(true); el.blur(); } });
+  el.addEventListener('focus', () => el.select());
+});
+function syncModeUI() {
+  const semi = P.mode === 'semi';
+  const grain = P.shape === 'grain';
+  ['minDot', 'solid', 'curve', 'intensity'].forEach(k => knobs[k].disable(!semi));
+  ['lpi', 'angle'].forEach(k => knobs[k].disable(!semi || grain));
+  knobs.alphaCut.disable(semi);
+  $('#swShape').querySelectorAll('button').forEach(b => b.disabled = !semi);
+  $('#cellInfo').textContent = semi && !grain ? (25.4 / P.lpi).toFixed(2) + ' mm' : '—';
+}
+function syncKnockLabel() {
+  const k = knobs.black; if (!k) return; const dark = P.knock === 'dark', lbl = dark ? 'NEGRO' : 'BLANCO';
+  k.wrap.querySelector('.klabel').textContent = lbl; k.el.setAttribute('aria-label', lbl);
+  k.el.title = dark ? 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' : 'Todo lo más claro que esto desaparece (se ve la camiseta)';
+}
+syncModeUI(); syncKnockLabel(); updateInfo();
+
+const SHIRTS = [['#111111', 'Negro'], ['#f4f2ee', 'Blanco'], ['#b3202a', 'Rojo'], ['#1d2a4d', 'Azul marino'], ['#4b5320', 'Verde militar'], ['#c3b091', 'Caqui'], ['#f2c230', 'Amarillo'], ['#7d7d7d', 'Gris']];
+function buildShirts() {
+  const box = $('#shirts'); box.innerHTML = '';
+  SHIRTS.forEach(([c, n]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'shirt'; b.style.background = c; b.title = n; b.setAttribute('aria-label', 'Camiseta ' + n);
+    b.setAttribute('aria-pressed', P.shirt.toLowerCase() === c);
+    b.onclick = () => setShirt(c); box.appendChild(b);
+  });
+  const cu = document.createElement('label'); cu.className = 'shirt custom'; cu.title = 'Otro color';
+  const inp = document.createElement('input'); inp.type = 'color'; inp.value = P.shirt; inp.setAttribute('aria-label', 'Otro color de camiseta');
+  inp.oninput = () => setShirt(inp.value); cu.appendChild(inp); box.appendChild(cu);
+}
+function setShirt(c) {
+  P.shirt = c; persist(); scr.style.setProperty('--shirt', c);
+  const [r, g, b] = hexToRgb(c); const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  const want = lum < 0.5 ? 'dark' : 'light';
+  if (P.knock !== want) { P.knock = want; swKnock.sync(); syncKnockLabel(); }
+  buildShirts(); scheduleRender(0);
+}
+scr.style.setProperty('--shirt', P.shirt);
+buildShirts();
+
+/* =========================================================
+   Deshacer / Rehacer
+   ========================================================= */
+const HKEYS = ['mode', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'widthCm', 'shirt'];
+const HNAMES = { mode: 'MODO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', widthCm: 'ANCHO', shirt: 'CAMISETA', src: 'AGRANDADO IA' };
+const hist = { stack: [], i: -1 };
+let commitT = null, applying = false;
+function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
+function same(a, b) { return a.src === b.src && HKEYS.every(k => a.p[k] === b.p[k]); }
+function scheduleCommit() { if (applying) return; clearTimeout(commitT); commitT = setTimeout(commitNow, 450); }
+function commitNow() {
+  clearTimeout(commitT); if (applying) return;
+  const s = snap(), cur = hist.stack[hist.i];
+  if (cur && same(cur, s)) return;
+  hist.stack.length = hist.i + 1; hist.stack.push(s);
+  if (hist.stack.length > 80) hist.stack.shift();
+  hist.i = hist.stack.length - 1; syncHistUI();
+}
+function resetHistory() { clearTimeout(commitT); hist.stack = [snap()]; hist.i = 0; syncHistUI(); }
+function syncHistUI() { $('#btnUndo').disabled = hist.i <= 0; $('#btnRedo').disabled = hist.i >= hist.stack.length - 1; }
+function diffNames(a, b) {
+  const n = HKEYS.filter(k => a.p[k] !== b.p[k]).map(k => HNAMES[k]);
+  if (a.src !== b.src) n.unshift(HNAMES.src);
+  return n.slice(0, 3).join(', ') + (n.length > 3 ? '…' : '');
+}
+async function applySnap(s, from, verb) {
+  applying = true;
+  try {
+    for (const k of HKEYS) { P[k] = s.p[k]; if (knobs[k]) knobs[k].show(); }
+    swMode.sync(); swKnock.sync(); swShape.sync(); syncModeUI(); syncKnockLabel();
+    scr.style.setProperty('--shirt', P.shirt); buildShirts();
+    store.set('tramaluz.p', JSON.stringify(P));
+    if (s.src !== SRC && s.src) { await setSource(s.src, false); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
+    else { updateInfo(); scheduleRender(0); }
+  } finally { applying = false; }
+  syncHistUI();
+  const what = diffNames(s, from); if (what) toast(`${verb} · ${what}`, 1600);
+}
+async function undo() { if (upRunning) return; commitNow(); if (hist.i <= 0) return; hist.i--; await applySnap(hist.stack[hist.i], hist.stack[hist.i + 1], 'DESHACER'); }
+async function redo() { if (upRunning) return; commitNow(); if (hist.i >= hist.stack.length - 1) return; hist.i++; await applySnap(hist.stack[hist.i], hist.stack[hist.i - 1], 'REHACER'); }
+$('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
+document.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+  const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  if (!$('#helpModal').hidden) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+  else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
+});
+resetHistory();
+$('#expNote').textContent = 'El archivo queda en tu carpeta de Descargas.';
+</script>
+</body>
+</html>
