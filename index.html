@@ -220,22 +220,126 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 .zoomctl #zOut,.zoomctl #zIn{font-family:var(--mono);font-size:18px;line-height:1;padding:5px 11px 4px;letter-spacing:0}
 .zoomctl .zval{min-width:64px;font-family:var(--mono);font-size:13px;letter-spacing:0}
 .zoomctl button[aria-pressed="true"]{background:linear-gradient(180deg,#bfae86,#d8c9a4);box-shadow:inset 0 2px 3px rgba(0,0,0,.35);transform:translateY(1px)}
+.kspace{height:58px;display:flex;align-items:center}
+/* Etiquetas e íconos cortos: solo se usan en celular */
+.ico-s,.lbl-s,.pinsw{display:none}
+
+/* ---------- mockup 3D ---------- */
+html.mk-open,html.mk-open body{overflow:hidden}
+.modal.mk{align-items:center;padding:20px 16px;z-index:19}
+.mksheet{max-width:1200px;height:min(880px,calc(100vh - 40px));display:flex;flex-direction:column}
+.mksheet>header{flex:none}
+.mkhead{display:flex;align-items:center;gap:10px}
+.mkhead .qhelp{position:static}
+.mkbody{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;padding:14px 16px 16px}
+.mkview{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
+.mkview .bezel{flex:1;min-height:0;display:flex}
+.mkstage{position:relative;flex:1;min-height:260px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 2px #000 inset;
+  background:radial-gradient(120% 90% at 50% 38%,#f3ede0 0%,#ddd2bb 55%,#b9aa8c 100%)}
+.mkstage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.mkstage canvas:active{cursor:grabbing}
+.mkhint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--vfd);background:rgba(21,13,8,.75);padding:5px 9px;border-radius:4px;pointer-events:none;white-space:nowrap;transition:opacity .6s}
+.mkhint.off{opacity:0}
+.mkstage .busy{pointer-events:none}
+.mkmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--ink);font-size:15px;line-height:1.5}
+.mkctl{overflow:auto;display:flex;flex-direction:column;gap:14px;padding:10px 2px 4px;min-height:0;overscroll-behavior:contain}
+.prods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.prods button{border:1.5px solid var(--ink);border-radius:7px;background:linear-gradient(180deg,#efe6d0,#d4c39c);padding:6px 2px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 2px 0 #8d7a57;font-family:var(--label);font-size:7px;letter-spacing:.04em;color:var(--ink);min-width:0}
+.prods button svg{width:34px;height:34px;display:block}
+.prods button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prods button[aria-checked="true"]{border-color:var(--orange);box-shadow:inset 0 2px 3px rgba(0,0,0,.3),0 0 0 1.5px var(--orange);transform:translateY(1px);background:linear-gradient(180deg,#e2d4b2,#efe4c8)}
+.mkrec{margin-top:10px}
+.note .warn{color:var(--orange2)}
+.mkctl .out-actions{flex-wrap:wrap}
+.mkctl .btn.big{padding-inline:12px}
+#mkModal .screenbar .vfd.grow{min-width:160px}
+
 @media (max-width:1040px){
   .body{grid-template-columns:1fr}
   .screenwrap{top:0;z-index:6;background:var(--plate);margin-inline:-8px;padding:8px 8px 10px;border-radius:0 0 12px 12px;box-shadow:0 12px 12px -12px rgba(0,0,0,.5)}
+  .screenwrap.loose{position:static;box-shadow:none}
   .bezel{padding:8px;border-radius:12px}
-  .screen{height:clamp(180px,40vh,460px);min-height:0}
+  .screen{height:clamp(180px,40vh,460px);height:clamp(180px,40svh,460px);min-height:0}
   .screenbar{gap:6px}
   .vfd.grow{font-size:12px;min-width:0;flex-basis:100%;min-height:0;padding:5px 8px;order:3}
   .screenbar .qhelp{order:2}
+  .pinsw{display:inline-flex;order:2}
   .empty{gap:8px;padding:14px}.empty h2{font-size:21px}.empty p{font-size:13.5px}
 }
+/* Celular acostado: la pantalla no se queda pegada arriba (taparía todo) */
+@media (max-width:1040px) and (max-height:520px){
+  .screenwrap,.screenwrap.loose{position:static;box-shadow:none}
+  .pinsw{display:none}
+}
+/* ---------- celular ---------- */
+@media (max-width:640px){
+  body{font-size:14.5px;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+  .rack{grid-template-columns:6px 1fr 6px;border-radius:10px}
+  .plate{padding:10px 10px 12px;gap:12px}
+  /* cabecera en dos líneas cortas */
+  .top{gap:6px 8px;padding-bottom:8px;flex-wrap:nowrap;align-items:flex-start}
+  .brand{gap:3px 9px;min-width:0}
+  .logo{font-size:26px}
+  .model{font-size:7.5px;letter-spacing:.08em;flex-basis:100%;order:3}
+  .stripes i{width:16px;height:5px}
+  .topright{gap:6px;flex-direction:column;align-items:flex-end;flex:none}
+  .plan{font-size:11px;padding:4px 8px;gap:6px}
+  .plan .led{width:7px;height:7px}
+  .power{display:none}
+  .chip-btn{padding:7px 9px}
+  .body{gap:12px}
+  /* pantalla: de borde a borde, más baja y con la barra en una sola fila */
+  .screenwrap{margin-inline:-10px;padding:6px 6px 8px;gap:6px;border-radius:0 0 10px 10px}
+  .bezel{padding:5px;border-radius:10px}
+  .screen{height:clamp(170px,33vh,330px);height:clamp(170px,33svh,330px);border-radius:7px}
+  .screenbar{gap:5px}
+  .screenbar .sw{padding:2px;gap:2px}
+  .screenbar .sw button{padding:8px 8px 6px;gap:4px}
+  .zoomctl #zOut,.zoomctl #zIn{padding:5px 10px 4px}
+  .zoomctl .zval{min-width:50px;font-size:12px}
+  .ico-s{display:block}
+  .zoomctl .lbl-l,#swCmp .lbl-l{display:none}
+  .lbl-s{display:inline}
+  /* fila 1: zoom, A|B, deshacer y ?; fila 2: estado y FIJA */
+  .vfd.grow{font-size:11px;padding:4px 8px;line-height:1.35;flex:1 1 60%;order:3}
+  .screenbar .qhelp{order:2}
+  .pinsw{order:4}
+  .screenbar .qhelp{width:28px;height:28px}
+  .tagl,.tagr{font-size:8px;padding:3px 6px;top:7px}.tagl{left:7px}.tagr{right:7px}
+  .empty{gap:7px;padding:10px 12px}.empty h2{font-size:19px}.empty p{font-size:12.5px;line-height:1.38}
+  .empty .chip-btn{display:none}
+  /* controles más compactos: perillas más chicas, de a cuatro por fila */
+  .controls{gap:14px}
+  .group{padding:15px 10px 10px}
+  .group>h3{font-size:9px;left:10px}
+  .qhelp{width:28px;height:28px;top:-14px;right:10px;font-size:11px}
+  .row{gap:10px}
+  .knobs,.knobs.five{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 4px}
+  .knob{width:48px;height:48px}
+  .knob .cap{inset:6px}
+  .knob .cap::after{top:3px;height:11px}
+  .kspace{height:48px}
+  .klabel{font-size:7px;letter-spacing:.05em;white-space:normal;line-height:1.3;min-height:2.6em;display:flex;align-items:center}
+  .kval{font-size:11.5px;min-width:0;padding:2px 5px}
+  .swlabel{font-size:8px}
+  .sw button{padding:9px 8px 7px}
+  .btn{padding:12px 14px 10px}
+  .note{font-size:12.5px}
+  /* mockup a pantalla completa */
+  .modal.mk{padding:0;align-items:stretch}
+  .mksheet{max-width:none;height:100vh;height:100dvh;border-radius:0}
+  .mksheet>header{padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+  .mksheet h2{font-size:21px}
+  .mkbody{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:8px 8px 0}
+  .mkview{gap:6px}
+  .mkview .bezel{flex:none;padding:5px}
+  .mkstage{flex:1 1 auto;height:46vh;height:46svh;min-height:220px}
+  .mkctl{padding:12px 2px calc(14px + env(safe-area-inset-bottom))}
+  .prods button{font-size:6.5px}
+  .prods button svg{width:30px;height:30px}
+  #mkModal .screenbar .vfd.grow{min-width:0}
+}
 @media (max-width:520px){
-  .rack{grid-template-columns:8px 1fr 8px}
-  .plate{padding:14px 12px}
-  .logo{font-size:28px}
-  .knobs{grid-template-columns:repeat(2,1fr)}
-  .knobs.five{grid-template-columns:repeat(3,1fr)}
   .sw.hist .lbl{display:none}
   .minfo{grid-template-columns:1fr;gap:0 0}.minfo dt{padding-top:7px}
   .inp input{width:82px}
@@ -283,7 +387,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
         <div class="screenbar">
           <div>
             <div class="sw zoomctl" role="group" aria-label="Zoom de la pantalla (no cambia el archivo)" title="Solo cambia lo que ves en pantalla, no el archivo">
-              <button type="button" id="zFit" aria-pressed="true">VER TODO</button>
+              <button type="button" id="zFit" aria-pressed="true" aria-label="Ver todo"><svg class="ico-s" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl-l">VER TODO</span></button>
               <button type="button" id="zOut" aria-label="Alejar" title="Alejar (rueda del mouse)">−</button>
               <button type="button" id="z100" class="zval" title="Ver los puntos a tamaño real"><span id="zoomVal">—</span></button>
               <button type="button" id="zIn" aria-label="Acercar" title="Acercar (rueda del mouse)">+</button>
@@ -295,6 +399,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
             <button type="button" id="btnRedo" disabled title="Rehacer (Ctrl+Y)" aria-label="Rehacer"><span class="lbl">REHACER</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
           </div>
           <div class="vfd grow" id="status" aria-live="polite">SIN IMAGEN</div>
+          <div class="sw pinsw"><button type="button" id="btnPin" aria-pressed="true" title="Deja la pantalla pegada arriba mientras bajas por los controles"><span class="led"></span><span>FIJA</span></button></div>
           <button class="qhelp" style="position:static;flex:none" type="button" data-help="h-pantalla" aria-label="Ayuda: pantalla">?</button>
         </div>
       </section>
@@ -371,6 +476,12 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
             <button class="btn orange big" type="button" id="btnExport" disabled><span class="led" id="expLed"></span>GRABAR PNG 300 PPP</button>
           </div>
           <p class="note" id="expNote"></p>
+        </div>
+
+        <div class="group">
+          <h3>MOCKUP 3D</h3><button class="qhelp" type="button" data-help="h-mockup" aria-label="Ayuda: Mockup 3D">?</button>
+          <div class="out-actions" style="margin-top:0"><button class="btn brown big" type="button" id="btnMock">VER EN 3D</button></div>
+          <p class="note">Mira tu diseño puesto en camiseta, buzo, taza, termo o tote bag, gíralo y descarga la foto o el modelo 3D (GLB).</p>
         </div>
       </section>
     </div>
@@ -510,6 +621,67 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
           <dt>GRABAR PNG</dt><dd>Guarda el archivo final a 300 ppp, sin semitransparencias, listo para el RIP. Queda en tu carpeta de Descargas. La luz del botón repite la de los avisos.</dd>
         </dl>
       </section>
+      <section class="hsec" id="h-mockup"><h4>MOCKUP 3D</h4>
+        <dl class="hdl">
+          <dt>VER EN 3D</dt><dd>Muestra tu diseño, ya procesado, puesto sobre el producto. Arrastra para girarlo y pellizca (o usa la rueda del mouse) para acercar.</dd>
+          <dt>PRODUCTO</dt><dd><b>Camiseta</b>, <b>buzo</b> con capota, <b>taza</b> de 11 oz, <b>termo</b> de 750 ml y <b>tote bag</b> (bolsa de tela).</dd>
+          <dt>UBICACIÓN</dt><dd>Frente, espalda o pecho (logo pequeño). En la taza, <b>FRENTE</b> centra el diseño al lado contrario del asa (para los que dan la vuelta) y <b>LADO</b> lo pone con el asa a la derecha (para logos). En el termo va al frente, rodeándolo.</dd>
+          <dt>ANCHO</dt><dd>Es el mismo ANCHO de TAMAÑO: lo que ves en el mockup es lo que vas a imprimir. <b>USAR MEDIDA RECOMENDADA</b> pone el tamaño típico para ese producto y esa ubicación.</dd>
+          <dt>SUBIR · BAJAR</dt><dd>Mueve el diseño hacia arriba o hacia abajo en el producto. Solo cambia el mockup, no el archivo.</dd>
+          <dt>COLOR</dt><dd>Es el mismo color de CAMISETA, así que también cambia OSCUROS o CLAROS.</dd>
+          <dt>GIRAR</dt><dd>Lo hace dar vueltas solo. CENTRAR vuelve a la vista inicial.</dd>
+          <dt>FOTO PNG</dt><dd>Descarga una foto del mockup tal como lo estás viendo, para mostrarla a tu cliente o publicarla.</dd>
+          <dt>MODELO 3D (GLB)</dt><dd>Descarga el producto en 3D con tu diseño puesto. Se abre en visores 3D (por ejemplo el Visor 3D de Windows) y en programas como Blender.</dd>
+        </dl>
+        <p class="tip">Los modelos son livianos (de 40 a 190 KB) y el 3D se descarga solo cuando abres esta sección, así que funciona en celulares y en computadores sin tarjeta de video. La vista del diseño en 3D es aproximada: los puntos del semitono se ven como tono suave.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="modal mk" id="mkModal" hidden>
+  <div class="sheet mksheet" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
+    <header><h2 id="mkTitle">Mockup 3D</h2><div class="mkhead"><button class="qhelp" type="button" data-help="h-mockup" aria-label="Ayuda: Mockup 3D">?</button><button class="chip-btn" type="button" id="mkClose">CERRAR</button></div></header>
+    <div class="mkbody">
+      <section class="mkview" aria-label="Vista 3D">
+        <div class="bezel">
+          <div class="mkstage" id="mkStage">
+            <div class="mkmsg" id="mkMsg" hidden></div>
+            <div class="mkhint" id="mkHint">ARRASTRA PARA GIRAR · PELLIZCA PARA ACERCAR</div>
+            <div class="busy" id="mkBusy" hidden>CARGANDO 3D…</div>
+          </div>
+        </div>
+        <div class="screenbar">
+          <div class="sw" role="group" aria-label="Girar solo" id="mkSpin"></div>
+          <button class="chip-btn" type="button" id="mkReset">CENTRAR</button>
+          <div class="vfd grow" id="mkStatus" aria-live="polite">—</div>
+        </div>
+      </section>
+      <section class="mkctl" aria-label="Controles del mockup">
+        <div class="group">
+          <h3>PRODUCTO</h3>
+          <div class="prods" role="radiogroup" aria-label="Producto" id="mkProd"></div>
+        </div>
+        <div class="group">
+          <h3>UBICACIÓN Y TAMAÑO</h3>
+          <div id="mkLadoRow" style="margin-bottom:12px"><span class="swlabel">UBICACIÓN</span><div class="sw tight" role="radiogroup" aria-label="Ubicación del diseño" id="mkLado"></div></div>
+          <div class="knobs" id="mkKnobs"></div>
+          <p class="note" id="mkNote"></p>
+          <button class="chip-btn mkrec" type="button" id="mkRec">USAR MEDIDA RECOMENDADA</button>
+        </div>
+        <div class="group">
+          <h3>COLOR</h3>
+          <div class="shirts" id="mkColors"></div>
+          <p class="note">Es el mismo color de CAMISETA: también cambia OSCUROS o CLAROS.</p>
+        </div>
+        <div class="group">
+          <h3>DESCARGAR</h3>
+          <div class="out-actions" style="margin-top:0">
+            <button class="btn mustard big" type="button" id="mkPng">FOTO PNG</button>
+            <button class="btn brown big" type="button" id="mkGlb">MODELO 3D · GLB</button>
+          </div>
+          <p class="note">La foto sale como la estás viendo. El GLB se abre en visores 3D y en Blender.</p>
+        </div>
+      </section>
     </div>
   </div>
 </div>
@@ -560,7 +732,9 @@ function persist() { clearTimeout(saveT); saveT = setTimeout(() => store.set('tr
    Controles: perillas e interruptores
    ========================================================= */
 const knobs = {};
+// o.obj: objeto que guarda el valor (P si no se dice) · o.persist: cómo se guarda · o.noReg: no la anota en knobs (copia de otra perilla)
 function makeKnob(parent, o) {
+  const S = o.obj || P, save = o.persist || persist;
   const wrap = document.createElement('div'); wrap.className = 'k';
   wrap.innerHTML = `<div class="knob" role="slider" tabindex="0"><div class="cap"></div></div><div class="klabel"></div><div class="kval"></div>`;
   const el = wrap.querySelector('.knob'), lab = wrap.querySelector('.klabel'), val = wrap.querySelector('.kval');
@@ -568,21 +742,21 @@ function makeKnob(parent, o) {
   el.setAttribute('aria-valuemin', o.min); el.setAttribute('aria-valuemax', o.max);
   const k = {
     el, wrap,
-    get v() { return P[o.key]; },
+    get v() { return S[o.key]; },
     show() {
-      const v = P[o.key], f = clamp((v - o.min) / (o.max - o.min), 0, 1);
+      const v = S[o.key], f = clamp((v - o.min) / (o.max - o.min), 0, 1);
       el.querySelector('.cap').style.setProperty('--rot', (-135 + 270 * f) + 'deg');
       val.textContent = o.fmt(v); el.setAttribute('aria-valuenow', v); el.setAttribute('aria-valuetext', o.fmt(v));
     },
     set(v, fire = true) {
       v = clamp(Math.round(v / o.step) * o.step, o.min, o.max); v = +v.toFixed(4);
-      const changed = v !== P[o.key]; P[o.key] = v; k.show();
-      if (changed && fire) { persist(); o.onChange && o.onChange(v); }
+      const changed = v !== S[o.key]; S[o.key] = v; k.show();
+      if (changed && fire) { save(); o.onChange && o.onChange(v); }
     },
     disable(d) { el.setAttribute('aria-disabled', d ? 'true' : 'false'); el.tabIndex = d ? -1 : 0; }
   };
   let drag = null;
-  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); drag = { y: e.clientY, x: e.clientX, v: P[o.key] }; el.focus(); });
+  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); drag = { y: e.clientY, x: e.clientX, v: S[o.key] }; el.focus(); });
   el.addEventListener('pointermove', e => {
     if (!drag) return;
     const d = (drag.y - e.clientY) + (e.clientX - drag.x) * 0.5;
@@ -591,43 +765,44 @@ function makeKnob(parent, o) {
   });
   const end = () => drag = null;
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
-  el.addEventListener('wheel', e => { e.preventDefault(); k.set(P[o.key] - Math.sign(e.deltaY) * o.step * (e.shiftKey ? 1 : (o.wheel || 1))); }, { passive: false });
+  el.addEventListener('wheel', e => { e.preventDefault(); k.set(S[o.key] - Math.sign(e.deltaY) * o.step * (e.shiftKey ? 1 : (o.wheel || 1))); }, { passive: false });
   el.addEventListener('keydown', e => {
     const big = (o.max - o.min) / 10;
-    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { k.set(P[o.key] + o.step); e.preventDefault(); }
-    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { k.set(P[o.key] - o.step); e.preventDefault(); }
-    else if (e.key === 'PageUp') { k.set(P[o.key] + big); e.preventDefault(); }
-    else if (e.key === 'PageDown') { k.set(P[o.key] - big); e.preventDefault(); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { k.set(S[o.key] + o.step); e.preventDefault(); }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { k.set(S[o.key] - o.step); e.preventDefault(); }
+    else if (e.key === 'PageUp') { k.set(S[o.key] + big); e.preventDefault(); }
+    else if (e.key === 'PageDown') { k.set(S[o.key] - big); e.preventDefault(); }
     else if (e.key === 'Home') { k.set(o.min); e.preventDefault(); }
     else if (e.key === 'End') { k.set(o.max); e.preventDefault(); }
   });
   el.addEventListener('dblclick', () => k.set(o.def));
   parent.appendChild(wrap);
-  k.set(P[o.key], false);
-  knobs[o.key] = k;
+  k.set(S[o.key], false);
+  if (!o.noReg) knobs[o.key] = k;
   return k;
 }
 // opts.off: valor que queda al tocar el botón que ya está hundido (se suelta, como un botón análogo).
-// Sin opts.off siempre queda uno hundido.
+// Sin opts.off siempre queda uno hundido. opts.obj / opts.persist: igual que en makeKnob.
 function makeSwitch(container, key, options, onChange, opts = {}) {
+  const S = opts.obj || P, save = opts.persist || persist;
   container.innerHTML = '';
   const btns = options.map(([v, label]) => {
     const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio');
     b.innerHTML = '<span class="led"></span><span></span>'; b.lastChild.textContent = label; b.dataset.v = v;
     b.addEventListener('click', () => {
-      if (P[key] === v) { if (!('off' in opts)) return; P[key] = opts.off; } else P[key] = v;
-      sync(); persist(); onChange && onChange(P[key]);
+      if (S[key] === v) { if (!('off' in opts)) return; S[key] = opts.off; } else S[key] = v;
+      sync(); save(); onChange && onChange(S[key]);
     });
     container.appendChild(b); return b;
   });
   function sync() {
     let any = false;
-    btns.forEach(b => { const on = String(P[key]) === String(b.dataset.v); any = any || on; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+    btns.forEach(b => { const on = String(S[key]) === String(b.dataset.v); any = any || on; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
     if (!any && btns[0]) btns[0].tabIndex = 0;
   }
   container.addEventListener('keydown', e => {
     if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
-    e.preventDefault(); const i = options.findIndex(([v]) => String(v) === String(P[key]));
+    e.preventDefault(); const i = options.findIndex(([v]) => String(v) === String(S[key]));
     const n = (i + (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1) + options.length) % options.length;
     btns[n].click(); btns[n].focus();
   });
@@ -995,6 +1170,7 @@ function applySizeInput(which) {
 }
 function updateInfo() {
   knobs.widthCm && knobs.widthCm.show();
+  if (mkWidthKnob) { mkWidthKnob.show(); mkInfo(); } // la copia del ANCHO en el mockup 3D (var: existe desde el inicio)
   renderMeasures(); updateUpSize(); syncSizeInputs(); renderAlerts();
   if (!SRC) return;
   const o = outSize(), ppi = effPpi();
@@ -1359,7 +1535,10 @@ async function doExport() {
 }
 $('#btnExport').onclick = doExport;
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#helpModal').hidden) closeHelp(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!$('#helpModal').hidden) closeHelp(); else if (mkIsOpen()) closeMock();
+});
 let helpOpener = null;
 function openHelp(id, opener) {
   helpOpener = opener || null; const m = $('#helpModal'); m.hidden = false; m.scrollTop = 0;
@@ -1377,6 +1556,19 @@ $('#helpModal').addEventListener('click', e => { if (e.target.id === 'helpModal'
    ========================================================= */
 syncZoomUI();
 makeSwitch($('#swCmp'), 'compare', [[true, 'COMPARAR']], () => scheduleRender(0), { off: false });
+{ // en celular el botón dice A|B para que la barra quepa en una fila
+  const b = $('#swCmp button'), s = document.createElement('span'); b.lastChild.classList.add('lbl-l'); b.setAttribute('aria-label', 'Comparar');
+  s.className = 'lbl-s'; s.textContent = 'A|B'; s.setAttribute('aria-hidden', 'true'); b.appendChild(s);
+}
+// FIJA: en celular y tablet la pantalla se queda pegada arriba al bajar; se puede soltar
+function syncPin() {
+  const on = store.get('tramaluz.pin') !== '0';
+  $('.screenwrap').classList.toggle('loose', !on);
+  const b = $('#btnPin'); b.setAttribute('aria-pressed', String(on)); b.querySelector('.led').className = 'led' + (on ? ' r' : '');
+  b.title = on ? 'Pantalla fija arriba. Tócalo para que suba con la página.' : 'La pantalla sube con la página. Tócalo para dejarla fija arriba.';
+}
+$('#btnPin').onclick = () => { store.set('tramaluz.pin', store.get('tramaluz.pin') === '0' ? '1' : '0'); syncPin(); };
+syncPin();
 makeSwitch($('#swModel'), 'model', [['anime', 'ANIME'], ['general', 'GENERAL']], onModel);
 const swScale = makeSwitch($('#swScale'), 'scale', [2, 3, 4, 5, 6, 7].map(n => [n, '×' + n]), v => onScale(v), { off: 0 });
 makeSwitch($('#swUnit'), 'unit', [['px', 'PX'], ['mm', 'MM'], ['cm', 'CM'], ['m', 'M'], ['in', 'PULG']], () => { updateInfo(); syncSizeInputs(true); });
@@ -1427,7 +1619,7 @@ const rr = () => scheduleRender();
 makeKnob($('#kTrama'), { key: 'lpi', label: 'LPI', min: 15, max: 75, step: 1, def: 45, fmt: v => nf0.format(v), onChange: () => { syncModeUI(); rr(); }, help: 'Líneas por pulgada: menos LPI = puntos más grandes' });
 makeKnob($('#kTrama'), { key: 'angle', label: 'ÁNGULO', min: 0, max: 90, step: 0.5, def: 22.5, wheel: 5, fmt: v => nf1.format(v) + '°', onChange: rr });
 makeKnob($('#kTrama'), { key: 'minDot', label: 'PUNTO MÍN', min: 0, max: 0.8, step: 0.05, def: 0.25, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Puntos más pequeños que esto se eliminan (se despegan en DTF)' });
-const kCell = document.createElement('div'); kCell.className = 'k'; kCell.innerHTML = '<div style="height:58px;display:flex;align-items:center"><span class="kval" id="cellInfo"></span></div><div class="klabel">CELDA</div>'; $('#kTrama').appendChild(kCell);
+const kCell = document.createElement('div'); kCell.className = 'k'; kCell.innerHTML = '<div class="kspace"><span class="kval" id="cellInfo"></span></div><div class="klabel">CELDA</div>'; $('#kTrama').appendChild(kCell);
 makeKnob($('#kTono'), { key: 'black', label: 'NEGRO', min: 0, max: 50, step: 1, def: 8, fmt: v => v + '%', onChange: rr, help: 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' });
 makeKnob($('#kTono'), { key: 'solid', label: 'SÓLIDO', min: 50, max: 100, step: 1, def: 92, fmt: v => v + '%', onChange: rr, help: 'Desde aquí la tinta queda sólida, sin puntos' });
 makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 0.05, def: 1, fmt: v => v.toFixed(2), onChange: rr, help: 'Más de 1 = puntos más pequeños en medios tonos' });
@@ -1480,16 +1672,19 @@ function syncKnockLabel() {
 syncModeUI(); syncKnockLabel(); syncUpUI(); syncSizeUI(); updateInfo();
 
 const SHIRTS = [['#111111', 'Negro'], ['#f4f2ee', 'Blanco'], ['#b3202a', 'Rojo'], ['#1d2a4d', 'Azul marino'], ['#4b5320', 'Verde militar'], ['#c3b091', 'Caqui'], ['#f2c230', 'Amarillo'], ['#7d7d7d', 'Gris']];
+// Los mismos colores salen en CAMISETA y en el mockup 3D
 function buildShirts() {
-  const box = $('#shirts'); box.innerHTML = '';
-  SHIRTS.forEach(([c, n]) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'shirt'; b.style.background = c; b.title = n; b.setAttribute('aria-label', 'Camiseta ' + n);
-    b.setAttribute('aria-pressed', P.shirt.toLowerCase() === c);
-    b.onclick = () => setShirt(c); box.appendChild(b);
-  });
-  const cu = document.createElement('label'); cu.className = 'shirt custom'; cu.title = 'Otro color';
-  const inp = document.createElement('input'); inp.type = 'color'; inp.value = P.shirt; inp.setAttribute('aria-label', 'Otro color de camiseta');
-  inp.oninput = () => setShirt(inp.value); cu.appendChild(inp); box.appendChild(cu);
+  for (const [box, who] of [[$('#shirts'), 'Camiseta'], [$('#mkColors'), 'Color']]) {
+    box.innerHTML = '';
+    SHIRTS.forEach(([c, n]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'shirt'; b.style.background = c; b.title = n; b.setAttribute('aria-label', who + ' ' + n);
+      b.setAttribute('aria-pressed', P.shirt.toLowerCase() === c);
+      b.onclick = () => setShirt(c); box.appendChild(b);
+    });
+    const cu = document.createElement('label'); cu.className = 'shirt custom'; cu.title = 'Otro color';
+    const inp = document.createElement('input'); inp.type = 'color'; inp.value = P.shirt; inp.setAttribute('aria-label', 'Otro color');
+    inp.oninput = () => setShirt(inp.value); cu.appendChild(inp); box.appendChild(cu);
+  }
 }
 function setShirt(c) {
   P.shirt = c; persist(); scr.style.setProperty('--shirt', c);
@@ -1497,6 +1692,7 @@ function setShirt(c) {
   const want = lum < 0.5 ? 'dark' : 'light';
   if (P.knock !== want) { P.knock = want; swKnock.sync(); syncKnockLabel(); }
   buildShirts(); scheduleRender(0);
+  if (mkIsOpen()) { mkColors(); mkRefreshSoon(); }
 }
 scr.style.setProperty('--shirt', P.shirt);
 buildShirts();
@@ -1548,13 +1744,387 @@ $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
 document.addEventListener('keydown', e => {
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
   const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-  if (!$('#helpModal').hidden) return;
+  if (!$('#helpModal').hidden || mkIsOpen()) return;
   const k = e.key.toLowerCase();
   if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
   else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
 });
 resetHistory();
 $('#expNote').textContent = 'El archivo queda en tu carpeta de Descargas.';
+
+/* =========================================================
+   Mockup 3D: el diseño puesto en camiseta, buzo, taza, termo o tote bag.
+   three.js (vendor/three-mockup.min.js) y los modelos (mockups/*.glb, de 40 a 190 KB) se descargan
+   solo al abrir esta sección, y la escena se dibuja solo cuando algo cambia (no gasta batería quieta).
+   Los modelos los arma mockups/generar.mjs.
+   ========================================================= */
+const PRODS = {
+  camiseta: { label: 'CAMISETA', lados: ['frente', 'espalda', 'pecho'], el: 4 },
+  buzo: { label: 'BUZO', lados: ['frente', 'espalda', 'pecho'], el: 4 },
+  taza: { label: 'TAZA', lados: ['frente', 'lado'], el: 14 },
+  termo: { label: 'TERMO', lados: ['frente'], el: 8 },
+  tote: { label: 'TOTE BAG', lados: ['frente', 'espalda'], el: 6 },
+};
+const LADOS = { frente: 'FRENTE', espalda: 'ESPALDA', pecho: 'PECHO', lado: 'LADO' };
+// Medida recomendada por producto y ubicación: un USO de TAMAÑO (cambia con la talla) o [ancho, alto] en cm
+const MK_REC = {
+  camiseta: { frente: 'front', espalda: 'back', pecho: 'chest' },
+  buzo: { frente: [28, 28], espalda: [32, 40], pecho: 'chest' },
+  taza: { frente: 'mug', lado: [8, 8] }, termo: { frente: [20, 16] }, tote: { frente: [28, 32], espalda: [28, 32] },
+};
+const PI_SVG = 'viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"';
+const PICONS = {
+  camiseta: `<svg ${PI_SVG}><path d="M14 6 8 9l-4.5 7.5 5.5 3 2-3V35h18V16.5l2 3 5.5-3L32 9l-6-3c-1.2 2.6-3.4 4-6 4s-4.8-1.4-6-4Z"/></svg>`,
+  buzo: `<svg ${PI_SVG}><path d="M15 9.5C15 5 17.2 3 20 3s5 2 5 6.5l6.5 3 5 19-4 1.5-4.5-14V35h-16V19l-4.5 14-4-1.5 5-19Z"/><path d="M15 9.5c1 3.5 3 5 5 5s4-1.5 5-5M14.5 27h11l1.5 5h-14Z"/></svg>`,
+  taza: `<svg ${PI_SVG}><path d="M8 10h19v20a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4Z"/><path d="M27 15h3.5a3.5 3.5 0 0 1 3.5 3.5v4a3.5 3.5 0 0 1-3.5 3.5H27"/></svg>`,
+  termo: `<svg ${PI_SVG}><path d="M15.5 14h9v19.5a2.5 2.5 0 0 1-2.5 2.5h-4a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M16 14v-1.5l1.5-2.5h5l1.5 2.5V14M17 10V7h6v3M18 7c0-2.5 4-2.5 4 0"/></svg>`,
+  tote: `<svg ${PI_SVG}><path d="M8 15h24l-1.5 21h-21Z"/><path d="M14 15v-3a6 6 0 0 1 12 0v3"/></svg>`,
+};
+const MK = { prod: 'camiseta', lado: 'frente', dy: 0, spin: false };
+try { const s = JSON.parse(store.get('tramaluz.mk') || 'null'); if (s) { if (PRODS[s.prod]) MK.prod = s.prod; if (LADOS[s.lado]) MK.lado = s.lado; MK.spin = s.spin === true; } } catch (e) {}
+function mkSave() { store.set('tramaluz.mk', JSON.stringify({ prod: MK.prod, lado: MK.lado, spin: MK.spin })); }
+var mkWidthKnob = null; // var a propósito: updateInfo() la revisa desde antes de que se cree
+let V3 = null, mkReady = null, mkOpener = null, mkSeq = 0, mkT = null, mkHintT = null;
+const MK_COARSE = matchMedia('(pointer: coarse)').matches;
+const MK_TEX = MK_COARSE ? 1536 : 2048; // lado máximo de las texturas del diseño (en celular, menos memoria)
+function mkIsOpen() { return !$('#mkModal').hidden; }
+function mkBusy(t) { const b = $('#mkBusy'); b.textContent = t; b.hidden = false; }
+function mkIdle() { $('#mkBusy').hidden = true; }
+function mkFail(e) {
+  console.error(e); const m = $('#mkMsg'); m.hidden = false;
+  m.textContent = e && e.message === 'webgl' ? 'Este navegador o equipo no puede mostrar 3D (necesita WebGL 2). Prueba con Chrome, Edge, Firefox o Safari actualizados.'
+    : e && e.message === 'lost' ? 'El 3D se detuvo (el equipo liberó memoria). Cierra el mockup y ábrelo otra vez.'
+    : 'No se pudo cargar el 3D. Revisa tu conexión y vuelve a abrirlo.';
+}
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+async function mkInit() {
+  if (V3) return V3;
+  if (!mkReady) mkReady = (async () => {
+    const T = await import('./vendor/three-mockup.min.js');
+    const stage = $('#mkStage');
+    let renderer;
+    try { renderer = new T.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { throw new Error('webgl'); }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MK_COARSE ? 1.5 : 2));
+    renderer.outputColorSpace = T.SRGBColorSpace; renderer.setClearColor(0x000000, 0);
+    stage.prepend(renderer.domElement);
+    const scene = new T.Scene(), camera = new T.PerspectiveCamera(28, 1, 0.02, 30);
+    scene.add(new T.HemisphereLight(0xfffaf0, 0x7d6f5c, 1.5));
+    // Luces pegadas a la cámara: el lado que miras siempre queda bien iluminado
+    const key = new T.DirectionalLight(0xffffff, 2.1); key.position.set(1.1, 1.5, 1); camera.add(key);
+    const fill = new T.DirectionalLight(0xfff0dc, 0.5); fill.position.set(-1.6, 0.2, 0.4); camera.add(fill);
+    scene.add(camera);
+    // Sombra suave en el piso: una textura, sin cálculo de sombras (rápido en cualquier equipo)
+    const sc = document.createElement('canvas'); sc.width = sc.height = 128;
+    const sx = sc.getContext('2d'), gr = sx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(40,26,14,.5)'); gr.addColorStop(0.5, 'rgba(40,26,14,.2)'); gr.addColorStop(1, 'rgba(40,26,14,0)');
+    sx.fillStyle = gr; sx.fillRect(0, 0, 128, 128);
+    const stex = new T.CanvasTexture(sc); stex.colorSpace = T.SRGBColorSpace;
+    const shadow = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: stex, transparent: true, depthWrite: false }));
+    shadow.rotation.x = -Math.PI / 2; shadow.renderOrder = -1; scene.add(shadow);
+    const controls = new T.OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false; controls.enableDamping = false; controls.rotateSpeed = 0.9; controls.zoomSpeed = 0.9;
+    controls.minPolarAngle = 0.12 * Math.PI; controls.maxPolarAngle = 0.6 * Math.PI;
+    const V = { T, renderer, scene, camera, controls, shadow, stage, loader: new T.GLTFLoader(), prods: {}, cur: null, design: null, raf: 0, last: 0, slow: 0, tween: null, tok: 0 };
+    V.req = () => { if (!V.raf && mkIsOpen()) V.raf = requestAnimationFrame(mkFrame); };
+    controls.addEventListener('change', V.req);
+    controls.addEventListener('start', () => { $('#mkHint').classList.add('off'); V.tween = null; });
+    const fit = () => { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); V.req(); };
+    new ResizeObserver(fit).observe(stage); fit();
+    renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); mkFail(new Error('lost')); });
+    renderer.domElement.addEventListener('webglcontextrestored', () => {
+      $('#mkMsg').hidden = true;
+      for (const o of Object.values(V.prods)) for (const pc of Object.values(o.prints)) pc.tex.needsUpdate = true;
+      V.req();
+    });
+    V3 = V; return V;
+  })();
+  try { return await mkReady; } catch (e) { mkReady = null; throw e; }
+}
+// Dibuja un cuadro. Solo sigue animando mientras gira o se mueve la cámara.
+function mkFrame(t) {
+  const V = V3; V.raf = 0; if (!mkIsOpen()) return;
+  const dt = V.last ? Math.min(0.1, (t - V.last) / 1000) : 1 / 60;
+  let more = false;
+  if (V.tween) {
+    const w = V.tween, k = clamp((t - w.t0) / w.dur, 0, 1), e = k < 0.5 ? 2 * k * k : 1 - (2 - 2 * k) ** 2 / 2;
+    mkSetCam(w.from.r + (w.to.r - w.from.r) * e, w.from.phi + (w.to.phi - w.from.phi) * e, w.from.th + (w.to.th - w.from.th) * e);
+    if (k < 1) more = true; else V.tween = null;
+  } else if (MK.spin) { V.controls.autoRotate = true; V.controls.autoRotateSpeed = 2.2; V.controls.update(dt); more = true; }
+  if (!MK.spin) V.controls.autoRotate = false;
+  V.renderer.render(V.scene, V.camera);
+  if (more) {
+    // Equipo lento: si no alcanza a animar fluido, baja la resolución de a poco
+    if (V.last && t - V.last > 55) { if (++V.slow > 24 && V.renderer.getPixelRatio() > 1) { V.renderer.setPixelRatio(Math.max(1, V.renderer.getPixelRatio() * 0.75)); V.slow = 0; } }
+    else V.slow = Math.max(0, V.slow - 1);
+    V.last = t; V.req();
+  } else V.last = 0;
+}
+function mkSetCam(r, phi, th) { const c = V3.camera; c.position.setFromSphericalCoords(r, phi, th); c.lookAt(0, 0, 0); V3.controls.update(); }
+function mkSide(o) { const L = o.info.lados || {}; return L[MK.lado] || L.frente || Object.values(L)[0] || { mat: '', cx: 0, cy: 0 }; }
+function mkGloss(prod, name) {
+  if (name === 'tapa') return { color: 0x262626, shininess: 60, specular: 0x3a3a3a };
+  if (name === 'puntera') return { color: 0xc9c9c9, shininess: 80, specular: 0x777777 };
+  if (prod === 'taza') return { shininess: 90, specular: 0x555555 };
+  if (prod === 'termo') return { shininess: 36, specular: 0x333333 };
+  return { shininess: 5, specular: 0x0d0d0d }; // tela
+}
+// En la tela se ve el revés (por el cuello, el ruedo y las mangas): se pinta más oscuro que el derecho
+function mkInsideTint(mat) {
+  mat.userData.inner = { value: new V3.T.Color(0x333333) };
+  mat.onBeforeCompile = sh => {
+    sh.uniforms.mkInner = mat.userData.inner;
+    sh.fragmentShader = 'uniform vec3 mkInner;\n' + sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n\tif ( ! gl_FrontFacing ) diffuseColor.rgb = mkInner;');
+  };
+}
+// Prepara un modelo recién cargado: materiales propios y un lienzo (canvas) por zona de impresión
+function mkPrepare(prod, g) {
+  const V = V3, T = V.T, root = new T.Group(), model = g.scene;
+  root.add(model);
+  const info = (model.userData && model.userData.tramaluz) || { lados: {} };
+  const prints = {}, mats = [];
+  model.traverse(m => {
+    if (!m.isMesh) return;
+    const src = m.material, name = src.name || '', lz = src.userData && src.userData.lienzo, opt = mkGloss(prod, name);
+    if (name.startsWith('print') && lz) {
+      let pc = prints[name];
+      if (!pc) {
+        const k = Math.min(MK_TEX / lz[0], MK_TEX / lz[1]), c = document.createElement('canvas');
+        c.width = Math.max(8, Math.round(lz[0] * k)); c.height = Math.max(8, Math.round(lz[1] * k));
+        const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace; tex.flipY = false;
+        tex.anisotropy = Math.min(4, V.renderer.capabilities.getMaxAnisotropy());
+        pc = prints[name] = { canvas: c, ctx: c.getContext('2d'), tex, lienzo: lz, wrap: name === 'print' };
+      }
+      opt.map = pc.tex;
+    }
+    const mat = new T.MeshPhongMaterial({ ...opt, side: src.side });
+    mat.name = name; if (mat.side === T.DoubleSide) mkInsideTint(mat);
+    src.dispose(); m.material = mat; mats.push(mat);
+  });
+  // Centrado en el origen para que la cámara gire alrededor del producto. Al lado se centra en el cuerpo
+  // (la zona de impresión), no en el total: así el asa de la taza no lo corre.
+  const box = new T.Box3().setFromObject(model), body = new T.Box3();
+  model.traverse(m => { if (m.isMesh && m.material.map) body.expandByObject(m); });
+  const c = box.getCenter(new T.Vector3()); if (!body.isEmpty()) { const b = body.getCenter(new T.Vector3()); c.x = b.x; c.z = b.z; }
+  model.position.sub(c);
+  const size = new T.Vector3(2 * Math.max(box.max.x - c.x, c.x - box.min.x), box.max.y - box.min.y, 2 * Math.max(box.max.z - c.z, c.z - box.min.z));
+  return { prod, root, info, prints, mats, size };
+}
+async function mkShow(prod, animate) {
+  const V = await mkInit(), tok = ++V.tok;
+  let o = V.prods[prod];
+  if (!o) {
+    mkBusy('CARGANDO ' + PRODS[prod].label + '…');
+    const g = await V.loader.loadAsync('mockups/' + prod + '.glb');
+    o = V.prods[prod] = V.prods[prod] || mkPrepare(prod, g);
+  }
+  if (tok !== V.tok) return; // mientras cargaba se eligió otro producto
+  if (V.cur && V.cur !== o) V.scene.remove(V.cur.root);
+  V.cur = o; V.scene.add(o.root);
+  const s = o.size, foot = Math.max(s.x, s.z);
+  V.shadow.scale.set(foot * 1.3, Math.max(s.z * 1.6, foot * 0.5), 1); V.shadow.position.set(0, -s.y / 2 + 0.0005, 0);
+  mkColors(); mkView(animate); await mkUpdateDesign();
+}
+function mkColors() {
+  const V = V3, o = V && V.cur; if (!o) return;
+  const base = new V.T.Color(P.shirt);
+  for (const m of o.mats) {
+    const n = m.name;
+    if (n.startsWith('print')) m.color.setRGB(1, 1, 1);
+    else if (n === 'rib') m.color.copy(base).multiplyScalar(0.86);
+    else if (n === 'tela' || n === 'ceramica' || n === 'metal') m.color.copy(base);
+    if (m.userData.inner) m.userData.inner.value.copy(base).multiplyScalar(0.4);
+  }
+  mkPaint(); V.req();
+}
+// Lleva la cámara a la vista inicial de la ubicación elegida (con una animación corta si animate)
+function mkView(animate) {
+  const V = V3, o = V && V.cur; if (!o) return;
+  const s = o.size, cam = V.camera, side = mkSide(o);
+  const fv = cam.fov * Math.PI / 180, fh = 2 * Math.atan(Math.tan(fv / 2) * cam.aspect), w = Math.max(s.x, s.z);
+  const r = Math.max(s.y / 2 / Math.tan(fv / 2), w / 2 / Math.tan(fh / 2)) * 1.1 + w / 2;
+  V.controls.minDistance = r * 0.3; V.controls.maxDistance = r * 2.2;
+  const to = { r, phi: Math.PI / 2 - PRODS[o.prod].el * Math.PI / 180, th: (side.vista || 0) * Math.PI / 180 };
+  if (!animate) { V.tween = null; mkSetCam(to.r, to.phi, to.th); V.req(); return; }
+  const from = new V.T.Spherical().setFromVector3(cam.position);
+  const dth = Math.atan2(Math.sin(to.th - from.theta), Math.cos(to.th - from.theta));
+  V.tween = { t0: performance.now(), dur: 520, from: { r: from.radius, phi: from.phi, th: from.theta }, to: { r: to.r, phi: to.phi, th: from.theta + dth } };
+  V.req();
+}
+// Calcula el diseño procesado (con el motor de semitono) a la resolución que necesita la textura
+async function mkUpdateDesign() {
+  const V = V3, o = V && V.cur; if (!o) return;
+  const seq = ++mkSeq; let d = null;
+  const side = mkSide(o), pc = o.prints[side.mat];
+  if (SRC && pc) {
+    const out = outSize(), k = pc.canvas.width / pc.lienzo[0];
+    const want = clamp(Math.round(out.wcm * k), 32, 2048), step = Math.max(1, out.w / want);
+    const rw = Math.max(1, Math.round(out.w / step)), rh = Math.max(1, Math.round(out.h / step));
+    mkBusy('PROCESANDO…');
+    try {
+      const res = await wcall({ type: 'render', outW: out.w, outH: out.h, ix: out.ix, iy: out.iy, iw: out.iw, ih: out.ih, rx: 0, ry: 0, rw, rh, step, approx: step > 1.5, kind: 'proc', p: params() });
+      if (seq !== mkSeq) return;
+      const c = document.createElement('canvas'); putTo(c, res); d = { canvas: c, wcm: out.wcm, hcm: out.hcm };
+    } catch (e) { console.error(e); if (seq === mkSeq) toast('No se pudo procesar el diseño para el mockup.'); }
+    finally { if (seq === mkSeq) mkIdle(); }
+  }
+  if (seq !== mkSeq) return;
+  V.design = d; mkPaint(); mkInfo(); V.req();
+}
+function mkRefreshSoon(delay = 140) { clearTimeout(mkT); mkT = setTimeout(() => { if (mkIsOpen() && V3 && V3.cur) mkUpdateDesign(); }, delay); }
+// Pinta cada zona de impresión: el color de la tela y, en la ubicación elegida, el diseño a su tamaño real
+function mkPaint() {
+  const V = V3, o = V && V.cur; if (!o) return;
+  const side = mkSide(o), d = V.design;
+  for (const [name, pc] of Object.entries(o.prints)) {
+    const mine = !!d && side.mat === name;
+    if (!mine && pc.key === P.shirt) continue; // ya está pintada de ese color y sin diseño: no se vuelve a subir
+    pc.key = mine ? null : P.shirt;
+    const c = pc.canvas, x = pc.ctx, k = c.width / pc.lienzo[0];
+    x.fillStyle = P.shirt; x.fillRect(0, 0, c.width, c.height);
+    if (mine) {
+      const w = d.wcm * k, h = d.hcm * k, left = side.cx * k - w / 2;
+      const top = (side.top != null ? side.top * k : side.cy * k - h / 2) - MK.dy * k;
+      x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+      x.drawImage(d.canvas, left, top, w, h);
+      if (pc.wrap) { x.drawImage(d.canvas, left - c.width, top, w, h); x.drawImage(d.canvas, left + c.width, top, w, h); } // taza y termo: da la vuelta
+    }
+    pc.tex.needsUpdate = true;
+  }
+}
+function mkRecSize() { const r = MK_REC[MK.prod][MK.lado] || MK_REC[MK.prod].frente; return typeof r === 'string' ? (r === 'mug' ? MUG : SIZES[r][P.talla]) : r; }
+function mkInfo() {
+  const prod = PRODS[MK.prod], rec = mkRecSize(), r = MK_REC[MK.prod][MK.lado] || MK_REC[MK.prod].frente;
+  const where = prod.lados.length > 1 ? ' ' + LADOS[MK.lado] : '';
+  const recTxt = `${prod.label}${where}: hasta ${fmtPair(rec[0], rec[1])}${typeof r === 'string' && r !== 'mug' ? ' (talla ' + P.talla + ')' : ''}`;
+  const note = $('#mkNote'); note.textContent = '';
+  if (!SRC) {
+    note.textContent = `Carga un diseño para verlo puesto. Recomendado para ${recTxt}.`;
+    $('#mkStatus').textContent = prod.label + where + ' · SIN DISEÑO'; $('#mkRec').disabled = true; return;
+  }
+  const o = outSize(), big = o.wcm > rec[0] * 1.04 || o.hcm > rec[1] * 1.04;
+  note.append(`Tu diseño mide ${fmtPair(o.wcm, o.hcm)}. Recomendado para ${recTxt}.`);
+  if (big) { const b = document.createElement('b'); b.className = 'warn'; b.textContent = ' Se pasa de la medida: toca USAR MEDIDA RECOMENDADA.'; note.append(b); }
+  $('#mkStatus').textContent = `${prod.label}${where} · ${fmtPair(o.wcm, o.hcm)}`;
+  $('#mkRec').disabled = false;
+}
+// Pone en TAMAÑO la medida típica de ese producto y ubicación (cambia el archivo, igual que tocar TAMAÑO)
+function mkUseRec() {
+  if (!SRC) return;
+  const r = MK_REC[MK.prod][MK.lado] || MK_REC[MK.prod].frente;
+  if (typeof r === 'string') { P.use = r; swUse.sync(); applyPreset(); }
+  else {
+    P.use = ''; swUse.sync(); P.widthCm = r[0]; P.heightCm = r[1]; P.fit = 'fit'; swFit.sync();
+    persist(); syncSizeUI(); syncSizeInputs(true); updateInfo(); view.cx = null; scheduleRender();
+  }
+  MK.dy = 0; mkDyKnob.show(); mkRefreshSoon(0);
+  toast(`Medida puesta: ${fmtPair(P.widthCm, P.heightCm)}. También quedó en TAMAÑO.`);
+}
+function mkBuildLados() {
+  const old = $('#mkLado'), fresh = old.cloneNode(false); old.replaceWith(fresh); // nuevo, para no repetir eventos
+  const lados = PRODS[MK.prod].lados;
+  $('#mkLadoRow').hidden = lados.length < 2;
+  makeSwitch(fresh, 'lado', lados.map(l => [l, LADOS[l]]), () => { MK.dy = 0; mkDyKnob.show(); mkView(true); mkUpdateDesign(); }, { obj: MK, persist: mkSave });
+}
+function mkSyncProds() { $('#mkProd').querySelectorAll('button').forEach(b => { const on = b.dataset.v === MK.prod; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; }); }
+async function mkSetProd(id) {
+  if (MK.prod === id) return;
+  MK.prod = id; if (!PRODS[id].lados.includes(MK.lado)) MK.lado = 'frente'; MK.dy = 0; mkSave();
+  mkSyncProds(); mkBuildLados(); mkDyKnob.show(); mkInfo(); $('#mkMsg').hidden = true;
+  try { await mkShow(id, false); } catch (e) { mkFail(e); } finally { mkIdle(); }
+}
+function mkFileName(ext) { return `${SRC ? SRC.name : 'tramaluz'}_mockup_${MK.prod}${PRODS[MK.prod].lados.length > 1 ? '_' + MK.lado : ''}.${ext}`.replace(/\s+/g, '_'); }
+function mkBackdrop(x, w, h) { // el mismo fondo de la pantalla del mockup
+  const g = x.createRadialGradient(w / 2, h * 0.38, 0, w / 2, h * 0.38, Math.max(w, h) * 0.72);
+  g.addColorStop(0, '#f3ede0'); g.addColorStop(0.55, '#ddd2bb'); g.addColorStop(1, '#b9aa8c');
+  x.fillStyle = g; x.fillRect(0, 0, w, h);
+}
+async function mkPhoto() {
+  const V = V3; if (!V || !V.cur) return;
+  const r = V.renderer, pr0 = r.getPixelRatio(), w = V.stage.clientWidth, h = V.stage.clientHeight;
+  let blob = null;
+  try {
+    V.tween = null; r.setPixelRatio((MK_COARSE ? 1400 : 2000) / Math.max(w, h)); r.render(V.scene, V.camera);
+    const c = document.createElement('canvas'); c.width = r.domElement.width; c.height = r.domElement.height;
+    const x = c.getContext('2d'); mkBackdrop(x, c.width, c.height); x.drawImage(r.domElement, 0, 0);
+    blob = await new Promise(res => c.toBlob(res, 'image/png'));
+  } catch (e) { console.error(e); }
+  finally { r.setPixelRatio(pr0); V.req(); }
+  if (!blob) { toast('No se pudo crear la foto.'); return; }
+  saveBlob(blob, mkFileName('png')); toast('Foto del mockup guardada en Descargas.'); track('mockup-foto-' + MK.prod);
+}
+async function mkGlb() {
+  const V = V3, o = V && V.cur; if (!o) return;
+  const T = V.T; mkBusy('ARMANDO GLB…');
+  try {
+    const root = o.root.clone(true); // copia con materiales estándar, que entiende cualquier visor
+    root.traverse(m => {
+      if (!m.isMesh) return;
+      const s = m.material, std = new T.MeshStandardMaterial({ color: s.color.clone(), map: s.map || null, metalness: 0, roughness: s.shininess >= 60 ? 0.22 : s.shininess >= 20 ? 0.42 : 0.9, side: s.side });
+      std.name = s.name; m.material = std;
+    });
+    const buf = await new T.GLTFExporter().parseAsync(root, { binary: true, maxTextureSize: MK_TEX });
+    saveBlob(new Blob([buf], { type: 'model/gltf-binary' }), mkFileName('glb'));
+    toast('Modelo 3D guardado en Descargas.'); track('mockup-glb-' + MK.prod);
+  } catch (e) { console.error(e); toast('No se pudo armar el GLB.'); }
+  finally { mkIdle(); }
+}
+async function openMock(opener) {
+  mkOpener = opener || null;
+  // Si en TAMAÑO hay un uso elegido, el mockup arranca en ese producto y ubicación
+  if (P.use === 'mug') MK.prod = 'taza';
+  else if (P.use === 'front' || P.use === 'back' || P.use === 'chest') {
+    if (MK.prod !== 'camiseta' && MK.prod !== 'buzo') MK.prod = 'camiseta';
+    MK.lado = { front: 'frente', back: 'espalda', chest: 'pecho' }[P.use];
+  }
+  if (!PRODS[MK.prod].lados.includes(MK.lado)) MK.lado = 'frente';
+  MK.dy = 0;
+  $('#mkModal').hidden = false; document.documentElement.classList.add('mk-open');
+  $('#mkMsg').hidden = true; $('#mkHint').classList.remove('off');
+  mkSyncProds(); mkBuildLados(); mkDyKnob.show(); mkWidthKnob.show(); mkInfo();
+  $('#mkClose').focus({ preventScroll: true });
+  track('mockup-abrir');
+  clearTimeout(mkHintT); mkHintT = setTimeout(() => $('#mkHint').classList.add('off'), 5000);
+  mkBusy('CARGANDO 3D…');
+  try {
+    const V = await mkInit();
+    if (V.cur && V.cur.prod === MK.prod) { mkColors(); mkView(false); await mkUpdateDesign(); }
+    else await mkShow(MK.prod, false);
+  } catch (e) { mkFail(e); } finally { mkIdle(); }
+}
+function closeMock() {
+  $('#mkModal').hidden = true; document.documentElement.classList.remove('mk-open');
+  if (V3) { V3.tween = null; if (V3.raf) { cancelAnimationFrame(V3.raf); V3.raf = 0; } V3.last = 0; }
+  if (mkOpener) mkOpener.focus({ preventScroll: true });
+}
+{ // Armado de los controles del mockup
+  const box = $('#mkProd');
+  for (const [id, p] of Object.entries(PRODS)) {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.v = id; b.title = p.label;
+    b.innerHTML = PICONS[id] + '<span></span>'; b.lastChild.textContent = p.label;
+    b.onclick = () => mkSetProd(id); box.appendChild(b);
+  }
+  box.addEventListener('keydown', e => {
+    const k = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key]; if (!k) return;
+    e.preventDefault(); const ids = Object.keys(PRODS), id = ids[(ids.indexOf(MK.prod) + k + ids.length) % ids.length];
+    mkSetProd(id); box.querySelector(`[data-v="${id}"]`).focus();
+  });
+}
+mkWidthKnob = makeKnob($('#mkKnobs'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), noReg: true,
+  onChange: () => { sizeChanged(); mkRefreshSoon(); }, help: 'Es el mismo ANCHO de TAMAÑO: cambia el archivo' });
+const mkDyKnob = makeKnob($('#mkKnobs'), { key: 'dy', label: 'SUBIR · BAJAR', obj: MK, persist: () => {}, noReg: true, min: -20, max: 20, step: 0.5, def: 0, wheel: 2,
+  fmt: v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtLen(Math.abs(v)), onChange: () => { mkPaint(); if (V3) V3.req(); }, help: 'Mueve el diseño en el mockup (no cambia el archivo)' });
+makeSwitch($('#mkSpin'), 'spin', [[true, 'GIRAR']], () => { if (V3) { V3.tween = null; V3.req(); } }, { off: false, obj: MK, persist: mkSave });
+$('#btnMock').onclick = e => openMock(e.currentTarget);
+$('#mkClose').onclick = closeMock;
+$('#mkReset').onclick = () => mkView(true);
+$('#mkRec').onclick = mkUseRec;
+$('#mkPng').onclick = mkPhoto;
+$('#mkGlb').onclick = mkGlb;
 </script>
 </body>
 </html>
