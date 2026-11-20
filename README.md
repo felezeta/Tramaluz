@@ -6,6 +6,7 @@ Procesador de semitono para DTF, gratis y en el navegador.
 - **Limpiar**: quita semitransparencias y el fondo oscuro o claro. **Contraer** recorta el borde para quitar la película o halo blanco.
 - **Procesos combinables**: Limpiar y Semitono se prenden y apagan por separado. Con los dos encendidos limpia y hace el semitono en un solo paso, en un solo PNG.
 - **Recortar**: para fotos, se elige qué parte se usa con un recuadro (libre o cuadrado) que se arrastra desde las esquinas o los lados. Muestra cuántos píxeles quedan y hasta qué tamaño se imprime nítida. Se puede reabrir o quitar, va en el historial (DESHACER) y, si la foto ya estaba agrandada, recorta también la agrandada.
+- **Borrador**: para quitar impurezas a mano sobre la pantalla, con tamaño graduable en mm. Borra al 100% (sin semitransparencias) y va en el PNG; cada trazo se puede deshacer y se mantiene si después se recorta o se agranda con IA.
 - **Agrandar con IA** ×2 a ×7 (modelos Real-ESRGAN, corren en tu tarjeta de video). Se toca la escala para agrandar y otra vez para volver a la original, sin perder los ajustes.
 - **Tamaños por uso y talla**: frente, espalda y pecho de camiseta de XS a XXL, y taza 11 oz (21 × 9 cm), o medidas libres. La imagen se puede ajustar, centrar, llenar o estirar en el área.
 - **Avisos** para quien empieza: si la imagen se va a reventar (pixelar), si se estira, si se recorta o si queda mal dimensionada, con la forma de arreglarlo.

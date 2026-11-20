@@ -86,6 +86,11 @@ button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation} /* s
   background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px)}
 .screen canvas{position:absolute;inset:0;width:100%;height:100%}
 .screen.pan{cursor:grab}.screen.pan:active{cursor:grabbing}
+/* BORRADOR: el círculo muestra lo que se va a borrar */
+.screen.erasing,.screen.erasing.pan{cursor:none}
+.screen.erasing.spacepan{cursor:grab}
+.erasecur{position:absolute;left:0;top:0;border-radius:50%;border:1.5px solid #fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.65),inset 0 0 0 1px rgba(0,0,0,.35);transform:translate(-50%,-50%);pointer-events:none;z-index:2}
+.erasetag{position:absolute;left:10px;bottom:10px;font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--vfd);background:rgba(21,13,8,.8);padding:4px 8px;border-radius:4px;pointer-events:none}
 .divider{position:absolute;top:0;bottom:0;width:2px;background:var(--vfd);box-shadow:0 0 8px var(--vfd);transform:translateX(-1px);cursor:ew-resize}
 .divider::after{content:"";position:absolute;top:50%;left:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--vfd-bg);border:2px solid var(--vfd)}
 .tagl,.tagr{position:absolute;top:10px;font-family:var(--label);font-size:9px;letter-spacing:.14em;color:var(--vfd);background:rgba(21,13,8,.75);padding:4px 8px;border-radius:4px;pointer-events:none}
@@ -438,6 +443,8 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
             <span class="tagl" id="tagL" hidden>ANTES</span>
             <span class="tagr" id="tagR" hidden>DESPUÉS</span>
             <div class="busy" id="busy" hidden>PROCESANDO…</div>
+            <div class="erasecur" id="eraseCur" hidden></div>
+            <span class="erasetag" id="eraseTag" hidden>BORRADOR</span>
             <div class="empty" id="empty">
               <h2>Carga un diseño</h2>
               <p>Arrastra aquí un PNG o JPG, o usa el botón <b>CARGAR</b>. Tramaluz lo convierte en semitono para DTF, sin velo blanco y sin semitransparencias. Tu imagen no se sube a ningún lado: todo pasa en tu computador.</p>
@@ -479,6 +486,12 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
             <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
             <div class="vfd grow" id="srcInfo">—</div>
           </div>
+        </div>
+
+        <div class="group">
+          <h3>BORRADOR</h3><button class="qhelp" type="button" data-help="h-borrador" aria-label="Ayuda: Borrador">?</button>
+          <div class="sw" role="group" aria-label="Borrador" id="swErase"></div>
+          <div class="knobs" id="kErase" style="margin-top:12px"></div>
         </div>
 
         <div class="group">
@@ -594,7 +607,7 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
           <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
           <dt>COMPARAR</dt><dd>Tócalo para dividir la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea. Tócalo otra vez para quitarlo.</dd>
           <dt>LÍNEA PUNTEADA</dt><dd>Marca el borde del archivo cuando el tamaño es exacto (CENTRAR, LLENAR o ESTIRAR).</dd>
-          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho, recorte y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
+          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho, recorte, borrador y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
           <dt>INFO</dt><dd>Solo en el computador: el recuadro bajo la pantalla dice qué es y para qué sirve lo que tengas bajo el mouse. El botón <b>INFO</b> de arriba lo prende o lo apaga (apagado, la pantalla queda un poco más grande).</dd>
         </dl>
@@ -605,6 +618,13 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
           <dt>RECORTAR</dt><dd>Elige qué parte de la foto vas a usar. Arrastra las esquinas o los lados del recuadro, muévelo desde adentro o arrastra afuera para marcar otro. <b>CUADRADO</b> lo deja de lados iguales. Lo que queda afuera no va en el PNG. Puedes volver a abrirlo para cambiarlo, o tocar <b>TODA LA FOTO</b> para quitarlo. Mejor recorta antes de agrandar con IA: así agranda solo lo que vas a usar y tarda menos.</dd>
           <dt>DISPLAY</dt><dd>Nombre y píxeles de la imagen. Todos los detalles están en MEDIDAS.</dd>
         </dl>
+      </section>
+      <section class="hsec" id="h-borrador"><h4>BORRADOR</h4>
+        <dl class="hdl">
+          <dt>BORRAR</dt><dd>Prende el borrador y arrastra sobre la pantalla para quitar impurezas: puntos sueltos, manchas o restos de fondo. Borra al 100%: lo borrado queda transparente, sin semitransparencias, y va en el PNG. Para moverte por la imagen arrastra con el botón derecho o la rueda del mouse, o con la barra espaciadora apretada; en el celular, usa dos dedos para acercar y moverte. DESHACER quita el último trazo.</dd>
+          <dt>TAMAÑO</dt><dd>El ancho del borrador, en milímetros de la impresión. El círculo de la pantalla muestra lo que vas a borrar.</dd>
+        </dl>
+        <p class="tip">Acércate (rueda del mouse o pellizcando) para borrar puntos pequeños con precisión. Lo borrado se mantiene si después recortas o agrandas con IA. Escape apaga el borrador.</p>
       </section>
       <section class="hsec" id="h-medidas"><h4>MEDIDAS</h4>
         <dl class="hdl">
@@ -991,6 +1011,23 @@ function blur2(a, w, h, r) {
   }
   return e;
 }
+// BORRADOR: máscara (1 = borrado) a la resolución de la imagen. list: [{ r, pts: [x0, y0, x1, y1, …] }] en px de la imagen.
+// Borde duro: un píxel se borra entero o no se toca (sin semitransparencias).
+function eraseMask(list, w, h) {
+  if (!list || !list.length) return null;
+  const M = new Uint8Array(w * h);
+  const seg = (ax, ay, bx, by, r) => {
+    const x0 = Math.max(0, Math.floor(Math.min(ax, bx) - r)), x1 = Math.min(w - 1, Math.ceil(Math.max(ax, bx) + r));
+    const y0 = Math.max(0, Math.floor(Math.min(ay, by) - r)), y1 = Math.min(h - 1, Math.ceil(Math.max(ay, by) + r));
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy, r2 = r * r;
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const px = x + 0.5 - ax, py = y + 0.5 - ay; let t = l2 ? (px * dx + py * dy) / l2 : 0; t = t < 0 ? 0 : t > 1 ? 1 : t;
+      const qx = px - t * dx, qy = py - t * dy; if (qx * qx + qy * qy <= r2) M[y * w + x] = 1;
+    }
+  };
+  for (const s of list) { const p = s.pts; if (p.length <= 2) seg(p[0], p[1], p[0], p[1], s.r); else for (let i = 0; i + 3 < p.length; i += 2) seg(p[i], p[i + 1], p[i + 2], p[i + 3], s.r); }
+  return M;
+}
 // Mapa de alturas para el mockup 3D (en R): el borde de la película, con poco desenfoque
 function heightMap(out, rw, rh, hm) {
   const w = hm.w, h = hm.h, A = new Float32Array(w * h), C = new Float32Array(w * h);
@@ -1007,7 +1044,9 @@ ${vnoise.toString()}
 ${wearAt.toString()}
 ${blur2.toString()}
 ${heightMap.toString()}
-let S=null,SW=0,SH=0,BN=null,D=null,DK=''; const LUT={}; const N=128;
+${eraseMask.toString()}
+// M: lo borrado con el BORRADOR (máscara de la imagen)
+let S=null,SW=0,SH=0,BN=null,D=null,DK='',M=null; const LUT={}; const N=128;
 // Qué cuenta como "quitado" para CONTRAER: lo transparente (bajo el CORTE ALFA si se limpia) y lo que borra NEGRO/BLANCO.
 // Así también recorta el halo de un JPG o de un PNG que todavía tiene el fondo blanco (sin transparencia).
 function chokeKey(p){ const cl=p.mode==='clean'||p.mode==='both'; return (cl?p.alphaCut:50)+'|'+p.knock+'|'+p.black; }
@@ -1058,6 +1097,7 @@ function render(m){
     for(let i=0;i<rw;i++,o+=4){
       const X=rx+(i+0.5)*step; if(X<ix||X>=ix+iw) continue; let sxp=(X-ix)*kx-0.5; if(sxp<0)sxp=0; if(sxp>SW-1)sxp=SW-1;
       const x0=sxp|0, x1=Math.min(x0+1,SW-1), fx=sxp-x0;
+      if(M&&M[(fy<0.5?y0:y1)*SW+(fx<0.5?x0:x1)]) continue; // BORRADOR: el píxel más cercano está borrado
       const a00=(y0*SW+x0)*4,a01=(y0*SW+x1)*4,a10=(y1*SW+x0)*4,a11=(y1*SW+x1)*4;
       const w00=(1-fx)*(1-fy),w01=fx*(1-fy),w10=(1-fx)*fy,w11=fx*fy;
       const A00=S[a00+3]*w00,A01=S[a01+3]*w01,A10=S[a10+3]*w10,A11=S[a11+3]*w11;
@@ -1100,7 +1140,8 @@ function render(m){
 }
 onmessage=async(e)=>{ const m=e.data;
   try{
-    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; D=null; DK=''; postMessage({type:'ok',id:m.id}); return; }
+    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; D=null; DK=''; M=null; postMessage({type:'ok',id:m.id}); return; }
+    if(m.type==='mask'){ M=eraseMask(m.list,SW,SH); postMessage({type:'ok',id:m.id}); return; }
     if(m.type==='render'){ const out=render(m);
       const msg={type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh}, tr=[out.buffer];
       if(m.hmap){ const hb=heightMap(out,m.rw,m.rh,m.hmap); msg.hbuf=hb.buffer; msg.hw=m.hmap.w; msg.hh=m.hmap.h; tr.push(hb.buffer); }
@@ -1127,13 +1168,25 @@ let SRC = null;      // {w,h,data:Uint8ClampedArray,name, semi}
 let BASE = null;     // la imagen sin agrandar: la cargada o su recorte (img.orig = la cargada, img.rect = el recuadro)
 let UP = null;       // la última imagen agrandada con IA (para prender/apagar el agrandado)
 let srcGen = 0;      // numera las imágenes agrandadas y recortadas para el historial
+// BORRADOR: cada trazo es { r, pts } en px de la imagen CARGADA (BASE.orig o BASE), así sigue valiendo si se recorta o
+// se agranda. La lista no se modifica: cada trazo crea una nueva (el historial guarda la que tenía).
+const ER = { on: false, eraseMm: 3, list: [] };
+try { const v = +store.get('tramaluz.borrador'); if (v >= 0.5 && v <= 20) ER.eraseMm = v; } catch (e) {}
+// Le pasa al motor lo borrado, en px de la imagen que está usando (recortada y/o agrandada)
+async function sendMask() {
+  if (!SRC) return;
+  const k = SRC !== BASE && SRC.upScale ? SRC.upScale : 1, rc = BASE.rect || { x: 0, y: 0 };
+  const list = ER.list.map(s => ({ r: Math.max(0.75, s.r * k), pts: s.pts.map((v, i) => (v - (i % 2 ? rc.y : rc.x)) * k) }));
+  await wcall({ type: 'mask', list });
+}
 // Cada imagen agrandada sabe de cuál salió (img.base): así BASE vuelve a la correcta también al deshacer.
 async function setSource(img) {
   SRC = img; BASE = img.base || img;
   if (img.upScale) UP = img;
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
+  await sendMask(); // lo borrado, pasado a los px de esta imagen (recortada o agrandada)
   $('#empty').hidden = true;
-  $('#btnExport').disabled = false; $('#btnCrop').disabled = false;
+  $('#btnExport').disabled = false; $('#btnCrop').disabled = false; $('#swErase button').disabled = false;
   syncModeUI(); syncUpUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
@@ -1152,7 +1205,7 @@ async function loadFile(file) {
     img.semi = semiPct(img.data);
     lastDraw = null;
     upJob++; // si estaba agrandando otra imagen, se cancela
-    BASE = img; UP = null;
+    BASE = img; UP = null; ER.list = [];
     await setSource(img);
     resetHistory();
     track('imagen-cargada');
@@ -1419,15 +1472,18 @@ function syncZoomUI() {
   ['zFit', 'zOut', 'z100', 'zIn'].forEach(id => $('#' + id).disabled = !has);
   scr.classList.toggle('pan', has && view.z != null);
 }
-// Acerca/aleja dejando quieto el punto (mx, my) de la pantalla
-function setZoom(z, mx, my) {
-  if (!SRC) return;
+// Zoom z dejando el punto (px, py) del archivo bajo el punto (mx, my) de la pantalla (px de dispositivo)
+function zoomTo(z, px, py, mx, my) {
   const L = layout(); z = clamp(z, Math.min(L.zf, 1), ZMAX);
-  if (mx == null) { mx = L.W / 2; my = L.H / 2; }
-  const px = L.left + mx / L.z, py = L.top + my / L.z;
   if (z <= L.zf * 1.03) view.z = null;
   else { view.z = z; view.cx = px - mx / z + L.W / (2 * z); view.cy = py - my / z + L.H / (2 * z); }
   draw(); scheduleRender(90);
+}
+// Acerca/aleja dejando quieto el punto (mx, my) de la pantalla
+function setZoom(z, mx, my) {
+  if (!SRC) return;
+  const L = layout(); if (mx == null) { mx = L.W / 2; my = L.H / 2; }
+  zoomTo(z, L.left + mx / L.z, L.top + my / L.z, mx, my);
 }
 function zoomStep(dir) {
   if (!SRC) return; const z = layout().z;
@@ -1436,6 +1492,7 @@ function zoomStep(dir) {
 }
 async function doRender() {
   if (!SRC) return;
+  if (gest && gest.erase) { scheduleRender(150); return; } // mientras se borra no se reemplaza la vista (perdería el trazo)
   const seq = ++renderSeq; const L = layout(), o = L.o, p = params();
   const x0 = Math.max(0, Math.floor(L.left)), y0 = Math.max(0, Math.floor(L.top));
   const x1 = Math.min(o.w, Math.ceil(L.left + L.W / L.z)), y1 = Math.min(o.h, Math.ceil(L.top + L.H / L.z));
@@ -1493,22 +1550,27 @@ scr.addEventListener('pointerdown', e => {
   if (!SRC || e.target.closest('.empty')) return;
   capture(scr, e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   const L = layout();
-  if (ptrs.size >= 2) {
-    const [a, b] = [...ptrs.values()];
-    gest = { pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: L.z }; return;
+  if (ptrs.size >= 2) { // dos dedos: acercar y mover (el punto que quedó entre los dedos los sigue)
+    if (gest && gest.erase) erCancel(); // el trazo que empezaba el primer dedo no cuenta
+    const [a, b] = [...ptrs.values()], [mx, my] = toDev({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
+    gest = { pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, z0: L.z, px: L.left + mx / L.z, py: L.top + my / L.z }; return;
   }
-  if (P.compare && view.z == null) { gest = { split: true }; setSplit(e.clientX); return; }
+  if (ER.on && e.button === 0 && !erSpace) { erStart(e); return; }
+  if (ER.on && e.button === 1) e.preventDefault(); // la rueda apretada mueve, sin el desplazamiento automático
+  if (P.compare && view.z == null && !ER.on) { gest = { split: true }; setSplit(e.clientX); return; }
   gest = { pan: true, x: e.clientX, y: e.clientY, left: L.left, top: L.top };
 });
 scr.addEventListener('pointermove', e => {
+  if (ER.on) erCursor(e);
   if (!ptrs.has(e.pointerId)) return;
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (!gest) return;
   if (gest.pinch && ptrs.size >= 2) {
     const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
     const [mx, my] = toDev({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
-    setZoom(gest.z0 * d / gest.d0, mx, my); return;
+    zoomTo(gest.z0 * d / gest.d0, gest.px, gest.py, mx, my); return;
   }
+  if (gest.erase) { erMove(e); return; }
   if (gest.split) { setSplit(e.clientX); return; }
   if (gest.pan && view.z != null) {
     const L = layout(), dpr = L.dpr;
@@ -1517,15 +1579,21 @@ scr.addEventListener('pointermove', e => {
     draw(); scheduleRender(90);
   }
 });
-const endPtr = e => { ptrs.delete(e.pointerId); if (ptrs.size === 0) gest = null; else if (gest && gest.pinch && ptrs.size < 2) gest = null; };
+const endPtr = e => {
+  if (gest && gest.erase && ptrs.has(e.pointerId)) erEnd();
+  if (e.pointerType === 'touch') $('#eraseCur').hidden = true;
+  ptrs.delete(e.pointerId); if (ptrs.size === 0) gest = null; else if (gest && gest.pinch && ptrs.size < 2) gest = null;
+};
 scr.addEventListener('pointerup', endPtr); scr.addEventListener('pointercancel', endPtr);
+scr.addEventListener('pointerleave', () => { $('#eraseCur').hidden = true; });
+scr.addEventListener('contextmenu', e => { if (ER.on) e.preventDefault(); }); // el botón derecho mueve la imagen
 scr.addEventListener('wheel', e => {
   if (!SRC) return; e.preventDefault();
   let d = e.deltaY; if (e.deltaMode === 1) d *= 33; else if (e.deltaMode === 2) d *= 300;
   const [mx, my] = toDev(e); setZoom(layout().z * Math.exp(-clamp(d, -300, 300) * 0.0018), mx, my);
 }, { passive: false });
 scr.addEventListener('dblclick', e => {
-  if (!SRC || e.target.closest('.empty')) return;
+  if (!SRC || ER.on || e.target.closest('.empty')) return; // borrando, dos toques seguidos no acercan
   const [mx, my] = toDev(e);
   if (view.z == null) setZoom(Math.max(1, layout().zf * 2), mx, my);
   else { view.z = null; draw(); scheduleRender(0); }
@@ -1534,6 +1602,72 @@ $('#zFit').onclick = () => { view.z = null; draw(); scheduleRender(0); };
 $('#z100').onclick = () => setZoom(1);
 $('#zIn').onclick = () => zoomStep(1);
 $('#zOut').onclick = () => zoomStep(-1);
+
+/* ---- BORRADOR: arrastrar sobre la pantalla quita la tinta al 100% (sin semitransparencias) ----
+   Mientras se arrastra, el trazo se borra en la vista que ya está en pantalla (respuesta inmediata); al soltar,
+   se guarda en ER.list, el motor lo aplica (vista, PNG y mockup) y queda en el historial (DESHACER lo quita). */
+let erSpace = false; // barra espaciadora apretada: arrastrar mueve la imagen
+// Conversiones: pantalla → px del archivo → px de la imagen cargada; radio del borrador en cada una
+function erGeo() {
+  const L = layout(), o = L.o, k = SRC !== BASE && SRC.upScale ? SRC.upScale : 1, rc = BASE.rect || { x: 0, y: 0 };
+  const sx = SRC.w / o.iw, sy = SRC.h / o.ih, rOut = ER.eraseMm / 2 * DPI / 25.4;
+  return {
+    toOut: e => { const [mx, my] = toDev(e); return [L.left + mx / L.z, L.top + my / L.z]; },
+    toOrig: (X, Y) => [(X - o.ix) * sx / k + rc.x, (Y - o.iy) * sy / k + rc.y],
+    rOut, rOrig: rOut * (sx + sy) / 2 / k,
+  };
+}
+function erStart(e) {
+  const g = erGeo(), [X, Y] = g.toOut(e), q = g.toOrig(X, Y);
+  gest = { erase: true, g, X, Y, pts: [q[0], q[1]], last: q };
+  erPaint(X, Y, X, Y, g.rOut);
+}
+function erMove(e) {
+  const G = gest, [X, Y] = G.g.toOut(e), q = G.g.toOrig(X, Y);
+  if (Math.hypot(q[0] - G.last[0], q[1] - G.last[1]) < Math.max(0.5, G.g.rOrig * 0.15)) return; // puntos muy juntos no suman
+  erPaint(G.X, G.Y, X, Y, G.g.rOut); G.X = X; G.Y = Y; G.pts.push(q[0], q[1]); G.last = q;
+}
+async function erEnd() {
+  const G = gest; gest = null;
+  ER.list = [...ER.list, { r: G.g.rOrig, pts: new Float32Array(G.pts) }];
+  commitNow(); await sendMask(); scheduleRender(0);
+}
+function erCancel() { gest = null; scheduleRender(0); }
+// Vista inmediata: borra el trazo (X0,Y0)→(X1,Y1) en la imagen que ya está en pantalla (px del archivo, radio r)
+function erPaint(X0, Y0, X1, Y1, r) {
+  const j = lastDraw; if (!j) return; const st = j.ow / j.rw;
+  for (const c of P.compare ? [imgProc, imgOrig] : [imgProc]) {
+    if (!c.width) continue;
+    const x = c.getContext('2d'); x.save(); x.globalCompositeOperation = 'destination-out'; x.fillStyle = x.strokeStyle = '#000';
+    x.lineCap = 'round'; x.lineWidth = 2 * r / st;
+    x.beginPath(); x.arc((X1 - j.x0) / st, (Y1 - j.y0) / st, r / st, 0, 7); x.fill();
+    x.beginPath(); x.moveTo((X0 - j.x0) / st, (Y0 - j.y0) / st); x.lineTo((X1 - j.x0) / st, (Y1 - j.y0) / st); x.stroke();
+    x.restore();
+  }
+  draw();
+}
+// El círculo que muestra el tamaño del borrador (con el mouse siempre; con el dedo, mientras borra)
+function erCursor(e) {
+  const c = $('#eraseCur');
+  if (!SRC || erSpace || (e.pointerType === 'touch' && !(gest && gest.erase))) { c.hidden = true; return; }
+  const L = layout(), r = scr.getBoundingClientRect(), d = Math.max(4, ER.eraseMm * DPI / 25.4 * L.z / L.dpr);
+  c.style.width = c.style.height = d + 'px'; c.style.left = (e.clientX - r.left) + 'px'; c.style.top = (e.clientY - r.top) + 'px'; c.hidden = false;
+}
+function syncEraseUI() {
+  scr.classList.toggle('erasing', ER.on); $('#eraseCur').hidden = true;
+  $('#eraseTag').hidden = !ER.on; $('#eraseTag').textContent = `BORRADOR · ${nf1.format(ER.eraseMm)} mm`;
+}
+const swErase = makeSwitch($('#swErase'), 'on', [[true, 'BORRAR']], () => { syncEraseUI(); if (ER.on) track('borrador'); }, { off: false, obj: ER, persist: () => {} });
+function setErase(on) { ER.on = !!on; swErase.sync(); syncEraseUI(); }
+$('#swErase button').disabled = true; // se prende cuando hay imagen
+makeKnob($('#kErase'), { key: 'eraseMm', label: 'TAMAÑO', obj: ER, persist: () => store.set('tramaluz.borrador', ER.eraseMm), noReg: true,
+  min: 0.5, max: 20, step: 0.5, def: 3, wheel: 2, fmt: v => nf1.format(v) + ' mm', onChange: syncEraseUI, help: 'Ancho del borrador en mm de la impresión' });
+{ const n = document.createElement('p'); n.className = 'note knobnote'; n.textContent = 'Prende BORRAR y arrastra sobre la pantalla: quita la tinta al 100%, sin dejar transparencias. Acércate para los puntos pequeños.'; $('#kErase').appendChild(n); }
+document.addEventListener('keydown', e => {
+  if (e.code !== 'Space' || !ER.on || e.target.closest('input, textarea, button, select, [role="slider"]')) return;
+  e.preventDefault(); if (!erSpace) { erSpace = true; scr.classList.add('spacepan'); $('#eraseCur').hidden = true; }
+});
+document.addEventListener('keyup', e => { if (e.code === 'Space' && erSpace) { erSpace = false; scr.classList.remove('spacepan'); } });
 
 /* =========================================================
    Agrandar con IA (Real-ESRGAN en TF.js, por mosaicos)
@@ -1741,7 +1875,7 @@ $('#btnExport').onclick = doExport;
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (!$('#helpModal').hidden) closeHelp(); else if (!$('#cropModal').hidden) cropClose(); else if (mkIsOpen()) closeMock();
+  if (!$('#helpModal').hidden) closeHelp(); else if (!$('#cropModal').hidden) cropClose(); else if (mkIsOpen()) closeMock(); else if (ER.on) setErase(false);
 });
 let helpOpener = null;
 function openHelp(id, opener) {
@@ -1782,7 +1916,9 @@ const INFO = [
   ['#status', 'h-pantalla', 'DISPLAY'],
   ['#empty, #btnLoad', 'h-fuente', 'CARGAR'],
   ['#btnCrop', 'h-fuente', 'RECORTAR'],
-  ['#screen', 'h-pantalla', 'MOVERTE'],
+  ['#screen', () => ER.on ? ['h-borrador', 'BORRAR'] : ['h-pantalla', 'MOVERTE']],
+  ['#swErase', 'h-borrador', 'BORRAR'],
+  ['[data-key="eraseMm"]', 'h-borrador', 'TAMAÑO'],
   // panel
   ['#srcInfo', 'h-fuente', 'DISPLAY'],
   ['#swUnit', 'h-medidas', 'VER EN'],
@@ -1840,6 +1976,7 @@ const INFO_SUM = {
   'h-trama': 'Los puntos del semitono: cuántos hay, en qué ángulo van, qué tan pequeños pueden ser y qué forma tienen.',
   'h-tono': 'Qué desaparece, desde dónde la tinta queda sólida y cuánta tinta llevan los medios tonos.',
   'h-vintage': 'Desgaste de estampado viejo, con manchas y grietas. Va en el PNG.',
+  'h-borrador': 'Quita impurezas a mano: prende BORRAR y arrastra sobre la pantalla. Lo que toques queda transparente al 100%.',
   'h-camiseta': 'El color de la tela: cambia la vista y pone OSCUROS o CLAROS.',
   'h-tamano': 'El tamaño del diseño impreso: por uso y talla, o con tus propias medidas.',
   'h-salida': 'Revisa los avisos y graba el PNG final a 300 ppp, listo para el RIP.',
@@ -2049,8 +2186,8 @@ const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 
 const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', wear: 'DESGASTE', use: 'USO', talla: 'TALLA', widthCm: 'ANCHO', heightCm: 'ALTO', fit: 'ACOMODAR', shirt: 'CAMISETA' };
 const hist = { stack: [], i: -1 };
 let commitT = null, applying = false;
-function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
-function same(a, b) { return a.src === b.src && HKEYS.every(k => a.p[k] === b.p[k]); }
+function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC, er: ER.list }; }
+function same(a, b) { return a.src === b.src && a.er === b.er && HKEYS.every(k => a.p[k] === b.p[k]); }
 function scheduleCommit() { if (applying) return; clearTimeout(commitT); commitT = setTimeout(commitNow, 450); }
 function commitNow() {
   clearTimeout(commitT); if (applying) return;
@@ -2068,6 +2205,7 @@ function diffNames(a, b) {
     const nw = ((a.src && a.src.gen) || 0) > ((b.src && b.src.gen) || 0) ? a.src : b.src;
     n.unshift((nw && nw.op) || 'IMAGEN');
   }
+  if (a.er !== b.er) n.unshift('BORRADOR');
   return n.slice(0, 3).join(', ') + (n.length > 3 ? '…' : '');
 }
 async function applySnap(s, from, verb) {
@@ -2077,8 +2215,9 @@ async function applySnap(s, from, verb) {
     swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); swUse.sync(); swTalla.sync(); swFit.sync(); syncModeUI(); syncKnockLabel(); syncSizeUI(); syncSizeInputs(true);
     scr.style.setProperty('--shirt', P.shirt); buildShirts();
     store.set('tramaluz.p', JSON.stringify(P));
+    const erCambio = (s.er || []) !== ER.list; ER.list = s.er || [];
     if (s.src !== SRC && s.src) { await setSource(s.src); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
-    else { updateInfo(); scheduleRender(0); }
+    else { if (erCambio) await sendMask(); updateInfo(); scheduleRender(0); }
   } finally { applying = false; }
   syncHistUI();
   const what = diffNames(s, from); if (what) toast(`${verb} · ${what}`, 1600);
@@ -2589,7 +2728,7 @@ const cropIsOpen = () => !$('#cropModal').hidden;
 async function cropOpen() {
   if (!SRC || upRunning) { if (upRunning) toast('Espera a que termine de agrandar.'); return; }
   const o = BASE.orig || BASE;
-  CROP.orig = o; CROP.rect = { ...(BASE.rect || { x: 0, y: 0, w: o.w, h: o.h }) }; CROP.pv = o.pv || null; CROP.drag = null;
+  CROP.orig = o; CROP.rect = { ...(BASE.rect || { x: 0, y: 0, w: o.w, h: o.h }) }; CROP.pv = o.pv ? erPreview(o, o.pv) : null; CROP.drag = null;
   CROP.form = 'free'; cropFormSw.sync();
   $('#cropModal').hidden = false; document.documentElement.classList.add('crop-open');
   $('#cropCv').focus({ preventScroll: true });
@@ -2598,8 +2737,21 @@ async function cropOpen() {
     const k = Math.min(1, 1600 / Math.max(o.w, o.h));
     try { o.pv = await createImageBitmap(new ImageData(o.data, o.w, o.h), { resizeWidth: Math.max(1, Math.round(o.w * k)), resizeHeight: Math.max(1, Math.round(o.h * k)), resizeQuality: 'high' }); }
     catch (e) { const c = document.createElement('canvas'); c.width = o.w; c.height = o.h; c.getContext('2d').putImageData(new ImageData(o.data, o.w, o.h), 0, 0); o.pv = c; }
-    if (CROP.orig === o) { CROP.pv = o.pv; cropDraw(); }
+    if (CROP.orig === o) { CROP.pv = erPreview(o, o.pv); cropDraw(); }
   }
+}
+// La vista del recorte con lo borrado con el BORRADOR (transparente), para que no reaparezcan las impurezas
+function erPreview(o, pv) {
+  if (!ER.list.length) return pv;
+  const c = document.createElement('canvas'); c.width = pv.width; c.height = pv.height;
+  const x = c.getContext('2d'), s = pv.width / o.w; x.drawImage(pv, 0, 0);
+  x.globalCompositeOperation = 'destination-out'; x.fillStyle = x.strokeStyle = '#000'; x.lineCap = x.lineJoin = 'round';
+  for (const t of ER.list) {
+    const p = t.pts; x.lineWidth = 2 * t.r * s;
+    x.beginPath(); x.arc(p[0] * s, p[1] * s, t.r * s, 0, 7); x.fill();
+    if (p.length > 2) { x.beginPath(); x.moveTo(p[0] * s, p[1] * s); for (let i = 2; i < p.length; i += 2) x.lineTo(p[i] * s, p[i + 1] * s); x.stroke(); }
+  }
+  return c;
 }
 function cropClose() { $('#cropModal').hidden = true; document.documentElement.classList.remove('crop-open'); CROP.drag = null; $('#btnCrop').focus({ preventScroll: true }); }
 // El recuadro en px enteros, dentro de la foto (en CUADRADO, de lados iguales)
