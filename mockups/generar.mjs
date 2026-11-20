@@ -1,8 +1,10 @@
 // Genera los modelos 3D del mockup: GLB livianos, sin texturas ni programas de 3D.
 // Uso:  node mockups/generar.mjs   → escribe camiseta.glb, buzo.glb, taza.glb, termo.glb y tote.glb aquí.
 //
-// Todo se arma con matemática para que pesen poco y carguen rápido en celulares y equipos sin tarjeta de video.
-// Se modela en cm y se guarda en metros (lo que pide glTF). Y apunta arriba y Z hacia el frente.
+// La taza, el termo y la tote se arman con matemática. La camiseta y el buzo parten de una forma hecha con IA
+// (fuentes/camiseta.glb y fuentes/buzo.glb) que aquí se adapta. Todo pesa poco para que cargue rápido en celulares
+// y equipos sin tarjeta de video. Se modela en cm y se guarda en metros (lo que pide glTF). Y apunta arriba y Z
+// hacia el frente.
 //
 // Lo que Tramaluz lee de cada GLB:
 //  - Materiales por nombre: print_frente, print_espalda y print (donde va el diseño), tela, rib, ceramica y
@@ -10,7 +12,8 @@
 //  - extras.lienzo de cada material de impresión: [ancho, alto] en cm del área que cubren sus UV (0..1).
 //  - extras.tramaluz de la escena: dónde va el diseño en cada ubicación, en cm dentro del lienzo
 //    (cx = centro horizontal; top = borde de arriba, o cy = centro vertical) y desde qué ángulo mirarlo (vista).
-import { writeFileSync } from 'node:fs';
+//  - COLOR_0 (si está): sombra de pliegues e interior, que multiplica el color de la tela.
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -26,10 +29,7 @@ const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a
 const len = a => Math.hypot(a[0], a[1], a[2]);
 const norm = a => { const l = len(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
 const lerp = (a, b, t) => a + (b - a) * t;
-const lerp3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
-const bez = (p0, p1, p2, p3, t) => { const s = 1 - t; return add(add(mul(p0, s * s * s), mul(p1, 3 * s * s * t)), add(mul(p2, 3 * s * t * t), mul(p3, t * t * t))); };
 
 /* ---------- superficies en grilla ---------- */
 // nu columnas (u) por nv filas (v). wrapU: la columna nu es la misma que la 0 (tubo cerrado).
@@ -115,12 +115,6 @@ function sweep(path, profile, { closed = false, up = null } = {}) {
 }
 const circle = (r, n = 8) => Array.from({ length: n }, (_, i) => [r * Math.cos(2 * PI * i / n), r * Math.sin(2 * PI * i / n)]);
 const ellipse = (rx, ry, n = 10) => Array.from({ length: n }, (_, i) => [rx * Math.cos(2 * PI * i / n), ry * Math.sin(2 * PI * i / n)]);
-function stadium(w, h, n = 5) { // rectángulo de puntas redondas: ancho 2w, alto h (de 0 a h)
-  const out = [];
-  for (let i = 0; i <= n; i++) { const a = -PI / 2 + PI * i / n; out.push([w * Math.cos(a), (h - w) + w * Math.sin(a)]); }
-  for (let i = 0; i <= n; i++) { const a = PI / 2 + PI * i / n; out.push([w * Math.cos(a), w + w * Math.sin(a)]); }
-  return out.reverse();
-}
 // Pieza torneada: perfil [[r, y], ...] girado en Y. u = 0 en la espalda (−Z), 0,5 al frente (+Z).
 function lathe(profile, nu) {
   const nv = profile.length - 1;
@@ -135,212 +129,275 @@ function noise2(x, y) {
 }
 
 /* ---------- prendas: camiseta y buzo ---------- */
-function garment(o) {
-  const M = new Model(o.name);
-  const n = 2.6; // sección del cuerpo: superelipse (frente plano, costados redondos)
-  const sgnPow = (v, e) => Math.sign(v) * Math.abs(v) ** e;
-  const ex = th => sgnPow(Math.sin(th), 2 / n), ez = th => sgnPow(Math.cos(th), 2 / n);
-  const c2 = th => Math.cos(th) ** 2;
-  const byFace = (th, front, back, side) => c2(th) * (Math.cos(th) > 0 ? front : back) + (1 - c2(th)) * side;
-  const yTop = th => byFace(th, o.neckFront, o.neckBack, o.hps);           // escote
-  const drop = th => byFace(th, o.dropFront, o.dropBack, o.dropSide);      // caída del hombro
-  const steep = th => byFace(th, 1.0, 0.55, 0.33);                         // qué tan parado sale del escote
-  const A = y => o.A(y), B = y => o.B(y);
-  // Arrugas: pliegues verticales abajo y un poco de ruido; casi nada en la zona de impresión del pecho
-  const fold = (th, y) => {
-    const front = Math.max(0, Math.cos(th)), chest = front ** 2 * smooth(o.hem + 12, o.hem + 26, y);
-    const hang = (1 - smooth(o.hem, o.hem + 34, y)) * 0.55 * Math.sin(th * 9 + 0.6) * (0.5 + 0.5 * noise2(th * 3, 1.3));
-    const n2 = 0.25 * noise2(th * 4.1 + 7, y * 0.09);
-    return (hang + n2) * (1 - 0.85 * chest);
-  };
-  const bodyPt = (th, y) => {
-    const d = fold(th, y), r = norm([ex(th), 0, ez(th) * B(y) / A(y)]);
-    return add([A(y) * ex(th), y, B(y) * ez(th)], mul(r, d));
-  };
-  const neckPt = th => [o.neckA * Math.sin(th), yTop(th), o.neckB * Math.cos(th)];
-  const capPt = (th, s) => {
-    const N = neckPt(th), dp = drop(th), y1 = yTop(th) - dp, Bt = bodyPt(th, y1);
-    const dr = Math.hypot(Bt[0] - N[0], Bt[2] - N[2]);
-    // hombro casi recto desde el cuello y luego una curva corta hacia abajo (la tapa la manga)
-    const ta = Math.tan(steep(th));
-    const p1 = [0.6 * dr, Math.min(0.6 * dr * ta, 0.6 * dp)], p2 = [dr, clamp(dr * ta, 0.15 * dp, 0.8 * dp)], p3 = [dr, dp];
-    const b = k => 3 * (1 - s) ** 2 * s * p1[k] + 3 * (1 - s) * s * s * p2[k] + s ** 3 * p3[k];
-    const r = dr > 1e-6 ? b(0) / dr : 0;
-    return [N[0] + (Bt[0] - N[0]) * r, yTop(th) - b(1), N[2] + (Bt[2] - N[2]) * r];
-  };
-  const NU = 128, NC = 16, NB = 64, vc = NC / (NC + NB); // divisiones: alrededor (múltiplo de 4), hombro y cuerpo
-  const theta = u => -PI + 2 * PI * u;
-  const torso = surface(NU, NC + NB, (u, v) => {
-    const th = theta(u);
-    if (v <= vc + 1e-9) return capPt(th, v / vc);
-    const w = (v - vc) / (1 - vc), y1 = yTop(th) - drop(th);
-    // filas más juntas cerca del ruedo y del resorte
-    return bodyPt(th, lerp(y1, o.hem, w ** 1.08));
-  }, { wrapU: true });
-  orient(torso, (p) => [0, p[1], 0]);
-  const C = o.canvas; // lienzo de impresión: ancho, alto y altura (y) de su borde de arriba
-  const planar = (m, p) => m === 'print_espalda' ? [(C.w / 2 - p[0]) / C.w, (C.top - p[1]) / C.h] : [(p[0] + C.w / 2) / C.w, (C.top - p[1]) / C.h];
-  M.add(torso, (i, j) => {
-    const p = torso.P[torso.at(i, j + 1)];
-    if (o.ribTop && p[1] < o.ribTop - 0.01) return 'rib';
-    return i >= NU / 4 && i < 3 * NU / 4 ? 'print_frente' : 'print_espalda';
-  }, planar);
+// La forma de la camiseta y del buzo la hizo una IA (Tripo, por Higgsfield, noviembre de 2026) y está tal cual en
+// fuentes/. Aquí se gira y escala a cm, se abren el ruedo y los puños si vienen tapados, se separa en frente, espalda
+// y el resto (cada zona de impresión con las UV de su lienzo) y se guarda en los colores de los vértices la sombra de
+// los pliegues y del interior (oclusión ambiental): así parece tela aunque la escena tenga pocas luces.
 
-  // Cuello: banda de resorte sobre el escote
-  const neckPath = Array.from({ length: NU }, (_, i) => neckPt(theta(i / NU)));
-  const cen = [0, 0, 0];
-  M.add(sweep(neckPath, stadium(o.collar[0], o.collar[1]).map(([a, b]) => [a, b - 0.35]), {
-    closed: true, up: (i, p, T) => { const r = norm([p[0], 0, p[2]]); return norm(add([0, 1, 0], mul(r, -0.18))); },
-  }), 'rib');
-
-  // Ruedo de abajo
-  const hemPath = Array.from({ length: NU }, (_, i) => { const th = theta(i / NU); return bodyPt(th, o.hem); });
-  M.add(sweep(hemPath, circle(o.ribTop ? 0.5 : 0.32, 10), { closed: true, up: (i, p) => sub(p, [0, p[1], 0]) }), o.ribTop ? 'rib' : 'tela');
-
-  // Mangas
-  for (const sx of [1, -1]) {
-    const R = o.sleeve(sx);
-    const S = surface(R.nu, R.nv, (u, v) => {
-      const r = R.ring(v), a = 2 * PI * u;
-      return add(r.c, add(mul(r.up, r.r1 * Math.cos(a)), mul(r.side, r.r2 * Math.sin(a))));
-    }, { wrapU: true });
-    orient(S, (p, i, j) => R.ring(j / R.nv).c);
-    M.add(S, (i, j) => (R.cuff && (j + 0.5) / R.nv > R.cuff) ? 'rib' : 'tela');
-    const e = R.ring(1);
-    const hem = Array.from({ length: 48 }, (_, i) => { const a = 2 * PI * i / 48; return add(e.c, add(mul(e.up, e.r1 * Math.cos(a)), mul(e.side, e.r2 * Math.sin(a)))); });
-    M.add(sweep(hem, circle(R.cuff ? 0.45 : 0.3, 6), { closed: true, up: (i, p) => sub(p, e.c) }), R.cuff ? 'rib' : 'tela');
+// Lee la malla de un GLB sin comprimir y suelda los vértices repetidos (la IA los corta donde cambian sus UV)
+function readMesh(file) {
+  const b = readFileSync(file), jl = b.readUInt32LE(12), j = JSON.parse(b.subarray(20, 20 + jl).toString()), bin = b.subarray(28 + jl);
+  const acc = i => {
+    const a = j.accessors[i], v = j.bufferViews[a.bufferView], n = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 }[a.type];
+    const Ty = { 5126: Float32Array, 5125: Uint32Array, 5123: Uint16Array, 5121: Uint8Array }[a.componentType];
+    const o = bin.byteOffset + (v.byteOffset || 0) + (a.byteOffset || 0);
+    return new Ty(bin.buffer.slice(o, o + a.count * n * Ty.BYTES_PER_ELEMENT));
+  };
+  const P = [], T = [], seen = new Map();
+  for (const pr of j.meshes[0].primitives) {
+    const pos = acc(pr.attributes.POSITION), W = [];
+    const idx = pr.indices != null ? acc(pr.indices) : Uint32Array.from({ length: pos.length / 3 }, (_, i) => i);
+    for (let i = 0; i < pos.length; i += 3) {
+      const k = `${Math.round(pos[i] * 1e5)},${Math.round(pos[i + 1] * 1e5)},${Math.round(pos[i + 2] * 1e5)}`;
+      let w = seen.get(k); if (w === undefined) { w = P.length; seen.set(k, w); P.push([pos[i], pos[i + 1], pos[i + 2]]); }
+      W.push(w);
+    }
+    for (let t = 0; t < idx.length; t += 3) { const a = W[idx[t]], c = W[idx[t + 1]], d = W[idx[t + 2]]; if (a !== c && c !== d && a !== d) T.push([a, c, d]); }
   }
-
-  if (o.extra) o.extra(M, { bodyPt, neckPt, planar, ex, ez, A, B, n });
-  return M;
+  return { P, T };
 }
 
-// Punto del frente del cuerpo a cierta x (para bolsillo y cordones)
-function frontAt(G, x, y) {
-  const s = clamp(Math.abs(x) / G.A(y), 0, 0.999), th = Math.sign(x) * Math.asin(s ** (G.n / 2));
-  return { th, p: G.bodyPt(th, y) };
+// Rayos contra la malla, con un árbol de cajas. cast(origen, dirección, tmax) → distancia al primer choque (o Infinity)
+function rayCaster(P, T) {
+  const nt = T.length, V = new Float64Array(nt * 9), C = new Float64Array(nt * 3), lo = new Float64Array(nt * 3), hi = new Float64Array(nt * 3);
+  T.forEach((tr, t) => tr.forEach((v, k) => { for (let d = 0; d < 3; d++) V[t * 9 + k * 3 + d] = P[v][d]; }));
+  for (let t = 0; t < nt; t++) for (let d = 0; d < 3; d++) {
+    const a = V[t * 9 + d], b = V[t * 9 + 3 + d], c = V[t * 9 + 6 + d];
+    lo[t * 3 + d] = Math.min(a, b, c); hi[t * 3 + d] = Math.max(a, b, c); C[t * 3 + d] = (a + b + c) / 3;
+  }
+  const order = Uint32Array.from({ length: nt }, (_, i) => i), nodes = []; // nodo: caja (6), hijo o primer triángulo, cantidad
+  const build = (s, e) => {
+    const id = nodes.length, n = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity, 0, 0]; nodes.push(n);
+    for (let i = s; i < e; i++) for (let d = 0; d < 3; d++) { n[d] = Math.min(n[d], lo[order[i] * 3 + d]); n[3 + d] = Math.max(n[3 + d], hi[order[i] * 3 + d]); }
+    if (e - s <= 6) { n[6] = s; n[7] = e - s; return id; }
+    let ax = 0; for (let d = 1; d < 3; d++) if (n[3 + d] - n[d] > n[3 + ax] - n[ax]) ax = d;
+    order.set(Array.from(order.subarray(s, e)).sort((a, b) => C[a * 3 + ax] - C[b * 3 + ax]), s);
+    const m = (s + e) >> 1; build(s, m); n[6] = build(m, e); return id; // el hijo izquierdo es id + 1
+  };
+  build(0, nt);
+  const st = new Int32Array(128);
+  return (o, d, tmax = Infinity) => {
+    let best = tmax, sp = 0; st[sp++] = 0;
+    const ix = 1 / (d[0] || 1e-12), iy = 1 / (d[1] || 1e-12), iz = 1 / (d[2] || 1e-12);
+    while (sp) {
+      const id = st[--sp], n = nodes[id];
+      let a = (n[0] - o[0]) * ix, b = (n[3] - o[0]) * ix, t0 = Math.min(a, b), t1 = Math.max(a, b);
+      a = (n[1] - o[1]) * iy; b = (n[4] - o[1]) * iy; t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+      a = (n[2] - o[2]) * iz; b = (n[5] - o[2]) * iz; t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+      if (t1 < Math.max(t0, 0) || t0 > best) continue;
+      if (!n[7]) { st[sp++] = id + 1; st[sp++] = n[6]; continue; }
+      for (let i = n[6]; i < n[6] + n[7]; i++) { // Möller–Trumbore
+        const q = order[i] * 9;
+        const e1x = V[q + 3] - V[q], e1y = V[q + 4] - V[q + 1], e1z = V[q + 5] - V[q + 2], e2x = V[q + 6] - V[q], e2y = V[q + 7] - V[q + 1], e2z = V[q + 8] - V[q + 2];
+        const px = d[1] * e2z - d[2] * e2y, py = d[2] * e2x - d[0] * e2z, pz = d[0] * e2y - d[1] * e2x, det = e1x * px + e1y * py + e1z * pz;
+        if (Math.abs(det) < 1e-12) continue;
+        const sx = o[0] - V[q], sy = o[1] - V[q + 1], sz = o[2] - V[q + 2], u = (sx * px + sy * py + sz * pz) / det; if (u < 0 || u > 1) continue;
+        const qx = sy * e1z - sz * e1y, qy = sz * e1x - sx * e1z, qz = sx * e1y - sy * e1x, v = (d[0] * qx + d[1] * qy + d[2] * qz) / det; if (v < 0 || u + v > 1) continue;
+        const t = (e2x * qx + e2y * qy + e2z * qz) / det; if (t > 1e-4 && t < best) best = t;
+      }
+    }
+    return best < tmax ? best : Infinity;
+  };
+}
+
+const faceNormal = (P, [a, b, c]) => cross(sub(P[b], P[a]), sub(P[c], P[a])); // largo = 2 × área
+function vertexNormals(P, T) {
+  const N = P.map(() => [0, 0, 0]);
+  for (const tr of T) { const n = faceNormal(P, tr); for (const v of tr) N[v] = add(N[v], n); }
+  return N.map(norm);
+}
+
+// Grilla vista de frente (x, y): para cada celda, guarda un valor por función. Muestreo bilineal (ignora celdas vacías).
+function grid(lo, hi, step) {
+  const nx = Math.ceil((hi[0] - lo[0]) / step) + 1, ny = Math.ceil((hi[1] - lo[1]) / step) + 1;
+  const G = { nx, ny, step, x: i => lo[0] + i * step, y: j => lo[1] + j * step, make: f => { const A = new Float64Array(nx * ny); for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) A[j * nx + i] = f(lo[0] + i * step, lo[1] + j * step, i, j); return A; } };
+  G.at = (A, x, y) => {
+    const fx = clamp((x - lo[0]) / step, 0, nx - 1.001), fy = clamp((y - lo[1]) / step, 0, ny - 1.001), i = Math.floor(fx), j = Math.floor(fy), tx = fx - i, ty = fy - j;
+    let s = 0, w = 0;
+    for (const [di, dj, k] of [[0, 0, (1 - tx) * (1 - ty)], [1, 0, tx * (1 - ty)], [0, 1, (1 - tx) * ty], [1, 1, tx * ty]]) {
+      const v = A[(j + dj) * nx + i + di]; if (Number.isFinite(v) && k > 0) { s += v * k; w += k; }
+    }
+    return w > 0 ? s / w : NaN;
+  };
+  // Desenfoque gaussiano que solo promedia celdas con valor (r = radio en cm)
+  G.blur = (A, r) => {
+    const k = Math.ceil(2 * r / step), wts = Array.from({ length: 2 * k + 1 }, (_, i) => Math.exp(-(((i - k) * step) ** 2) / (2 * r * r)));
+    const pass = (src, dx, dy) => G.make((x, y, i, j) => {
+      let s = 0, w = 0;
+      for (let m = -k; m <= k; m++) { const ii = i + m * dx, jj = j + m * dy; if (ii < 0 || jj < 0 || ii >= nx || jj >= ny) continue; const v = src[jj * nx + ii]; if (Number.isFinite(v)) { s += v * wts[m + k]; w += wts[m + k]; } }
+      return Number.isFinite(src[j * nx + i]) && w > 0 ? s / w : NaN;
+    });
+    return pass(pass(A, 1, 0), 0, 1);
+  };
+  return G;
+}
+
+// Quita tapas (el fondo del ruedo o de un puño que la IA dejó cerrado): desde el triángulo que toca un rayo que sube
+// por (x, z), recorre los vecinos mientras miren hacia el mismo lado.
+function openCaps(P, T, cast, seeds) {
+  const edge = new Map();
+  T.forEach((tr, t) => tr.forEach((v, k) => { const w = tr[(k + 1) % 3], e = Math.min(v, w) + ',' + Math.max(v, w); (edge.get(e) || edge.set(e, []).get(e)).push(t); }));
+  const FN = T.map(tr => norm(faceNormal(P, tr))), cut = new Set();
+  for (const [x, z] of seeds) {
+    // el primer triángulo que corta el rayo: se busca entre los que están bajo el punto
+    const y0 = Math.min(...P.map(p => p[1])) - 5, t = cast([x, y0, z], [0, 1, 0]); if (t === Infinity) continue;
+    const hit = [x, y0 + t, z];
+    let seed = -1, bd = Infinity;
+    T.forEach((tr, i) => { const c = mul(add(add(P[tr[0]], P[tr[1]]), P[tr[2]]), 1 / 3), dd = len(sub(c, hit)); if (dd < bd) { bd = dd; seed = i; } });
+    const n0 = FN[seed], stack = [seed]; cut.add(seed);
+    while (stack.length) {
+      const t2 = stack.pop();
+      T[t2].forEach((v, k) => {
+        const w = T[t2][(k + 1) % 3];
+        for (const u of edge.get(Math.min(v, w) + ',' + Math.max(v, w))) if (!cut.has(u) && dot(FN[u], n0) > 0.8) { cut.add(u); stack.push(u); }
+      });
+    }
+  }
+  return T.filter((_, i) => !cut.has(i));
+}
+
+// Arma una prenda. o: name, alto (cm), abrir (true: quitar tapas), rib(centro, máximos) (puños y pretina), cordones
+// (altura en cm desde donde se buscan, sobre el bolsillo) y lados(medidas, lienzo): dónde va el diseño en cada ubicación.
+function garment(o) {
+  const src = readMesh(join(DIR, 'fuentes', o.name + '.glb'));
+  // La IA la entrega mirando a +X y de 1 de alto: queda mirando a +Z, en cm, centrada y con el ruedo en y = 0
+  const lo = [0, 1, 2].map(k => Math.min(...src.P.map(p => p[k]))), hi = [0, 1, 2].map(k => Math.max(...src.P.map(p => p[k])));
+  const s = o.alto / (hi[1] - lo[1]), cx = (lo[0] + hi[0]) / 2, cz = (lo[2] + hi[2]) / 2;
+  const P = src.P.map(([x, y, z]) => [-(z - cz) * s, (y - lo[1]) * s, (x - cx) * s]);
+  let T = src.T, cast = rayCaster(P, T);
+  const B = [0, 1, 2].map(k => Math.min(...P.map(p => p[k]))), H = [0, 1, 2].map(k => Math.max(...P.map(p => p[k])));
+
+  if (o.abrir) {
+    // el ruedo (centro) y los puños (el centro de lo más bajo de cada manga)
+    const seeds = [[0, 0]];
+    for (const sx of [1, -1]) {
+      const arm = P.filter(p => sx * p[0] > 0.6 * H[0]), y0 = Math.min(...arm.map(p => p[1])), low = arm.filter(p => p[1] < y0 + 3);
+      seeds.push([low.reduce((a, p) => a + p[0], 0) / low.length, low.reduce((a, p) => a + p[2], 0) / low.length]);
+    }
+    T = openCaps(P, T, cast, seeds); cast = rayCaster(P, T);
+  }
+  const N = vertexNormals(P, T);
+
+  // Vista de frente y de espalda en una grilla de 0,5 cm: dónde está la tela adelante (F) y atrás (K)
+  const G = grid(B, H, 0.5), far = 1000;
+  const F = G.make((x, y) => { const t = cast([x, y, H[2] + 1], [0, 0, -1]); return t < far ? H[2] + 1 - t : NaN; });
+  const K = G.make((x, y) => { const t = cast([x, y, B[2] - 1], [0, 0, 1]); return t < far ? B[2] - 1 + t : NaN; });
+  const mid = G.make((x, y, i, j) => (F[j * G.nx + i] + K[j * G.nx + i]) / 2);
+  // UV del lienzo: a lo ancho se mide sobre la tela (largo del arco, sin los pliegues chicos), como se imprime en plano
+  const arc = A => {
+    const Z = G.blur(A, 2.5), S = new Float64Array(G.nx * G.ny), i0 = Math.round(-B[0] / G.step);
+    for (let j = 0; j < G.ny; j++) for (const dir of [1, -1]) for (let i = i0 + dir; i >= 0 && i < G.nx; i += dir) {
+      const a = Z[j * G.nx + i], b = Z[j * G.nx + i - dir], dz = Number.isFinite(a) && Number.isFinite(b) ? clamp(a - b, -1.2, 1.2) : 0;
+      S[j * G.nx + i] = S[j * G.nx + i - dir] + dir * Math.hypot(G.step, dz);
+    }
+    return S;
+  };
+  const SF = arc(F), SK = arc(K);
+  const top = Math.ceil(H[1]) + 1, C = { top, h: top + 1, w: 0 };
+  const sideOf = c => { const m = G.at(mid, c[0], c[1]); return c[2] > (Number.isFinite(m) ? m : 0) ? 'print_frente' : 'print_espalda'; };
+
+  // Tela por dentro: el rayo que sale por su normal choca con la prenda lejos (no es un pliegue)
+  const inner = P.map((p, v) => { const t = cast(add(p, mul(N[v], 0.05)), N[v]); return t > 6 && t < far; });
+
+  // Cordones del buzo: lo que sobresale del pecho (comparado con la mediana de 5 cm a lo ancho)
+  const cord = new Set(), tips = new Set();
+  if (o.cordones) {
+    const Fm = G.make((x, y, i, j) => { const r = []; for (let m = -5; m <= 5; m++) { const v = F[j * G.nx + clamp(i + m, 0, G.nx - 1)]; if (Number.isFinite(v)) r.push(v); } r.sort((a, b) => a - b); return r.length ? r[r.length >> 1] : NaN; });
+    const neck = neckFront(G, F);
+    const out = P.map(p => Math.abs(p[0]) < 14 && p[1] > o.cordones && p[1] < neck - 1.5 && p[2] > 0 && p[2] > G.at(Fm, p[0], p[1]) + 0.3);
+    T.forEach((tr, t) => { if (tr.filter(v => out[v]).length >= 2) cord.add(t); });
+    for (const sx of [1, -1]) { // las punteras: los últimos 2,2 cm de cada cordón
+      const ys = [...cord].filter(t => sx * P[T[t][0]][0] > 0).flatMap(t => T[t].map(v => P[v][1])), y0 = Math.min(...ys);
+      for (const t of cord) if (sx * P[T[t][0]][0] > 0 && T[t].every(v => P[v][1] < y0 + 2.2)) tips.add(t);
+    }
+  }
+
+  // Sombra (oclusión ambiental): 32 rayos por vértice hacia afuera; lo que choca a menos de D cm oscurece. Adentro, más.
+  const DIRS = Array.from({ length: 32 }, (_, k) => { const r = Math.sqrt((k + 0.5) / 32), a = k * 2.39996; return [r * Math.cos(a), r * Math.sin(a), Math.sqrt(1 - r * r)]; });
+  const D = 12;
+  let AO = P.map((p, v) => {
+    const n = N[v], t1 = norm(Math.abs(n[0]) < 0.9 ? cross(n, [1, 0, 0]) : cross(n, [0, 1, 0])), t2 = cross(n, t1), o0 = add(p, mul(n, 0.05));
+    const rot = (v * 0.618034) % 1 * 2 * PI, cr = Math.cos(rot), sr = Math.sin(rot);
+    let occ = 0;
+    for (const [a, b, c] of DIRS) {
+      const x = a * cr - b * sr, y = a * sr + b * cr, d = add(add(mul(t1, x), mul(t2, y)), mul(n, c));
+      const t = cast(o0, d, D); if (t < D) occ += 1 - t / D;
+    }
+    return (1 - occ / DIRS.length) * (inner[v] ? 0.55 : 1);
+  });
+  // suavizado: promedio con los vecinos (quita el ruido de pocos rayos)
+  const nb = P.map(() => new Set()); for (const tr of T) for (const v of tr) for (const w of tr) if (v !== w) nb[v].add(w);
+  for (let it = 0; it < 2; it++) AO = AO.map((a, v) => { let s = a, n = 1; for (const w of nb[v]) { s += AO[w]; n++; } return s / n; });
+
+  // Materiales y UV
+  const M = new Model(o.name), keys = new Map();
+  const matOf = (tr, t) => {
+    const c = mul(add(add(P[tr[0]], P[tr[1]]), P[tr[2]]), 1 / 3);
+    if (tips.has(t)) return 'puntera';
+    if (cord.has(t)) return 'rib';
+    if (tr.filter(v => inner[v]).length >= 2) return 'tela';
+    if (o.rib && o.rib(c, H)) return 'rib';
+    return sideOf(c);
+  };
+  const mats = T.map(matOf);
+  // ancho del lienzo: lo que mide la tela de lado a lado (frente y espalda usan el mismo)
+  T.forEach((tr, t) => { if (mats[t].startsWith('print')) for (const v of tr) C.w = Math.max(C.w, 2 * Math.abs(G.at(mats[t] === 'print_frente' ? SF : SK, P[v][0], P[v][1])) + 2); });
+  C.w = Math.ceil(C.w);
+  T.forEach((tr, t) => {
+    const m = mats[t], pr = M.prim(m); let mp = keys.get(m); if (!mp) keys.set(m, mp = new Map());
+    const ids = tr.map(v => {
+      let k = mp.get(v); if (k !== undefined) return k;
+      const p = P[v]; k = pr.pos.length / 3; mp.set(v, k);
+      pr.pos.push(...p); pr.nrm.push(...N[v]); (pr.col || (pr.col = [])).push(AO[v]);
+      const sF = G.at(SF, p[0], p[1]), sK = G.at(SK, p[0], p[1]);
+      if (m === 'print_frente') pr.uv.push((sF + C.w / 2) / C.w, (C.top - p[1]) / C.h);
+      else if (m === 'print_espalda') pr.uv.push((C.w / 2 - sK) / C.w, (C.top - p[1]) / C.h);
+      else pr.uv.push(0, 0);
+      return k;
+    });
+    pr.idx.push(...ids);
+  });
+
+  // Medidas para ubicar el diseño (en cm desde el ruedo)
+  const meas = { neckFront: neckFront(G, F), backTop: 0, hoodEnd: 0 };
+  const i0 = Math.round(-B[0] / G.step);
+  for (let j = G.ny - 1; j >= 0; j--) if (Number.isFinite(K[j * G.nx + i0])) { meas.backTop = G.y(j); break; }
+  for (let j = G.ny - 1; j > 0; j--) { // donde termina la capucha en la espalda: la tela salta hacia adelante
+    const a = K[j * G.nx + i0], b = K[(j - 1) * G.nx + i0];
+    if (Number.isFinite(a) && Number.isFinite(b) && b - a > 1) { meas.hoodEnd = G.y(j); break; }
+  }
+  console.log(`  ${o.name}: ${(H[0] - B[0]).toFixed(1)} × ${(H[1] - B[1]).toFixed(1)} × ${(H[2] - B[2]).toFixed(1)} cm · lienzo ${C.w} × ${C.h} · ` +
+    `escote ${meas.neckFront.toFixed(1)} · espalda ${meas.backTop.toFixed(1)}${o.cordones ? ` · capucha ${meas.hoodEnd.toFixed(1)} · cordones ${cord.size} (punteras ${tips.size}, desde ${Math.min(...[...cord].map(t => P[T[t][0]][1])).toFixed(1)} cm)` : ''}`);
+  return { M, lienzo: [C.w, C.h], info: { lados: o.lados(meas, C) } };
+}
+// Altura del escote al frente: subiendo por el centro, donde la tela de adelante se termina (se ve el interior)
+function neckFront(G, F) {
+  const i0 = Math.round((0 - G.x(0)) / G.step); let y = 0;
+  for (let j = Math.round((20 - G.y(0)) / G.step); j < G.ny; j++) { const v = F[j * G.nx + i0]; if (!(v > 0)) break; y = G.y(j); }
+  return y;
 }
 
 function camiseta() {
-  const o = {
-    name: 'camiseta', hps: 74, hem: 0, ribTop: 0,
-    neckFront: 66.3, neckBack: 72.2, neckA: 8.4, neckB: 7.2,
-    dropFront: 6, dropBack: 8.5, dropSide: 11,
-    A: y => 25.4 - 0.8 * smooth(14, 30, y) * (1 - smooth(30, 46, y)) + 0.3 * (1 - smooth(0, 12, y)),
-    B: y => 11.6 + 0.9 * smooth(30, 52, y) - 0.3 * smooth(52, 64, y) + 0.3 * (1 - smooth(0, 14, y)),
-    collar: [0.45, 2.1],
-    canvas: { w: 60, h: 80, top: 76 },
-    sleeve: sx => {
-      const C0 = [sx * 20.5, 57.5, 0], top1 = [sx * 41.5, 54.6, 0], d = norm([sx * 0.82, -0.57, 0]), u1 = [sx * 0.57, 0.82, 0];
-      const C1 = sub(top1, mul(u1, 7.4));
-      return {
-        nu: 48, nv: 20,
-        ring: t => ({ c: lerp3(C0, C1, t), up: norm(lerp3([0, 1, 0], u1, t)), side: [0, 0, 1], r1: lerp(9.6, 7.4, t) + 0.5 * Math.sin(PI * t), r2: lerp(6.2, 5.4, t) + 0.6 * Math.sin(PI * t) }),
-      };
-    },
-  };
-  const M = garment(o);
-  return {
-    M, lienzo: [o.canvas.w, o.canvas.h],
-    info: {
-      lados: {
-        frente: { mat: 'print_frente', cx: 30, top: o.canvas.top - (o.neckFront - 8), vista: 0 },
-        espalda: { mat: 'print_espalda', cx: 30, top: o.canvas.top - (o.neckBack - 8), vista: 180 },
-        pecho: { mat: 'print_frente', cx: 30 + 10.5, top: o.canvas.top - (o.neckFront - 4.5), vista: 0 },
-      },
-    },
-  };
+  return garment({
+    name: 'camiseta', alto: 75,
+    lados: (m, C) => ({
+      frente: { mat: 'print_frente', cx: C.w / 2, top: C.top - (m.neckFront - 8), vista: 0 },
+      espalda: { mat: 'print_espalda', cx: C.w / 2, top: C.top - (m.backTop - 10), vista: 180 },
+      pecho: { mat: 'print_frente', cx: C.w / 2 + 10.5, top: C.top - (m.neckFront - 4.5), vista: 0 },
+    }),
+  });
 }
 
 function buzo() {
-  const o = {
-    name: 'buzo', hps: 71, hem: 0, ribTop: 6.5,
-    neckFront: 63, neckBack: 70, neckA: 9.6, neckB: 8.2,
-    dropFront: 6.5, dropBack: 8.5, dropSide: 11,
-    A: y => 28.2 - 1.6 * (1 - smooth(4, 9, y)) + 0.4 * smooth(9, 14, y) * (1 - smooth(14, 26, y)),
-    B: y => 13.3 + 0.9 * smooth(30, 50, y) - 0.4 * smooth(50, 62, y) - 0.8 * (1 - smooth(4, 9, y)),
-    collar: [0.45, 1.6],
-    canvas: { w: 66, h: 84, top: 76 },
-    sleeve: sx => {
-      // manga larga: baja casi recta con un leve codo, y puño de resorte
-      const C0 = [sx * 22.6, 55.5, 0], P1 = [sx * 33, 48, 0], P2 = [sx * 37.5, 28, 0], C1 = [sx * 38.5, 8.5, 0];
-      const cuff = 0.86;
-      const ring = t => {
-        const c = bez(C0, P1, P2, C1, t), T = norm(sub(bez(C0, P1, P2, C1, Math.min(1, t + 0.01)), bez(C0, P1, P2, C1, Math.max(0, t - 0.01))));
-        const perp = norm([-T[1] * sx, T[0] * sx, 0]);
-        const upv = norm(lerp3([0, 1, 0], [perp[0] * sx < 0 ? -perp[0] : perp[0], Math.abs(perp[1]), 0], smooth(0, 0.3, t)));
-        const up = [sx * Math.abs(upv[0]), upv[1], 0];
-        let r1 = lerp(11.2, 7.6, smooth(0, 0.8, t)) + 0.8 * Math.sin(PI * Math.min(1, t / cuff)), r2 = lerp(7.2, 6.0, smooth(0, 0.8, t)) + 0.6 * Math.sin(PI * Math.min(1, t / cuff));
-        if (t > cuff - 0.03) { const k = smooth(cuff - 0.03, cuff + 0.01, t); r1 = lerp(r1, 5.4, k); r2 = lerp(r2, 4.6, k); }
-        return { c, up, side: [0, 0, 1], r1, r2 };
-      };
-      return { nu: 44, nv: 40, ring, cuff };
-    },
-  };
-  let hoodInfo;
-  o.extra = (M, G) => {
-    // Capucha (puesta): elipsoide con la abertura de la cara al frente; lo de abajo queda escondido dentro del cuerpo
-    const Ch = [0, 77.8, -4.0], R = [12.9, 17.6, 15.0], a0 = 0.98;
-    const hoodPt = (al, be) => add(Ch, [R[0] * Math.sin(al) * Math.sin(be), R[1] * Math.sin(al) * Math.cos(be), R[2] * Math.cos(al)]);
-    // se va hacia atrás arriba (punta suave) y cae sobre la espalda
-    const lean = p => {
-      const t = clamp((p[1] - 66) / 30, 0, 1), back = clamp((Ch[2] - p[2]) / R[2], 0, 1), low = clamp((Ch[1] - p[1]) / R[1], 0, 1);
-      return [p[0] * (1 + 0.06 * back * low), p[1] - 2.5 * back * low * low, p[2] - 3.2 * t * t * (0.4 + 0.6 * back)];
-    };
-    const hood = surface(72, 30, (u, v) => lean(hoodPt(a0 + (PI - a0) * v, 2 * PI * u)), { wrapU: true });
-    orient(hood, () => Ch);
-    M.add(hood, 'tela');
-    const rim = Array.from({ length: 80 }, (_, i) => lean(hoodPt(a0, 2 * PI * i / 80)));
-    M.add(sweep(rim, circle(0.75, 8), { closed: true, up: (i, p) => sub(p, add(Ch, [0, 0, R[2] * Math.cos(a0)])) }), 'tela');
-    // Cordones: salen del borde de la capucha y caen sobre el pecho
-    for (const sx of [1, -1]) {
-      const be = PI - sx * 0.62, top = lean(hoodPt(a0, be));
-      const pts = [top];
-      const x0 = top[0] + sx * 0.4;
-      for (const y of [top[1] - 3, 58, 54, 50, 46, 42.5]) {
-        const f = frontAt(G, x0 + sx * (60 - y) * 0.015, y), nrm = norm([G.ex(f.th) * 0.3, 0, 1]);
-        pts.push(add(f.p, mul(nrm, 0.7 + Math.max(0, y - 58) * 0.4)));
-      }
-      const path = []; // Catmull-Rom suave
-      for (let k = 0; k < pts.length - 1; k++) {
-        const p0 = pts[Math.max(0, k - 1)], p1 = pts[k], p2 = pts[k + 1], p3 = pts[Math.min(pts.length - 1, k + 2)];
-        for (let s = 0; s < 6; s++) { const t = s / 6, t2 = t * t, t3 = t2 * t; path.push([0, 1, 2].map(c => 0.5 * (2 * p1[c] + (-p0[c] + p2[c]) * t + (2 * p0[c] - 5 * p1[c] + 4 * p2[c] - p3[c]) * t2 + (-p0[c] + 3 * p1[c] - 3 * p2[c] + p3[c]) * t3))); }
-      }
-      path.push(pts[pts.length - 1]);
-      M.add(sweep(path, circle(0.38, 6), { up: () => [1, 0, 0] }), 'rib');
-      const end = path[path.length - 1], dir = norm(sub(end, path[path.length - 2]));
-      M.add(sweep([sub(end, mul(dir, 0.6)), end, add(end, mul(dir, 2.4))], circle(0.5, 6), { up: () => [1, 0, 0] }), 'puntera');
-    }
-    // Bolsillo canguro: una capa sobre el frente, con la misma impresión (el diseño pasa por encima)
-    const yb = 8.2, yt = 29, xr = y => y < 15 ? 18.5 : lerp(18.5, 13.2, (y - 15) / (yt - 15));
-    const pocket = surface(48, 24, (u, v) => {
-      const y = lerp(yt, yb, v), x = lerp(-xr(y), xr(y), u), f = frontAt(G, x, y);
-      const nrm = norm([G.ex(f.th) * G.B(y) / G.A(y) * 0.6, 0, Math.max(0.2, G.ez(f.th))]);
-      const edge = Math.min(1, Math.min(u, 1 - u) * 14, Math.min(v, 1 - v) * 10);
-      return add(f.p, mul(nrm, 0.25 + 0.35 * edge));
-    });
-    orient(pocket, p => [p[0] * 0.8, p[1], 0]);
-    M.add(pocket, 'print_frente', G.planar);
-    const outline = [];
-    for (let k = 0; k <= 12; k++) { const y = lerp(yb, yt, k / 12); outline.push([xr(y), y]); }
-    for (let k = 1; k <= 12; k++) outline.push([lerp(xr(yt), -xr(yt), k / 12), yt]);
-    for (let k = 1; k <= 12; k++) { const y = lerp(yt, yb, k / 12); outline.push([-xr(y), y]); }
-    for (let k = 1; k < 12; k++) outline.push([lerp(-xr(yb), xr(yb), k / 12), yb]);
-    const opath = outline.map(([x, y]) => { const f = frontAt(G, x, y); return add(f.p, [0, 0, 0.3]); });
-    M.add(sweep(opath, circle(0.3, 6), { closed: true, up: () => [0, 0, 1] }), 'tela');
-    hoodInfo = { back: 64 };
-  };
-  const M = garment(o);
-  return {
-    M, lienzo: [o.canvas.w, o.canvas.h],
-    info: {
-      lados: {
-        frente: { mat: 'print_frente', cx: 33, top: o.canvas.top - (o.neckFront - 8), vista: 0 },
-        espalda: { mat: 'print_espalda', cx: 33, top: o.canvas.top - (hoodInfo.back - 2), vista: 180 },
-        pecho: { mat: 'print_frente', cx: 33 + 11, top: o.canvas.top - (o.neckFront - 5), vista: 0 },
-      },
-    },
-  };
+  return garment({
+    name: 'buzo', alto: 82, abrir: true, cordones: 36,
+    rib: (c, H) => c[1] < (Math.abs(c[0]) > 0.6 * H[0] ? 9 : 7), // pretina y puños
+    lados: (m, C) => ({
+      frente: { mat: 'print_frente', cx: C.w / 2, top: C.top - (m.neckFront - 7), vista: 0 },
+      espalda: { mat: 'print_espalda', cx: C.w / 2, top: C.top - (m.hoodEnd - 3), vista: 180 },
+      pecho: { mat: 'print_frente', cx: C.w / 2 + 12, top: C.top - (m.neckFront - 5), vista: 0 }, // al lado del cordón
+    }),
+  });
 }
 
 /* ---------- taza 11 oz ---------- */
@@ -477,6 +534,11 @@ function writeGLB(file, { M, lienzo, info }) {
       NORMAL: acc(nrm, 'VEC3', 5120, nv, 34962, { normalized: true }, 4),
       TEXCOORD_0: acc(uv, 'VEC2', 5123, nv, 34962, { normalized: true }),
     };
+    if (pr.col) { // sombra en 8 bits (gris: el mismo valor en R, G y B)
+      const col = new Uint8Array(nv * 4);
+      for (let i = 0; i < nv; i++) col.fill(Math.round(clamp(pr.col[i], 0, 1) * 255), i * 4, i * 4 + 3);
+      attributes.COLOR_0 = acc(col, 'VEC3', 5121, nv, 34962, { normalized: true }, 4);
+    }
     const indices = acc(nv < 65536 ? new Uint16Array(pr.idx) : new Uint32Array(pr.idx), 'SCALAR', nv < 65536 ? 5123 : 5125, pr.idx.length, 34963);
     const md = MATS[pr.mat];
     const mat = { name: pr.mat, pbrMetallicRoughness: { baseColorFactor: [...md.color, 1], metallicFactor: 0, roughnessFactor: md.rough }, doubleSided: md.double };
