@@ -263,6 +263,18 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 /* Etiquetas e íconos cortos: solo se usan en celular */
 .ico-s,.lbl-s,.pinsw{display:none}
 
+/* ---------- recortar ---------- */
+html.crop-open,html.crop-open body{overflow:hidden}
+.modal.crop{align-items:center;padding:20px 16px;z-index:19}
+.cropsheet{max-width:980px;height:min(820px,calc(100vh - 40px));display:flex;flex-direction:column}
+.cropsheet>header{flex:none}
+.cropbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 16px 16px}
+.cropbody .bezel{flex:1;min-height:0;display:flex}
+.cropstage{position:relative;flex:1;min-height:200px;border-radius:10px;overflow:hidden;background:#120c08;box-shadow:0 0 0 2px #000 inset}
+.cropstage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.cropact{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap}
+.cropact .note{margin:0;flex:1;min-width:220px}
+
 /* ---------- mockup 3D ---------- */
 html.mk-open,html.mk-open body{overflow:hidden}
 .modal.mk{align-items:center;padding:20px 16px;z-index:19}
@@ -364,6 +376,14 @@ html.mk-open,html.mk-open body{overflow:hidden}
   .sw button{padding:9px 8px 7px}
   .btn{padding:12px 14px 10px}
   .note{font-size:12.5px}
+  /* recortar a pantalla completa */
+  .modal.crop{padding:0;align-items:stretch}
+  .cropsheet{max-width:none;height:100vh;height:100dvh;border-radius:0}
+  .cropsheet>header{padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
+  .cropsheet h2{font-size:21px}
+  .cropbody{padding:8px 8px calc(12px + env(safe-area-inset-bottom));gap:8px}
+  .cropbody .bezel{padding:5px}
+  .cropact .btn{flex:1;justify-content:center}
   /* mockup a pantalla completa */
   .modal.mk{padding:0;align-items:stretch}
   .mksheet{max-width:none;height:100vh;height:100dvh;border-radius:0}
@@ -455,6 +475,7 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
           <h3>FUENTE</h3><button class="qhelp" type="button" data-help="h-fuente" aria-label="Ayuda: Fuente">?</button>
           <div class="row" style="align-items:center">
             <button class="btn mustard" type="button" id="btnLoad">CARGAR</button>
+            <button class="btn" type="button" id="btnCrop" disabled>RECORTAR</button>
             <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
             <div class="vfd grow" id="srcInfo">—</div>
           </div>
@@ -551,7 +572,7 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
     <div class="in">
       <section class="hsec" id="h-inicio"><h4>EN 4 PASOS</h4>
         <ol class="steps">
-          <li><b>CARGAR</b> tu diseño (PNG, JPG o WebP), o arrástralo a la pantalla.</li>
+          <li><b>CARGAR</b> tu diseño (PNG, JPG o WebP), o arrástralo a la pantalla. Si es una foto, con <b>RECORTAR</b> eliges la parte que vas a usar.</li>
           <li>Toca el color de la <b>CAMISETA</b>.</li>
           <li>Prende o apaga los <b>PROCESOS</b> y ajusta <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
           <li>En <b>TAMAÑO</b> elige el uso y la talla (o el ancho), revisa los <b>AVISOS</b> y dale <b>GRABAR PNG</b>.</li>
@@ -573,7 +594,7 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
           <dt>MOVERTE</dt><dd>Arrastra la imagen. Doble clic acerca en ese punto, y otro doble clic vuelve a ver todo.</dd>
           <dt>COMPARAR</dt><dd>Tócalo para dividir la pantalla: ANTES a la izquierda, DESPUÉS a la derecha. Arrastra la línea. Tócalo otra vez para quitarlo.</dd>
           <dt>LÍNEA PUNTEADA</dt><dd>Marca el borde del archivo cuando el tamaño es exacto (CENTRAR, LLENAR o ESTIRAR).</dd>
-          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
+          <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho, recorte y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
           <dt>INFO</dt><dd>Solo en el computador: el recuadro bajo la pantalla dice qué es y para qué sirve lo que tengas bajo el mouse. El botón <b>INFO</b> de arriba lo prende o lo apaga (apagado, la pantalla queda un poco más grande).</dd>
         </dl>
@@ -581,6 +602,7 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
       <section class="hsec" id="h-fuente"><h4>FUENTE</h4>
         <dl class="hdl">
           <dt>CARGAR</dt><dd>Abre tu imagen.</dd>
+          <dt>RECORTAR</dt><dd>Elige qué parte de la foto vas a usar. Arrastra las esquinas o los lados del recuadro, muévelo desde adentro o arrastra afuera para marcar otro. <b>CUADRADO</b> lo deja de lados iguales. Lo que queda afuera no va en el PNG. Puedes volver a abrirlo para cambiarlo, o tocar <b>TODA LA FOTO</b> para quitarlo. Mejor recorta antes de agrandar con IA: así agranda solo lo que vas a usar y tarda menos.</dd>
           <dt>DISPLAY</dt><dd>Nombre y píxeles de la imagen. Todos los detalles están en MEDIDAS.</dd>
         </dl>
       </section>
@@ -693,6 +715,23 @@ try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElemen
         </dl>
         <p class="tip">Los modelos pesan de 40 a 830 KB y el 3D se descarga solo cuando abres esta sección, así que funciona en celulares y en computadores sin tarjeta de video. Acércate para ver los puntos del semitono; en celular la textura es más pequeña y de lejos se ven como tono suave.</p>
       </section>
+    </div>
+  </div>
+</div>
+<div class="modal crop" id="cropModal" hidden>
+  <div class="sheet cropsheet" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+    <header><h2 id="cropTitle">Recortar</h2><div class="mkhead"><button class="qhelp" type="button" data-help="h-fuente" aria-label="Ayuda: Recortar">?</button><button class="chip-btn" type="button" id="cropCancel">CANCELAR</button></div></header>
+    <div class="cropbody">
+      <div class="bezel"><div class="cropstage" id="cropStage"><canvas id="cropCv" tabindex="0" aria-label="Recuadro del recorte. Flechas: moverlo. Shift y flechas: cambiar su tamaño. Enter: recortar."></canvas></div></div>
+      <div class="screenbar">
+        <div class="sw" role="radiogroup" aria-label="Forma del recorte" id="cropForm"></div>
+        <button class="chip-btn" type="button" id="cropAll">TODA LA FOTO</button>
+        <div class="vfd grow" id="cropInfo" aria-live="polite">—</div>
+      </div>
+      <div class="cropact">
+        <p class="note">Arrastra las esquinas o los lados, mueve el recuadro desde adentro o arrastra afuera para marcar otro. Lo que quede afuera no va en el PNG.</p>
+        <button class="btn orange" type="button" id="cropOk">RECORTAR</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1085,15 +1124,16 @@ function wcall(msg, transfer) { const id = ++jobSeq; msg.id = id; return new Pro
    Imagen fuente
    ========================================================= */
 let SRC = null;      // {w,h,data:Uint8ClampedArray,name, semi}
-let BASE = null;     // la imagen tal como se cargó (sin agrandar)
+let BASE = null;     // la imagen sin agrandar: la cargada o su recorte (img.orig = la cargada, img.rect = el recuadro)
 let UP = null;       // la última imagen agrandada con IA (para prender/apagar el agrandado)
-let srcGen = 0;      // numera las imágenes agrandadas para el historial
+let srcGen = 0;      // numera las imágenes agrandadas y recortadas para el historial
+// Cada imagen agrandada sabe de cuál salió (img.base): así BASE vuelve a la correcta también al deshacer.
 async function setSource(img) {
-  SRC = img;
-  if (img.op === 'AGRANDADO IA') UP = img;
+  SRC = img; BASE = img.base || img;
+  if (img.upScale) UP = img;
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
-  $('#btnExport').disabled = false;
+  $('#btnExport').disabled = false; $('#btnCrop').disabled = false;
   syncModeUI(); syncUpUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
@@ -1338,7 +1378,7 @@ function updateInfo() {
   renderMeasures(); updateUpSize(); syncSizeInputs(); renderAlerts();
   if (!SRC) return;
   const o = outSize(), ppi = effPpi();
-  const si = $('#srcInfo'); si.textContent = `${SRC.name} · ${SRC.w} × ${SRC.h} px`;
+  const si = $('#srcInfo'); si.textContent = `${SRC.name} · ${SRC.w} × ${SRC.h} px` + (BASE && BASE.rect ? ' · RECORTADA' : '');
   if (ppi < 200) { const w = document.createElement('span'); w.className = 'warn'; w.textContent = ' · BAJA RESOLUCIÓN'; si.appendChild(w); }
   const st = procMode() === 'none' ? 'SIN PROCESAR' : '0% SEMITRANSPARENTE';
   $('#status').textContent = P.unit === 'px'
@@ -1626,7 +1666,7 @@ async function upscale(target) {
       const bd = bc.getImageData(0, 0, ow, oh).data; for (let i = 0; i < out.length; i += 4) out[i + 3] = bd[i];
     }
     if (job !== upJob || BASE !== base) throw CANCEL;
-    const img = { w: ow, h: oh, data: out, name: base.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen, upScale: target, upModel: modelName };
+    const img = { w: ow, h: oh, data: out, name: base.name, semi: semiPct(out), op: 'AGRANDADO IA', gen: ++srcGen, upScale: target, upModel: modelName, base };
     await setSource(img);
     commitNow();
     track('agrandar-ia-x' + target);
@@ -1656,7 +1696,7 @@ async function onScale(v) {
     if (SRC !== BASE) { await setSource(BASE); commitNow(); }
     $('#upNote').textContent = `Sin agrandar: ${BASE.w} × ${BASE.h} px.`; $('#upMeter i').style.width = '0%'; return;
   }
-  if (UP && UP.upScale === v && UP.upModel === P.model) { await setSource(UP); commitNow(); $('#upNote').textContent = `Agrandada ×${v}: ${UP.w} × ${UP.h} px (ya estaba calculada).`; return; }
+  if (UP && UP.base === BASE && UP.upScale === v && UP.upModel === P.model) { await setSource(UP); commitNow(); $('#upNote').textContent = `Agrandada ×${v}: ${UP.w} × ${UP.h} px (ya estaba calculada).`; return; }
   await upscale(v);
 }
 // Cambiar de modelo con la imagen agrandada la vuelve a agrandar con el modelo nuevo
@@ -1701,7 +1741,7 @@ $('#btnExport').onclick = doExport;
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (!$('#helpModal').hidden) closeHelp(); else if (mkIsOpen()) closeMock();
+  if (!$('#helpModal').hidden) closeHelp(); else if (!$('#cropModal').hidden) cropClose(); else if (mkIsOpen()) closeMock();
 });
 let helpOpener = null;
 function openHelp(id, opener) {
@@ -1741,6 +1781,7 @@ const INFO = [
   ['#btnUndo, #btnRedo', 'h-pantalla', 'DESHACER · REHACER'],
   ['#status', 'h-pantalla', 'DISPLAY'],
   ['#empty, #btnLoad', 'h-fuente', 'CARGAR'],
+  ['#btnCrop', 'h-fuente', 'RECORTAR'],
   ['#screen', 'h-pantalla', 'MOVERTE'],
   // panel
   ['#srcInfo', 'h-fuente', 'DISPLAY'],
@@ -2048,7 +2089,7 @@ $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
 document.addEventListener('keydown', e => {
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
   const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-  if (!$('#helpModal').hidden || mkIsOpen()) return;
+  if (!$('#helpModal').hidden || !$('#cropModal').hidden || mkIsOpen()) return;
   const k = e.key.toLowerCase();
   if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
   else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
@@ -2531,6 +2572,182 @@ $('#mkReset').onclick = () => mkView(true);
 $('#mkRec').onclick = mkUseRec;
 $('#mkPng').onclick = mkPhoto;
 $('#mkGlb').onclick = mkGlb;
+
+/* =========================================================
+   RECORTAR: qué parte de la foto se usa. No se pierde nada: la imagen recortada guarda la cargada (orig)
+   y el recuadro (rect, en px de la cargada), así se puede volver a abrir y agrandar el recorte.
+   Si ya estaba agrandada con IA y el recorte nuevo cabe en el anterior, se recorta también la agrandada
+   (no hay que volver a agrandar). Va en el historial como cualquier imagen: DESHACER lo quita.
+   ========================================================= */
+const CROP = { form: 'free', orig: null, rect: null, pv: null, v: null, drag: null };
+function cropImg(img, r, extra) {
+  const d = new Uint8ClampedArray(r.w * r.h * 4);
+  for (let y = 0; y < r.h; y++) { const s = ((r.y + y) * img.w + r.x) * 4; d.set(img.data.subarray(s, s + r.w * 4), y * r.w * 4); }
+  return Object.assign({ w: r.w, h: r.h, data: d, name: img.name, semi: semiPct(d) }, extra);
+}
+const cropIsOpen = () => !$('#cropModal').hidden;
+async function cropOpen() {
+  if (!SRC || upRunning) { if (upRunning) toast('Espera a que termine de agrandar.'); return; }
+  const o = BASE.orig || BASE;
+  CROP.orig = o; CROP.rect = { ...(BASE.rect || { x: 0, y: 0, w: o.w, h: o.h }) }; CROP.pv = o.pv || null; CROP.drag = null;
+  CROP.form = 'free'; cropFormSw.sync();
+  $('#cropModal').hidden = false; document.documentElement.classList.add('crop-open');
+  $('#cropCv').focus({ preventScroll: true });
+  cropDraw(); cropInfo(); track('recortar');
+  if (!CROP.pv) { // vista reducida (máximo 1600 px): dibujar la foto entera en cada movimiento sería lento
+    const k = Math.min(1, 1600 / Math.max(o.w, o.h));
+    try { o.pv = await createImageBitmap(new ImageData(o.data, o.w, o.h), { resizeWidth: Math.max(1, Math.round(o.w * k)), resizeHeight: Math.max(1, Math.round(o.h * k)), resizeQuality: 'high' }); }
+    catch (e) { const c = document.createElement('canvas'); c.width = o.w; c.height = o.h; c.getContext('2d').putImageData(new ImageData(o.data, o.w, o.h), 0, 0); o.pv = c; }
+    if (CROP.orig === o) { CROP.pv = o.pv; cropDraw(); }
+  }
+}
+function cropClose() { $('#cropModal').hidden = true; document.documentElement.classList.remove('crop-open'); CROP.drag = null; $('#btnCrop').focus({ preventScroll: true }); }
+// El recuadro en px enteros, dentro de la foto (en CUADRADO, de lados iguales)
+function cropRound() {
+  const o = CROP.orig, r = CROP.rect;
+  const x = clamp(Math.round(r.x), 0, o.w - 1), y = clamp(Math.round(r.y), 0, o.h - 1);
+  let w = clamp(Math.round(r.x + r.w) - x, 1, o.w - x), h = clamp(Math.round(r.y + r.h) - y, 1, o.h - y);
+  if (CROP.form === 'square') w = h = Math.min(w, h);
+  return { x, y, w, h };
+}
+function cropInfo() {
+  const o = CROP.orig, r = cropRound(), full = r.w === o.w && r.h === o.h;
+  $('#cropInfo').textContent = `${r.w} × ${r.h} px · ` + (full ? 'toda la foto' : `${nf0.format(Math.max(1, r.w * r.h / (o.w * o.h) * 100))}% de la foto`)
+    + ` · nítida hasta ${fmtPair(r.w / DPI * 2.54, r.h / DPI * 2.54)}`;
+}
+let cropPat = null;
+function cropDraw() {
+  if (!cropIsOpen() || !CROP.orig) return;
+  const cv = $('#cropCv'), st = cv.parentElement, dpr = Math.min(2, devicePixelRatio || 1), W = st.clientWidth, H = st.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const o = CROP.orig, pad = 16, s = Math.max(1e-6, Math.min((W - 2 * pad) / o.w, (H - 2 * pad) / o.h));
+  const v = CROP.v = { s, x: (W - o.w * s) / 2, y: (H - o.h * s) / 2 }, x = cv.getContext('2d'), r = CROP.rect;
+  x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+  const iw = o.w * s, ih = o.h * s;
+  if (!cropPat) { const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); g.fillStyle = '#2a211b'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#3b3028'; g.fillRect(0, 0, 8, 8); g.fillRect(8, 8, 8, 8); cropPat = x.createPattern(c, 'repeat'); }
+  x.fillStyle = cropPat; x.fillRect(v.x, v.y, iw, ih); // tablero: lo transparente
+  if (CROP.pv) { x.imageSmoothingQuality = 'high'; x.drawImage(CROP.pv, v.x, v.y, iw, ih); }
+  const rx = v.x + r.x * s, ry = v.y + r.y * s, rw = r.w * s, rh = r.h * s;
+  x.fillStyle = 'rgba(12,8,5,.7)'; x.beginPath(); x.rect(v.x, v.y, iw, ih); x.rect(rx, ry, rw, rh); x.fill('evenodd'); // afuera, oscuro
+  x.strokeStyle = 'rgba(255,179,71,.4)'; x.lineWidth = 1; x.beginPath(); // tercios
+  for (const f of [1 / 3, 2 / 3]) { x.moveTo(rx + rw * f, ry); x.lineTo(rx + rw * f, ry + rh); x.moveTo(rx, ry + rh * f); x.lineTo(rx + rw, ry + rh * f); }
+  x.stroke();
+  x.strokeStyle = '#ffb347'; x.lineWidth = 2; x.strokeRect(rx, ry, rw, rh);
+  x.fillStyle = '#ffb347'; x.strokeStyle = '#150d08'; x.lineWidth = 1.5;
+  for (const [hx, hy] of [[0, 0], [.5, 0], [1, 0], [0, .5], [1, .5], [0, 1], [.5, 1], [1, 1]]) { x.beginPath(); x.rect(rx + rw * hx - 5, ry + rh * hy - 5, 10, 10); x.fill(); x.stroke(); }
+}
+function cropPt(e) { const b = $('#cropCv').getBoundingClientRect(), v = CROP.v; return { x: (e.clientX - b.left - v.x) / v.s, y: (e.clientY - b.top - v.y) / v.s }; }
+// Qué bordes del recuadro quedan bajo el puntero (tol en px de la foto). Una esquina = dos bordes.
+function cropGrab(p, tol) {
+  const r = CROP.rect, inY = p.y > r.y - tol && p.y < r.y + r.h + tol, inX = p.x > r.x - tol && p.x < r.x + r.w + tol;
+  const dl = Math.abs(p.x - r.x), dr = Math.abs(p.x - r.x - r.w), dt = Math.abs(p.y - r.y), db = Math.abs(p.y - r.y - r.h);
+  return { l: inY && dl < tol && dl <= dr, r: inY && dr < tol && dr < dl, t: inX && dt < tol && dt <= db, b: inX && db < tol && db < dt };
+}
+const cropMin = () => Math.max(4, Math.round(Math.min(CROP.orig.w, CROP.orig.h) * 0.02));
+// Recuadro desde una esquina fija (a) hasta el puntero (m); en CUADRADO, de lados iguales sin salirse de la foto
+function cropFromCorner(a, m) {
+  const o = CROP.orig; m = { x: clamp(m.x, 0, o.w), y: clamp(m.y, 0, o.h) };
+  if (CROP.form === 'square') {
+    const sx = m.x >= a.x ? 1 : -1, sy = m.y >= a.y ? 1 : -1;
+    const n = Math.min(Math.max(Math.abs(m.x - a.x), Math.abs(m.y - a.y)), sx > 0 ? o.w - a.x : a.x, sy > 0 ? o.h - a.y : a.y);
+    m = { x: a.x + sx * n, y: a.y + sy * n };
+  }
+  return { x: Math.min(a.x, m.x), y: Math.min(a.y, m.y), w: Math.abs(m.x - a.x), h: Math.abs(m.y - a.y) };
+}
+function cropMove(p) {
+  const d = CROP.drag, o = CROP.orig, r0 = d.r0, dx = p.x - d.p0.x, dy = p.y - d.p0.y, mn = cropMin();
+  if (d.mode === 'move') { CROP.rect = { ...r0, x: clamp(r0.x + dx, 0, o.w - r0.w), y: clamp(r0.y + dy, 0, o.h - r0.h) }; return; }
+  if (d.mode === 'new') { CROP.rect = cropFromCorner(d.a, p); return; }
+  const g = d.g;
+  if ((g.l || g.r) && (g.t || g.b)) { // esquina: la opuesta queda fija
+    const a = { x: g.l ? r0.x + r0.w : r0.x, y: g.t ? r0.y + r0.h : r0.y };
+    const r = cropFromCorner(a, { x: (g.l ? r0.x : r0.x + r0.w) + dx, y: (g.t ? r0.y : r0.y + r0.h) + dy });
+    if (r.w >= mn && r.h >= mn) CROP.rect = r; return;
+  }
+  let l = r0.x, t = r0.y, rr = r0.x + r0.w, b = r0.y + r0.h;
+  if (g.l) l = clamp(l + dx, 0, rr - mn); if (g.r) rr = clamp(rr + dx, l + mn, o.w);
+  if (g.t) t = clamp(t + dy, 0, b - mn); if (g.b) b = clamp(b + dy, t + mn, o.h);
+  if (CROP.form === 'square') { // un lado: el otro crece igual, centrado
+    if (g.l || g.r) { const n = Math.min(rr - l, o.h), c = r0.y + r0.h / 2; if (g.r) rr = l + n; else l = rr - n; t = clamp(c - n / 2, 0, o.h - n); b = t + n; }
+    else { const n = Math.min(b - t, o.w), c = r0.x + r0.w / 2; if (g.b) b = t + n; else t = b - n; l = clamp(c - n / 2, 0, o.w - n); rr = l + n; }
+  }
+  CROP.rect = { x: l, y: t, w: rr - l, h: b - t };
+}
+{
+  const cv = $('#cropCv'), tolOf = e => (e.pointerType === 'touch' ? 22 : 10) / CROP.v.s;
+  cv.addEventListener('pointerdown', e => {
+    if (!CROP.v || e.button > 0) return; cv.setPointerCapture(e.pointerId); e.preventDefault(); cv.focus({ preventScroll: true }); // Enter recorta
+    const p = cropPt(e), g = cropGrab(p, tolOf(e)), r = CROP.rect, o = CROP.orig;
+    const whole = r.w >= o.w - 0.5 && r.h >= o.h - 0.5; // con toda la foto no hay nada que mover: arrastrar marca un recuadro nuevo
+    if (g.l || g.r || g.t || g.b) CROP.drag = { mode: 'edge', g, r0: { ...r }, p0: p };
+    else if (!whole && p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h) CROP.drag = { mode: 'move', r0: { ...r }, p0: p };
+    else CROP.drag = { mode: 'new', a: { x: clamp(p.x, 0, o.w), y: clamp(p.y, 0, o.h) }, r0: { ...r }, p0: p };
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!CROP.v) return;
+    const p = cropPt(e);
+    if (!CROP.drag) { // el cursor dice qué se puede hacer
+      const g = cropGrab(p, tolOf(e)), r = CROP.rect, o = CROP.orig, whole = r.w >= o.w - 0.5 && r.h >= o.h - 0.5;
+      cv.style.cursor = (g.l && g.t) || (g.r && g.b) ? 'nwse-resize' : (g.r && g.t) || (g.l && g.b) ? 'nesw-resize' : g.l || g.r ? 'ew-resize' : g.t || g.b ? 'ns-resize'
+        : !whole && p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h ? 'move' : 'crosshair';
+      return;
+    }
+    cropMove(p); cropDraw(); cropInfo();
+  });
+  const end = () => {
+    const d = CROP.drag; CROP.drag = null; if (!d) return;
+    const mn = cropMin(); if (CROP.rect.w < mn || CROP.rect.h < mn) CROP.rect = d.r0; // un toque afuera sin arrastrar no borra el recuadro
+    cropDraw(); cropInfo();
+  };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', e => { // flechas: mover · Shift + flechas: tamaño
+    const k = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!k) return;
+    e.preventDefault(); const o = CROP.orig, r = { ...CROP.rect }, st = Math.max(1, Math.round(Math.min(o.w, o.h) * 0.01)), mn = cropMin();
+    if (e.shiftKey) {
+      const dw = CROP.form === 'square' ? (k[0] || k[1]) * st : k[0] * st, dh = CROP.form === 'square' ? dw : k[1] * st;
+      r.w = clamp(r.w + dw, mn, o.w - r.x); r.h = clamp(r.h + dh, mn, o.h - r.y); if (CROP.form === 'square') r.w = r.h = Math.min(r.w, r.h);
+    } else { r.x = clamp(r.x + k[0] * st, 0, o.w - r.w); r.y = clamp(r.y + k[1] * st, 0, o.h - r.h); }
+    CROP.rect = r; cropDraw(); cropInfo();
+  });
+  new ResizeObserver(() => cropDraw()).observe($('#cropStage'));
+}
+const cropFormSw = makeSwitch($('#cropForm'), 'form', [['free', 'LIBRE'], ['square', 'CUADRADO']], v => {
+  if (v === 'square') { const r = CROP.rect, n = Math.min(r.w, r.h); CROP.rect = { x: r.x + (r.w - n) / 2, y: r.y + (r.h - n) / 2, w: n, h: n }; } // el cuadrado más grande que cabe, centrado
+  cropDraw(); cropInfo();
+}, { obj: CROP, persist: () => {} });
+$('#cropAll').onclick = () => {
+  const o = CROP.orig; CROP.rect = { x: 0, y: 0, w: o.w, h: o.h };
+  if (CROP.form === 'square') { const n = Math.min(o.w, o.h); CROP.rect = { x: (o.w - n) / 2, y: (o.h - n) / 2, w: n, h: n }; }
+  cropDraw(); cropInfo();
+};
+async function cropApply() {
+  const o = CROP.orig, r = cropRound(), full = r.x === 0 && r.y === 0 && r.w === o.w && r.h === o.h;
+  const old = BASE, r0 = old.rect || { x: 0, y: 0, w: o.w, h: o.h };
+  cropClose();
+  if (r.x === r0.x && r.y === r0.y && r.w === r0.w && r.h === r0.h) return; // no cambió
+  showBusy('RECORTANDO…');
+  try {
+    const gen = ++srcGen, base = full ? o : cropImg(o, r, { orig: o, rect: r, op: 'RECORTE', gen });
+    let next = base, lost = 0;
+    if (SRC !== old && SRC.upScale) { // estaba agrandada
+      const k = SRC.upScale;
+      if (r.x >= r0.x && r.y >= r0.y && r.x + r.w <= r0.x + r0.w && r.y + r.h <= r0.y + r0.h)
+        next = cropImg(SRC, { x: (r.x - r0.x) * k, y: (r.y - r0.y) * k, w: r.w * k, h: r.h * k }, { op: 'RECORTE', gen, upScale: k, upModel: SRC.upModel, base });
+      else lost = k; // el recorte nuevo toma partes que no estaban agrandadas
+    }
+    lastDraw = null; // la vista anterior tiene otra forma
+    await setSource(next); commitNow();
+    toast((full ? 'Recorte quitado: se usa toda la foto.' : `Recortada: ${r.w} × ${r.h} px.`)
+      + (lost ? ` El agrandado ×${lost} se quitó porque ahora entra más foto: vuelve a tocar ×${lost}.` : ''), lost ? 4500 : 2200);
+    track(full ? 'recorte-quitar' : 'recorte-aplicar');
+  } catch (e) { console.error(e); toast('No se pudo recortar.'); }
+  hideBusy();
+}
+$('#btnCrop').onclick = cropOpen;
+$('#cropCancel').onclick = cropClose;
+$('#cropOk').onclick = cropApply;
+$('#cropModal').addEventListener('click', e => { if (e.target.id === 'cropModal') cropClose(); });
+$('#cropModal').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); cropApply(); } });
 
 /* =========================================================
    VINTAGE: desgaste con manchas y grietas. Lo hace el motor (wearAt) y va al PNG.
