@@ -216,6 +216,10 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-f
 .shapes button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shapes button[aria-checked="true"]{border-color:var(--orange);box-shadow:inset 0 2px 3px rgba(0,0,0,.3),0 0 0 1.5px var(--orange);transform:translateY(1px)}
 .shapes button[disabled]{opacity:.4;cursor:not-allowed}
+.shapes.fin button canvas{background:#1b1713}
+.finnote{grid-column:2 / -1;align-self:center;margin:0}
+.night{position:absolute;inset:0;background:#04060a;opacity:0;pointer-events:none;transition:opacity .25s}
+.simtag{position:absolute;left:10px;bottom:10px;font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--vfd);background:rgba(21,13,8,.78);padding:4px 8px;border-radius:4px;pointer-events:none;max-width:calc(100% - 140px)}
 .zoomctl button{justify-content:center}
 .zoomctl #zOut,.zoomctl #zIn{font-family:var(--mono);font-size:18px;line-height:1;padding:5px 11px 4px;letter-spacing:0}
 .zoomctl .zval{min-width:64px;font-family:var(--mono);font-size:13px;letter-spacing:0}
@@ -235,7 +239,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
 .mkview{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
 .mkview .bezel{flex:1;min-height:0;display:flex}
 .mkstage{position:relative;flex:1;min-height:260px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 2px #000 inset;
-  background:radial-gradient(120% 90% at 50% 38%,#f3ede0 0%,#ddd2bb 55%,#b9aa8c 100%)}
+  background:linear-gradient(rgba(4,6,10,var(--night,0)),rgba(4,6,10,var(--night,0))),radial-gradient(120% 90% at 50% 38%,#f3ede0 0%,#ddd2bb 55%,#b9aa8c 100%)}
 .mkstage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
 .mkstage canvas:active{cursor:grabbing}
 .mkhint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--vfd);background:rgba(21,13,8,.75);padding:5px 9px;border-radius:4px;pointer-events:none;white-space:nowrap;transition:opacity .6s}
@@ -371,7 +375,9 @@ html.mk-open,html.mk-open body{overflow:hidden}
       <section class="screenwrap" aria-label="Vista previa">
         <div class="bezel">
           <div class="screen" id="screen">
+            <div class="night" id="night" aria-hidden="true"></div>
             <canvas id="cv"></canvas>
+            <span class="simtag" id="simTag" hidden>SIMULACIÓN DEL ACABADO · EL PNG NO LA LLEVA</span>
             <div class="divider" id="divider" hidden></div>
             <span class="tagl" id="tagL" hidden>ANTES</span>
             <span class="tagr" id="tagR" hidden>DESPUÉS</span>
@@ -450,6 +456,12 @@ html.mk-open,html.mk-open body{overflow:hidden}
         <div class="group">
           <h3>TONO</h3><button class="qhelp" type="button" data-help="h-tono" aria-label="Ayuda: Tono">?</button>
           <div class="knobs" id="kTono"></div>
+        </div>
+
+        <div class="group">
+          <h3>ACABADO</h3><button class="qhelp" type="button" data-help="h-acabado" aria-label="Ayuda: Acabado">?</button>
+          <div class="shapes fin" role="radiogroup" aria-label="Acabado del estampado" id="swFinish"></div>
+          <div class="knobs" id="kFin" style="margin-top:12px"></div>
         </div>
 
         <div class="group">
@@ -560,8 +572,8 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <dt>LOS DOS PRENDIDOS</dt><dd>Primero limpia y luego hace el semitono, en un solo paso y en un solo PNG. Todas las perillas de TONO funcionan y los colores se conservan.</dd>
           <dt>SOLO LIMPIAR</dt><dd>Deja el diseño sin puntos. Los bordes suaves se mezclan con el color de la camiseta.</dd>
           <dt>LOS DOS APAGADOS</dt><dd>Graba la imagen tal cual a 300 ppp (por ejemplo, solo agrandada). Ojo: conserva las semitransparencias del original.</dd>
-          <dt>CORTE ALFA</dt><dd>Solo con LIMPIAR prendido: lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido.</dd>
-          <dt>CONTRAER</dt><dd>Recorta el contorno del diseño hacia adentro para quitar la película o halo blanco del borde. Sube de a poco: 0,05 a 0,15 mm suele bastar. Funciona con LIMPIAR y con SEMITONO.</dd>
+          <dt>CORTE ALFA</dt><dd>Solo con LIMPIAR prendido y solo en imágenes con bordes semitransparentes (por ejemplo, un PNG al que le quitaron el fondo): lo que tenga menos opacidad que esto se vuelve transparente y lo demás queda 100% sólido. En un JPG o en un PNG sin transparencias se apaga, porque no tiene nada que cortar.</dd>
+          <dt>CONTRAER</dt><dd>Recorta hacia adentro todo borde que queda junto a algo que se quita: el fondo transparente y también lo que borra NEGRO o BLANCO. Así quita la película o halo blanco del contorno, aunque la imagen sea un JPG. Sube de a poco hasta que el halo desaparezca: 0,1 a 0,3 mm suele bastar. Funciona con LIMPIAR y con SEMITONO.</dd>
           <dt>OSCUROS</dt><dd>Para camiseta oscura: lo negro desaparece y se ve la tela.</dd>
           <dt>CLAROS</dt><dd>Para camiseta clara: lo blanco desaparece.</dd>
         </dl>
@@ -586,6 +598,21 @@ html.mk-open,html.mk-open body{overflow:hidden}
         </dl>
         <p class="tip">CORTE ALFA y CONTRAER están en PROCESOS, junto a LIMPIAR.</p>
       </section>
+      <section class="hsec" id="h-acabado"><h4>ACABADO</h4>
+        <dl class="hdl">
+          <dt>QUÉ ES</dt><dd>La película o el efecto con que el taller hace tu transfer. Son los acabados que más ofrecen los talleres de DTF. Toca uno para verlo en la pantalla y en el MOCKUP 3D; pasa el dedo o el mouse por encima de un botón para moverle la luz.</dd>
+          <dt>CANTIDAD</dt><dd>La perilla sube o baja el efecto: el brillo, el metal, el destello, el arcoíris, el relieve, la oscuridad o el desgaste, según el acabado.</dd>
+          <dt>MATE</dt><dd>El DTF normal (película cold peel): sin brillo, suave al tacto.</dd>
+          <dt>BRILLANTE</dt><dd>Película hot peel o glossy: brilla como plástico y los colores se ven más vivos.</dd>
+          <dt>METALIZADO</dt><dd>Foil o película metalizada: los colores reflejan la luz como metal (dorado, plateado o del color del diseño).</dd>
+          <dt>GLITTER</dt><dd>Escarcha sobre todo el diseño: destella al moverse. Los negros se ven un poco más claros.</dd>
+          <dt>HOLOGRAMA</dt><dd>Reflejo arcoíris que cambia según el ángulo.</dd>
+          <dt>PUFF 3D</dt><dd>Relieve esponjoso. Va mejor en letras y formas grandes y sólidas: en puntos pequeños de semitono casi no se levanta.</dd>
+          <dt>GLOW</dt><dd>Fosforescente: brilla en la oscuridad después de cargarse con luz. Los colores claros brillan más y el negro no brilla. La perilla apaga la luz para que lo veas.</dd>
+          <dt>VINTAGE</dt><dd>Desgasta el diseño con manchas y grietas, como un estampado viejo. Es el único que <b>sí cambia el PNG</b>: quita tinta.</dd>
+        </dl>
+        <p class="tip">Menos VINTAGE, ningún acabado va en el archivo: el PNG sale igual y el acabado se le pide al taller. La pantalla lo simula para que te hagas una idea; el resultado real depende de la película y de la plancha.</p>
+      </section>
       <section class="hsec" id="h-camiseta"><h4>CAMISETA</h4>
         <dl class="hdl">
           <dt>COLORES</dt><dd>Muestra el diseño sobre ese color de tela.</dd>
@@ -597,7 +624,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
         <dl class="hdl">
           <dt>USO</dt><dd><b>FRENTE</b>, <b>ESPALDA</b> y <b>PECHO</b> (logo pequeño) de camiseta, o <b>TAZA</b> (11 oz, 21 × 9 cm). Ponen el área recomendada. Tócalo otra vez para apagarlo y quedar en <b>LIBRE</b>, donde tú pones las medidas.</dd>
           <dt>TALLA</dt><dd>De XS a XXL: cada talla tiene su área máxima, porque un diseño de L se ve enorme en una XS.</dd>
-          <dt>ANCHO</dt><dd>Perilla o casilla para el ancho del área. El rollo de 58 cm imprime hasta unos 56 cm.</dd>
+          <dt>ANCHO</dt><dd>Perilla o casilla para el ancho del área. El rollo de 58 cm imprime hasta unos 56 cm. Con AJUSTAR, si el ALTO ya no deja crecer el diseño, el ALTO pasa a AUTO.</dd>
           <dt>ALTO</dt><dd>Alto del área. Si lo dejas vacío (AUTO), el alto sale solo según la forma del diseño.</dd>
           <dt>AJUSTAR</dt><dd>El diseño crece hasta tocar el ancho o el alto del área, sin deformarse. El PNG mide solo el diseño. Lo normal para camisetas.</dd>
           <dt>CENTRAR</dt><dd>El PNG mide exactamente el área y el diseño va centrado adentro, sin deformarse; lo que sobra queda transparente. Para tazas y plantillas.</dd>
@@ -626,14 +653,15 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <dt>VER EN 3D</dt><dd>Muestra tu diseño, ya procesado, puesto sobre el producto. Arrastra para girarlo y pellizca (o usa la rueda del mouse) para acercar.</dd>
           <dt>PRODUCTO</dt><dd><b>Camiseta</b>, <b>buzo</b> con capota, <b>taza</b> de 11 oz, <b>termo</b> de 750 ml y <b>tote bag</b> (bolsa de tela).</dd>
           <dt>UBICACIÓN</dt><dd>Frente, espalda o pecho (logo pequeño). En la taza, <b>FRENTE</b> centra el diseño al lado contrario del asa (para los que dan la vuelta) y <b>LADO</b> lo pone con el asa a la derecha (para logos). En el termo va al frente, rodeándolo.</dd>
-          <dt>ANCHO</dt><dd>Es el mismo ANCHO de TAMAÑO: lo que ves en el mockup es lo que vas a imprimir. <b>USAR MEDIDA RECOMENDADA</b> pone el tamaño típico para ese producto y esa ubicación.</dd>
+          <dt>ANCHO</dt><dd>Es el mismo ANCHO de TAMAÑO: lo que ves en el mockup es lo que vas a imprimir. Si un ALTO fijo no deja crecer el diseño, el ALTO pasa a AUTO. <b>USAR MEDIDA RECOMENDADA</b> pone el tamaño típico para ese producto y esa ubicación.</dd>
           <dt>SUBIR · BAJAR</dt><dd>Mueve el diseño hacia arriba o hacia abajo en el producto. Solo cambia el mockup, no el archivo.</dd>
           <dt>COLOR</dt><dd>Es el mismo color de CAMISETA, así que también cambia OSCUROS o CLAROS.</dd>
+          <dt>ACABADO</dt><dd>El mismo ACABADO del panel: en 3D se ve cómo brilla, refleja o destella al girar el producto.</dd>
           <dt>GIRAR</dt><dd>Lo hace dar vueltas solo. CENTRAR vuelve a la vista inicial.</dd>
           <dt>FOTO PNG</dt><dd>Descarga una foto del mockup tal como lo estás viendo, para mostrarla a tu cliente o publicarla.</dd>
           <dt>MODELO 3D (GLB)</dt><dd>Descarga el producto en 3D con tu diseño puesto. Se abre en visores 3D (por ejemplo el Visor 3D de Windows) y en programas como Blender.</dd>
         </dl>
-        <p class="tip">Los modelos son livianos (de 40 a 190 KB) y el 3D se descarga solo cuando abres esta sección, así que funciona en celulares y en computadores sin tarjeta de video. La vista del diseño en 3D es aproximada: los puntos del semitono se ven como tono suave.</p>
+        <p class="tip">Los modelos pesan de 40 a 630 KB y el 3D se descarga solo cuando abres esta sección, así que funciona en celulares y en computadores sin tarjeta de video. Acércate para ver los puntos del semitono; en celular la textura es más pequeña y de lejos se ven como tono suave. El GLB lleva el diseño, pero no el acabado.</p>
       </section>
     </div>
   </div>
@@ -674,6 +702,11 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <p class="note">Es el mismo color de CAMISETA: también cambia OSCUROS o CLAROS.</p>
         </div>
         <div class="group">
+          <h3>ACABADO</h3>
+          <div class="shapes fin" role="radiogroup" aria-label="Acabado del estampado" id="mkFinish"></div>
+          <div class="knobs" id="mkFinKnobs" style="margin-top:12px"></div>
+        </div>
+        <div class="group">
           <h3>DESCARGAR</h3>
           <div class="out-actions" style="margin-top:0">
             <button class="btn mustard big" type="button" id="mkPng">FOTO PNG</button>
@@ -712,6 +745,8 @@ const P = {
   shape: 'round',      // round | square | line
   lpi: 45, angle: 22.5, minDot: 0.25,
   black: 8, solid: 92, curve: 1.0, intensity: 50, alphaCut: 55, choke: 0,
+  finish: 'mate',      // ACABADO: mate | brillo | metal | glitter | holo | puff | glow | vintage
+  finishAmt: 60,       // cantidad del acabado (%)
   widthCm: 30,         // ancho del área de impresión (cm)
   heightCm: 0,         // alto del área (cm); 0 = AUTO, según la forma del diseño
   fit: 'fit',          // cómo se acomoda en el área: fit (ajustar) | center | fill | stretch
@@ -724,7 +759,7 @@ const P = {
 };
 try { const saved = JSON.parse(store.get('tramaluz.p') || 'null');
   if (saved && !('semiOn' in saved) && saved.mode) { P.cleanOn = saved.mode === 'clean'; P.semiOn = saved.mode !== 'clean'; } // ajustes de la versión con MODO
-  if (saved) for (const k of ['cleanOn','semiOn','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','choke','shirt','model','unit','widthCm','heightCm','fit','use','talla']) if (k in saved) P[k] = saved[k]; } catch (e) {}
+  if (saved) for (const k of ['cleanOn','semiOn','knock','shape','lpi','angle','minDot','black','solid','curve','intensity','alphaCut','choke','finish','finishAmt','shirt','model','unit','widthCm','heightCm','fit','use','talla']) if (k in saved) P[k] = saved[k]; } catch (e) {}
 let saveT = null;
 function persist() { clearTimeout(saveT); saveT = setTimeout(() => store.set('tramaluz.p', JSON.stringify(P)), 400); scheduleCommit(); }
 
@@ -843,13 +878,132 @@ function blueNoise(n) {
   for (let r = cnt; r < N; r++) { const h = hole(); on[h] = 1; upd(h, 1); rank[h] = r; }
   const out = new Float32Array(N); for (let i = 0; i < N; i++) out[i] = (rank[i] + 0.5) / N; return out;
 }
+/* ---- ACABADO: ruido, desenfoque y simulación. Se usan aquí (botones) y dentro del motor (Worker) ---- */
+// Número al azar fijo para cada celda entera (x, y): 0..1
+function hash2(x, y) { let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; }
+// Ruido suave (0..1)
+function vnoise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash2(xi, yi), b = hash2(xi + 1, yi), c = hash2(xi, yi + 1), d = hash2(xi + 1, yi + 1);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+// VINTAGE: ¿se quita la tinta en (X, Y)? X, Y en px del archivo, pxmm = px por mm, t = desgaste 0..1.
+// Manchas (ruido en 3 escalas), grano fino y grietas (celdas). Es fijo: sale igual en pantalla, en el mockup y en el PNG.
+function wearAt(X, Y, t, pxmm) {
+  const s = 1 / (pxmm * 6);
+  const n = 0.5 * vnoise(X * s, Y * s) + 0.3 * vnoise(X * s * 2.4 + 17.3, Y * s * 2.4 + 5.1) + 0.2 * vnoise(X * s * 5.3 + 3.7, Y * s * 5.3 + 11.9);
+  const v = 0.78 * n + 0.22 * vnoise(X / (pxmm * 0.4) + 31.7, Y / (pxmm * 0.4) + 7.3);
+  if (v < 0.16 + 0.3 * t) return true;
+  // grietas: celdas deformadas con ruido (no un panal parejo) y solo en parches
+  if (vnoise(X / (pxmm * 11) + 51.3, Y / (pxmm * 11) + 9.7) < 0.78 - 0.42 * t) return false;
+  const cs = pxmm * 6.5, wx = (vnoise(X / (pxmm * 2.6) + 7.1, Y / (pxmm * 2.6)) - 0.5) * 0.7, wy = (vnoise(X / (pxmm * 2.6), Y / (pxmm * 2.6) + 3.3) - 0.5) * 0.7;
+  const cx = X / cs + wx, cy = Y / cs + wy, ix = Math.floor(cx), iy = Math.floor(cy);
+  let f1 = 9, f2 = 9;
+  for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+    const gx = ix + i, gy = iy + j, dx = gx + hash2(gx, gy * 7 + 3) - cx, dy = gy + hash2(gx * 13 + 5, gy) - cy, d = dx * dx + dy * dy;
+    if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return (Math.sqrt(f2) - Math.sqrt(f1)) * cs < (0.08 + 0.2 * t) * pxmm;
+}
+// Desenfoque rápido: dos pasadas de caja por eje (casi gaussiano). a: Float32Array de w × h; r en px
+function blur2(a, w, h, r) {
+  r = Math.max(1, Math.round(r)); const k = 1 / (2 * r + 1); let s = a, d = new Float32Array(a.length), e = new Float32Array(a.length);
+  for (let pass = 0; pass < 2; pass++) {
+    for (let y = 0; y < h; y++) {
+      const o = y * w; let acc = 0;
+      for (let x = -r; x <= r; x++) acc += s[o + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x++) { d[o + x] = acc * k; acc += s[o + Math.min(w - 1, x + r + 1)] - s[o + Math.max(0, x - r)]; }
+    }
+    for (let x = 0; x < w; x++) {
+      let acc = 0;
+      for (let y = -r; y <= r; y++) acc += d[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y++) { e[y * w + x] = acc * k; acc += d[Math.min(h - 1, y + r + 1) * w + x] - d[Math.max(0, y - r) * w + x]; }
+    }
+    if (pass === 0) { s = e; e = new Float32Array(a.length); }
+  }
+  return e;
+}
+// Simula el acabado sobre un RGBA (vista previa y botones; nunca va al PNG).
+// o: { f, t (0..1), x0, y0, step, pxmm (px del archivo por mm), W, H (archivo en px), lx, ly (de dónde viene la luz, -1..1) }
+function finishSim(buf, w, h, o) {
+  const f = o.f, t = o.t; if (f === 'mate' || f === 'vintage' || !(t > 0)) return;
+  const n = w * h, A = new Float32Array(n), vmm = o.pxmm / o.step;
+  for (let i = 0; i < n; i++) A[i] = buf[i * 4 + 3] / 255;
+  const rad = Math.min(48, Math.max(1, (f === 'puff' ? 0.5 + 1.6 * t : 0.18) * vmm)); // relieve: borde de la película, o domo del puff
+  const Hh = blur2(A, w, h, rad), kb = Math.round(rad) * (f === 'puff' ? 0.8 + 1.7 * t : 0.6);
+  let lx = o.lx, ly = o.ly, lz = 0.75; { const l = Math.hypot(lx, ly, lz); lx /= l; ly /= l; lz /= l; }
+  let hx = lx, hy = ly, hz = lz + 1; { const l = Math.hypot(hx, hy, hz); hx /= l; hy /= l; hz /= l; }
+  const sw = o.W * 0.55 + o.H, cs = 0.45 * o.pxmm, nz0 = o.pxmm * 9;
+  const hv = (hh, k) => { const q = (k + hh * 6) % 6; return 1 - 0.7 * Math.max(0, Math.min(q, 4 - q, 1)); };
+  for (let y = 0; y < h; y++) {
+    const Y = o.y0 + (y + 0.5) * o.step, ym = (y > 0 ? y - 1 : y) * w, yp = (y < h - 1 ? y + 1 : y) * w;
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x, q = i * 4; if (!buf[q + 3]) continue;
+      const X = o.x0 + (x + 0.5) * o.step, xm = x > 0 ? x - 1 : x, xp = x < w - 1 ? x + 1 : x;
+      let nx = -(Hh[y * w + xp] - Hh[y * w + xm]) * kb, ny = -(Hh[yp + x] - Hh[ym + x]) * kb, nz = 1;
+      { const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l; }
+      const shade = nx * lx + ny * ly + nz * lz - lz, ndh = Math.max(0, nx * hx + ny * hy + nz * hz);
+      let r = buf[q] / 255, g = buf[q + 1] / 255, b = buf[q + 2] / 255;
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b, s = (X * 0.55 + Y) / sw - lx * 0.18 - ly * 0.1;
+      let R = r, G = g, B = b;
+      if (f === 'brillo') {
+        const band = Math.exp(-(((s - 0.3) / 0.08) ** 2)) + 0.6 * Math.exp(-(((s - 0.58) / 0.03) ** 2)), gl = t * (0.7 * band + 1.1 * ndh ** 70), sat = 1 + 0.25 * t, sh = 1 + 0.45 * shade;
+        R = (lum + (r - lum) * sat) * sh; G = (lum + (g - lum) * sat) * sh; B = (lum + (b - lum) * sat) * sh;
+        R += (1 - R) * gl; G += (1 - G) * gl; B += (1 - B) * gl;
+      } else if (f === 'metal') {
+        const env = 0.5 + 0.5 * Math.sin(6.2832 * (s * 2.2 + nx * 0.35 + ny * 0.2)), m = 0.2 + 1.3 * env * env, hi = 0.5 * ndh ** 28 + 0.3 * env ** 8, sh = 1 + 0.3 * shade;
+        const mix = (c) => { const c2 = c ** 0.75; return c * sh + (c2 * m + hi * (0.5 + 0.5 * c2) - c * sh) * t; };
+        R = mix(r); G = mix(g); B = mix(b);
+      } else if (f === 'glitter') {
+        const gx = Math.floor(X / cs), gy = Math.floor(Y / cs), r1 = hash2(gx, gy), r2 = hash2(gx + 101, gy + 57);
+        const sp = r1 > 0.88 ? ((r1 - 0.88) / 0.12) ** 2 * (0.55 + 0.45 * Math.sin(r2 * 40 + lx * 9 + ly * 6)) : 0;
+        const k = (1 + 0.3 * shade) * (1 + (0.65 + 0.7 * r2 - 1) * t), add = t * (0.07 + 1.4 * sp);
+        R = r * k + add; G = g * k + add; B = b * k + add;
+      } else if (f === 'holo') {
+        const hue = ((s * 3.4 + 0.12 * vnoise(X / nz0, Y / nz0) + nx * 0.4 + ny * 0.2 + lx * 0.3) % 1 + 1) % 1, k = 0.45 + 0.6 * lum, sp = 0.5 * ndh ** 40, sh = 1 + 0.3 * shade;
+        const fine = 0.06 * (hash2(Math.floor(X / cs), Math.floor(Y / cs)) - 0.5); // textura fina de la película
+        R = r * sh + ((r + (hv(hue, 5) * k - r) * 0.55 + sp + fine) - r * sh) * t;
+        G = g * sh + ((g + (hv(hue, 3) * k - g) * 0.55 + sp + fine) - g * sh) * t;
+        B = b * sh + ((b + (hv(hue, 1) * k - b) * 0.55 + sp + fine) - b * sh) * t;
+      } else if (f === 'puff') {
+        const sh = 1 + shade * (0.45 + 0.5 * t), sp = 0.1 * t * ndh ** 8;
+        R = r * sh + sp; G = g * sh + sp; B = b * sh + sp;
+      } else if (f === 'glow') {
+        const e = lum ** 0.7 * 1.3; // los claros brillan más; el negro no brilla
+        R = r + (r * 0.08 + 0.45 * e - r) * t; G = g + (g * 0.08 + e - g) * t; B = b + (b * 0.08 + 0.55 * e - b) * t;
+      }
+      buf[q] = Math.max(0, Math.min(1, R)) * 255; buf[q + 1] = Math.max(0, Math.min(1, G)) * 255; buf[q + 2] = Math.max(0, Math.min(1, B)) * 255;
+    }
+  }
+}
+// Mapa de alturas para el mockup 3D: R = borde de la película (poco desenfoque), G = domo del PUFF, B = tinta
+function heightMap(out, rw, rh, hm) {
+  const w = hm.w, h = hm.h, A = new Float32Array(w * h), C = new Float32Array(w * h);
+  for (let y = 0; y < rh; y++) { const ty = Math.min(h - 1, (y * h / rh) | 0); for (let x = 0; x < rw; x++) { const k = ty * w + Math.min(w - 1, (x * w / rw) | 0); A[k] += out[(y * rw + x) * 4 + 3]; C[k]++; } }
+  for (let i = 0; i < A.length; i++) A[i] = C[i] ? A[i] / C[i] / 255 : 0;
+  const e = blur2(A, w, h, hm.r1), d = blur2(A, w, h, hm.r2), res = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < w * h; i++) { res[i * 4] = e[i] * 255; res[i * 4 + 1] = d[i] * 255; res[i * 4 + 2] = A[i] * 255; res[i * 4 + 3] = 255; }
+  return res;
+}
 const workerSrc = `${spot.toString()}
 ${blueNoise.toString()}
-let S=null,SW=0,SH=0,BN=null,D=null; const LUT={}; const N=128;
-// CONTRAER: distancia (en px x8) de cada píxel visible al transparente más cercano (chaflán 8/11, dos pasadas)
-function distField(){
+${hash2.toString()}
+${vnoise.toString()}
+${wearAt.toString()}
+${blur2.toString()}
+${finishSim.toString()}
+${heightMap.toString()}
+let S=null,SW=0,SH=0,BN=null,D=null,DK=''; const LUT={}; const N=128;
+// Qué cuenta como "quitado" para CONTRAER: lo transparente (bajo el CORTE ALFA si se limpia) y lo que borra NEGRO/BLANCO.
+// Así también recorta el halo de un JPG o de un PNG que todavía tiene el fondo blanco (sin transparencia).
+function chokeKey(p){ const cl=p.mode==='clean'||p.mode==='both'; return (cl?p.alphaCut:50)+'|'+p.knock+'|'+p.black; }
+// CONTRAER: distancia (en px x8) de cada píxel que queda al píxel quitado más cercano (chaflán 8/11, dos pasadas)
+function distField(p){
   const n=SW*SH, d=new Uint16Array(n), INF=65535;
-  for(let i=0;i<n;i++) d[i]=S[i*4+3]>=128?INF:0;
+  const cl=p.mode==='clean'||p.mode==='both', athr=cl? p.alphaCut/100*255 : 128, lo=p.black/100, dark=p.knock==='dark';
+  for(let i=0,k=0;i<n;i++,k+=4){ const A=S[k+3]; if(A<athr){ d[i]=0; continue; }
+    const a=A/255, lum=(0.2126*S[k]+0.7152*S[k+1]+0.0722*S[k+2])/255;
+    d[i]=(dark? lum*a : (1-lum)*a)<lo? 0 : INF; }
   for(let y=0;y<SH;y++)for(let x=0;x<SW;x++){ const i=y*SW+x; let v=d[i]; if(!v)continue; let t;
     if(x>0){t=d[i-1]+8; if(t<v)v=t;}
     if(y>0){const j=i-SW; t=d[j]+8; if(t<v)v=t; if(x>0){t=d[j-1]+11; if(t<v)v=t;} if(x<SW-1){t=d[j+1]+11; if(t<v)v=t;}}
@@ -874,12 +1028,15 @@ function render(m){
   const out=new Uint8ClampedArray(rw*rh*4);
   if(!S) return out;
   const kx=SW/iw, ky=SH/ih;
-  const chk=kind!=='orig'&&p.mode!=='none'&&p.chokePx>0? p.chokePx*kx : 0; if(chk>0&&!D) D=distField();
+  const chk=kind!=='orig'&&p.mode!=='none'&&p.chokePx>0? p.chokePx*kx : 0;
+  if(chk>0){ const key=chokeKey(p); if(!D||DK!==key){ D=distField(p); DK=key; } }
   const cell=p.cell, ang=p.angle*Math.PI/180, cs=Math.cos(ang)/cell, sn=Math.sin(ang)/cell;
   const grain=p.shape==='grain'; const lut=grain?null:lutFor(p.shape); if(grain&&!BN) BN=blueNoise(64);
   const lo=p.black/100, hi=Math.max(p.solid/100,lo+0.01), span=hi-lo, gam=p.curve, inten=p.intensity/100;
   const cmin=p.cmin, cmax=1-p.cmin, acut=p.alphaCut/100;
   const dark=p.knock==='dark'; const sr=p.shirt[0]/255, sg=p.shirt[1]/255, sb=p.shirt[2]/255;
+  // ACABADO VINTAGE: quita tinta (manchas y grietas) y apaga un poco el color. Este sí va al PNG.
+  const vint=kind!=='orig'&&p.finish==='vintage'&&p.finAmt>0, wt=p.finAmt/100, fade=vint?0.18*wt:0, pxmm=300/25.4;
   let o=0;
   for(let j=0;j<rh;j++){
     const Y=ry+(j+0.5)*step; if(Y<iy||Y>=iy+ih){ o+=rw*4; continue; } let syp=(Y-iy)*ky-0.5; if(syp<0)syp=0; if(syp>SH-1)syp=SH-1;
@@ -891,10 +1048,12 @@ function render(m){
       const w00=(1-fx)*(1-fy),w01=fx*(1-fy),w10=(1-fx)*fy,w11=fx*fy;
       const A00=S[a00+3]*w00,A01=S[a01+3]*w01,A10=S[a10+3]*w10,A11=S[a11+3]*w11;
       const A=A00+A01+A10+A11; if(A<=0.5){continue;}
+      if(vint&&wearAt(X-ix,Y-iy,wt,pxmm)) continue;
       let r=(S[a00]*A00+S[a01]*A01+S[a10]*A10+S[a11]*A11)/A/255;
       let g=(S[a00+1]*A00+S[a01+1]*A01+S[a10+1]*A10+S[a11+1]*A11)/A/255;
       let b=(S[a00+2]*A00+S[a01+2]*A01+S[a10+2]*A10+S[a11+2]*A11)/A/255;
       let a=A/255;
+      if(fade){ const l=0.2126*r+0.7152*g+0.0722*b; r+=(l-r)*fade; g+=(l-g)*fade; b+=(l-b)*fade; }
       if(kind==='orig'||p.mode==='none'){ out[o]=r*255; out[o+1]=g*255; out[o+2]=b*255; out[o+3]=A; continue; }
       if(chk>0){ const f=(D[a00>>2]*w00+D[a01>>2]*w01+D[a10>>2]*w10+D[a11>>2]*w11)/8-chk; if(f<=0) continue; if(f<1) a*=f; }
       const lum=0.2126*r+0.7152*g+0.0722*b;
@@ -927,8 +1086,13 @@ function render(m){
 }
 onmessage=async(e)=>{ const m=e.data;
   try{
-    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; D=null; postMessage({type:'ok',id:m.id}); return; }
-    if(m.type==='render'){ const out=render(m); postMessage({type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh},[out.buffer]); return; }
+    if(m.type==='src'){ S=new Uint8ClampedArray(m.buf); SW=m.w; SH=m.h; D=null; DK=''; postMessage({type:'ok',id:m.id}); return; }
+    if(m.type==='render'){ const out=render(m);
+      // vista previa: simula el acabado (brillo, metal…) encima; el PNG no lo lleva
+      if(m.sim&&m.kind==='proc') finishSim(out,m.rw,m.rh,{f:m.p.finish,t:m.p.finAmt/100,x0:m.rx,y0:m.ry,step:m.step,pxmm:300/25.4,W:m.outW,H:m.outH,lx:-0.55,ly:-0.7});
+      const msg={type:'img',id:m.id,buf:out.buffer,w:m.rw,h:m.rh}, tr=[out.buffer];
+      if(m.hmap){ const hb=heightMap(out,m.rw,m.rh,m.hmap); msg.hbuf=hb.buffer; msg.hw=m.hmap.w; msg.hh=m.hmap.h; tr.push(hb.buffer); }
+      postMessage(msg,tr); return; }
     if(m.type==='export'){
       const out=render(m);
       if(typeof OffscreenCanvas!=='undefined'){
@@ -957,7 +1121,7 @@ async function setSource(img) {
   await wcall({ type: 'src', buf: img.data.slice().buffer, w: img.w, h: img.h });
   $('#empty').hidden = true;
   $('#btnExport').disabled = false;
-  syncModeUI(); syncUpUI(); updateInfo(); view.z = null; view.cx = null; draw(); scheduleRender();
+  syncModeUI(); syncUpUI(); updateInfo(); syncFinishUI(); view.z = null; view.cx = null; draw(); scheduleRender();
 }
 function semiPct(d) { let semi = 0, vis = 0; for (let i = 3; i < d.length; i += 16) { const a = d[i]; if (a > 0) { vis++; if (a < 255) semi++; } } return vis ? semi / vis * 100 : 0; }
 async function loadFile(file) {
@@ -1029,6 +1193,15 @@ function applyPreset() {
   }
   syncSizeUI(); updateInfo(); syncSizeInputs(true); view.cx = null; scheduleRender();
 }
+// ANCHO manda: si un ALTO fijo con AJUSTAR ya no deja crecer el diseño a lo ancho, el ALTO pasa a AUTO
+// (antes la perilla subía el número y el diseño se quedaba quieto, por ejemplo en 30 cm con 30 × 40)
+function widthChanged() {
+  if (SRC && P.heightCm && P.fit === 'fit' && P.widthCm * SRC.h / SRC.w > P.heightCm * 1.0005) {
+    P.heightCm = 0; syncSizeInputs(true);
+    toast(`El ALTO pasó a AUTO para que el diseño siga creciendo: ahora mide ${fmtPair(P.widthCm, P.widthCm * SRC.h / SRC.w)}.`, 3200);
+  }
+  sizeChanged();
+}
 // Cambio manual de medidas: deja de ser una talla estándar y queda LIBRE
 function sizeChanged() {
   if (P.use) { P.use = ''; swUse.sync(); }
@@ -1076,6 +1249,8 @@ function computeAlerts() {
   if (P.semiOn && P.minDot < 0.2) add('a', 'PUNTOS MUY FINOS', `PUNTO MÍN en ${P.minDot.toFixed(2).replace('.', ',')} mm: los puntos menores a 0,20 mm se suelen despegar al lavar.`);
   if (procMode() === 'none' && SRC.semi >= 0.5) add('a', 'CONSERVA SEMITRANSPARENCIAS', `Con LIMPIAR y SEMITONO apagados, el ${nf0.format(SRC.semi)}% de la imagen queda semitransparente: en DTF puede salir con velo blanco o despegarse.`);
   if (o.w * o.h > 80e6) add('a', 'ARCHIVO MUY GRANDE', `${o.w} × ${o.h} px: puede tardar mucho o fallar al grabar.`);
+  if (P.finish === 'puff' && P.semiOn) add('a', 'PUFF CON SEMITONO', 'El puff casi no se levanta en puntos pequeños. Para buen relieve usa solo LIMPIAR (formas sólidas) o baja el LPI.');
+  if (P.finish === 'vintage' && P.finishAmt > 0) add('i', 'VINTAGE CAMBIA EL ARCHIVO', `El desgaste (${P.finishAmt}%) quita tinta del PNG. Para grabarlo limpio, pon el ACABADO en MATE.`);
   if (!A.some(a => a.lvl === 'r' || a.lvl === 'a')) A.unshift({ lvl: 'g', title: 'LISTO PARA IMPRIMIR', text: `${fmtPair(o.wcm, o.hcm)} a ${nf0.format(ppi)} ppp reales.` });
   return A;
 }
@@ -1100,7 +1275,7 @@ function params() {
     : (sh === 'square' || sh === 'diamond') ? (d * d) / (cell * cell) : Math.PI * (d / 2) ** 2 / (cell * cell);
   cmin = clamp(cmin, 0, 0.45);
   const sc = hexToRgb(P.shirt);
-  return { mode: procMode(), knock: P.knock, shape: P.shape, grain: Math.max(2, Math.round(d)), cell, angle: P.angle, cmin, black: P.black, solid: P.solid, curve: P.curve, intensity: P.intensity, alphaCut: P.alphaCut, chokePx: P.choke / 25.4 * DPI, shirt: sc };
+  return { mode: procMode(), knock: P.knock, shape: P.shape, grain: Math.max(2, Math.round(d)), cell, angle: P.angle, cmin, black: P.black, solid: P.solid, curve: P.curve, intensity: P.intensity, alphaCut: P.alphaCut, chokePx: P.choke / 25.4 * DPI, shirt: sc, finish: P.finish, finAmt: P.finishAmt };
 }
 // Qué procesos están prendidos: both (limpiar + semitono) | semi | clean | none
 function procMode() { return P.cleanOn ? (P.semiOn ? 'both' : 'clean') : (P.semiOn ? 'semi' : 'none'); }
@@ -1165,7 +1340,7 @@ function applySizeInput(which) {
   const cm = toCm(P.unit, v), max = which === 'w' ? 56 : 100, lim = clamp(cm, 3, max);
   if (lim !== cm) toast(cm < 3 ? 'El mínimo es 3 cm.' : which === 'w' ? 'El rollo de 58 cm imprime hasta 56 cm de ancho.' : 'El alto máximo es 100 cm.');
   const key = which === 'w' ? 'widthCm' : 'heightCm';
-  if (Math.abs(lim - P[key]) > 1e-6) { P[key] = +lim.toFixed(5); sizeChanged(); }
+  if (Math.abs(lim - P[key]) > 1e-6) { P[key] = +lim.toFixed(5); which === 'w' ? widthChanged() : sizeChanged(); }
   syncSizeInputs(true);
 }
 function updateInfo() {
@@ -1240,7 +1415,7 @@ async function doRender() {
   const job = { x0, y0, rw, rh, ow: rw * step, oh: rh * step, approx: step > 1.5 };
   showBusy('PROCESANDO…');
   const base = { type: 'render', outW: o.w, outH: o.h, ix: o.ix, iy: o.iy, iw: o.iw, ih: o.ih, rx: x0, ry: y0, rw, rh, step, approx: job.approx, p };
-  const tasks = [wcall({ ...base, kind: 'proc' })];
+  const tasks = [wcall({ ...base, kind: 'proc', sim: true })];
   if (P.compare) tasks.push(wcall({ ...base, kind: 'orig' }));
   let res;
   try { res = await Promise.all(tasks); } catch (e) { console.error(e); hideBusy(); return; }
@@ -1625,8 +1800,8 @@ makeKnob($('#kTono'), { key: 'solid', label: 'SÓLIDO', min: 50, max: 100, step:
 makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 0.05, def: 1, fmt: v => v.toFixed(2), onChange: rr, help: 'Más de 1 = puntos más pequeños en medios tonos' });
 makeKnob($('#kTono'), { key: 'intensity', label: 'INTENSIDAD', min: 0, max: 100, step: 1, def: 50, fmt: v => v + '%', onChange: rr, help: 'Aviva el color de los puntos para compensar la trama' });
 makeKnob($('#kLimpia'), { key: 'alphaCut', label: 'CORTE ALFA', min: 1, max: 99, step: 1, def: 55, fmt: v => v + '%', onChange: rr, help: 'LIMPIAR: por debajo de esta opacidad se vuelve transparente' });
-makeKnob($('#kLimpia'), { key: 'choke', label: 'CONTRAER', min: 0, max: 1, step: 0.05, def: 0, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Recorta el borde hacia adentro: quita la película o halo blanco del contorno' });
-makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: sizeChanged });
+makeKnob($('#kLimpia'), { key: 'choke', label: 'CONTRAER', min: 0, max: 1, step: 0.05, def: 0, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Recorta hacia adentro los bordes junto a lo que se quita (fondo o lo que borra NEGRO/BLANCO): quita el halo blanco' });
+makeKnob($('#kOut'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), onChange: widthChanged });
 const kOutInfo = document.createElement('div'); kOutInfo.style.gridColumn = '2 / -1'; kOutInfo.style.alignSelf = 'center';
 kOutInfo.innerHTML = `<div class="sizes">
   <label class="fld"><span class="swlabel">ANCHO</span><span class="inp"><input id="inW" type="text" inputmode="decimal" autocomplete="off"><em class="unitTxt">cm</em></span></label>
@@ -1656,11 +1831,12 @@ function syncModeUI() {
   const grain = P.shape === 'grain';
   ['minDot', 'solid', 'curve', 'intensity'].forEach(k => knobs[k].disable(!semi));
   ['lpi', 'angle'].forEach(k => knobs[k].disable(!semi || grain));
-  knobs.alphaCut.disable(!clean);
+  const opaque = !!SRC && SRC.semi < 0.01; // sin semitransparencias (JPG, o PNG sin bordes suaves): CORTE ALFA no tiene nada que cortar
+  knobs.alphaCut.disable(!clean || opaque);
   knobs.black.disable(!semi && !clean);
   knobs.choke.disable(!semi && !clean);
   $('#swKnock').querySelectorAll('button').forEach(b => b.disabled = !semi && !clean);
-  $('#modeNote').textContent = MODE_NOTES[procMode()];
+  $('#modeNote').textContent = MODE_NOTES[procMode()] + (clean && opaque ? ' Tu imagen no tiene semitransparencias, así que CORTE ALFA no cambia nada: para quitar el halo blanco sube CONTRAER.' : '');
   $('#swShape').querySelectorAll('button').forEach(b => b.disabled = !semi);
   $('#cellInfo').textContent = semi && !grain ? (25.4 / P.lpi).toFixed(2) + ' mm' : '—';
 }
@@ -1700,8 +1876,8 @@ buildShirts();
 /* =========================================================
    Deshacer / Rehacer
    ========================================================= */
-const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'choke', 'use', 'talla', 'widthCm', 'heightCm', 'fit', 'shirt'];
-const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', use: 'USO', talla: 'TALLA', widthCm: 'ANCHO', heightCm: 'ALTO', fit: 'ACOMODAR', shirt: 'CAMISETA' };
+const HKEYS = ['cleanOn', 'semiOn', 'knock', 'shape', 'lpi', 'angle', 'minDot', 'black', 'solid', 'curve', 'intensity', 'alphaCut', 'choke', 'finish', 'finishAmt', 'use', 'talla', 'widthCm', 'heightCm', 'fit', 'shirt'];
+const HNAMES = { cleanOn: 'LIMPIAR', semiOn: 'SEMITONO', knock: 'QUITAR', shape: 'FORMA', lpi: 'LPI', angle: 'ÁNGULO', minDot: 'PUNTO MÍN', black: 'NEGRO/BLANCO', solid: 'SÓLIDO', curve: 'CURVA', intensity: 'INTENSIDAD', alphaCut: 'CORTE ALFA', choke: 'CONTRAER', finish: 'ACABADO', finishAmt: 'CANTIDAD', use: 'USO', talla: 'TALLA', widthCm: 'ANCHO', heightCm: 'ALTO', fit: 'ACOMODAR', shirt: 'CAMISETA' };
 const hist = { stack: [], i: -1 };
 let commitT = null, applying = false;
 function snap() { const p = {}; HKEYS.forEach(k => p[k] = P[k]); return { p, src: SRC }; }
@@ -1729,7 +1905,7 @@ async function applySnap(s, from, verb) {
   applying = true;
   try {
     for (const k of HKEYS) { P[k] = s.p[k]; if (knobs[k]) knobs[k].show(); }
-    swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); swUse.sync(); swTalla.sync(); swFit.sync(); syncModeUI(); syncKnockLabel(); syncSizeUI(); syncSizeInputs(true);
+    swClean.sync(); swSemi.sync(); swKnock.sync(); swShape.sync(); swUse.sync(); swTalla.sync(); swFit.sync(); syncModeUI(); syncKnockLabel(); syncSizeUI(); syncSizeInputs(true); syncFinishUI();
     scr.style.setProperty('--shirt', P.shirt); buildShirts();
     store.set('tramaluz.p', JSON.stringify(P));
     if (s.src !== SRC && s.src) { await setSource(s.src); $('#upNote').textContent = `Imagen de ${SRC.w} × ${SRC.h} px.`; $('#upMeter i').style.width = '0%'; }
@@ -1786,7 +1962,7 @@ function mkSave() { store.set('tramaluz.mk', JSON.stringify({ prod: MK.prod, lad
 var mkWidthKnob = null; // var a propósito: updateInfo() la revisa desde antes de que se cree
 let V3 = null, mkReady = null, mkOpener = null, mkSeq = 0, mkT = null, mkHintT = null;
 const MK_COARSE = matchMedia('(pointer: coarse)').matches;
-const MK_TEX = MK_COARSE ? 1536 : 2048; // lado máximo de las texturas del diseño (en celular, menos memoria)
+const MK_TEX = MK_COARSE ? 1536 : 2048; // lado máximo de las texturas del GLB (en celular, menos memoria)
 function mkIsOpen() { return !$('#mkModal').hidden; }
 function mkBusy(t) { const b = $('#mkBusy'); b.textContent = t; b.hidden = false; }
 function mkIdle() { $('#mkBusy').hidden = true; }
@@ -1813,11 +1989,13 @@ async function mkInit() {
     renderer.outputColorSpace = T.SRGBColorSpace; renderer.setClearColor(0x000000, 0);
     stage.prepend(renderer.domElement);
     const scene = new T.Scene(), camera = new T.PerspectiveCamera(28, 1, 0.02, 30);
-    scene.add(new T.HemisphereLight(0xfffaf0, 0x7d6f5c, 1.5));
+    const hemi = new T.HemisphereLight(0xfffaf0, 0x7d6f5c, 0.9); scene.add(hemi);
     // Luces pegadas a la cámara: el lado que miras siempre queda bien iluminado
     const key = new T.DirectionalLight(0xffffff, 2.1); key.position.set(1.1, 1.5, 1); camera.add(key);
     const fill = new T.DirectionalLight(0xfff0dc, 0.5); fill.position.set(-1.6, 0.2, 0.4); camera.add(fill);
     scene.add(camera);
+    // Reflejos: un estudio pintado en un canvas (three.js lo prepara solo). Da el brillo, el metal y el glitter.
+    scene.environment = mkEnvTexture(T); scene.environmentIntensity = 0.8;
     // Sombra suave en el piso: una textura, sin cálculo de sombras (rápido en cualquier equipo)
     const sc = document.createElement('canvas'); sc.width = sc.height = 128;
     const sx = sc.getContext('2d'), gr = sx.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -1829,7 +2007,12 @@ async function mkInit() {
     const controls = new T.OrbitControls(camera, renderer.domElement);
     controls.enablePan = false; controls.enableDamping = false; controls.rotateSpeed = 0.9; controls.zoomSpeed = 0.9;
     controls.minPolarAngle = 0.12 * Math.PI; controls.maxPolarAngle = 0.6 * Math.PI;
-    const V = { T, renderer, scene, camera, controls, shadow, stage, loader: new T.GLTFLoader(), prods: {}, cur: null, design: null, raf: 0, last: 0, slow: 0, tween: null, tok: 0 };
+    const V = { T, renderer, scene, camera, controls, shadow, stage, loader: new T.GLTFLoader(), prods: {}, cur: null, design: null, raf: 0, last: 0, slow: 0, tween: null, tok: 0,
+      hemi, key, fill, L0: { hemi: hemi.intensity, key: key.intensity, fill: fill.intensity, env: scene.environmentIntensity },
+      // El diseño va en su propia textura (no en la de toda la prenda): así se ven los puntos del semitono
+      texMax: Math.min(renderer.capabilities.maxTextureSize || 4096, MK_COARSE ? 2048 : 4096), hgtMax: MK_COARSE ? 1024 : 2048,
+      aniso: Math.min(8, renderer.capabilities.getMaxAnisotropy()) };
+    V.desTex = mkTex(T, document.createElement('canvas'), true, V.aniso); V.hgtTex = mkTex(T, document.createElement('canvas'), false, V.aniso);
     V.req = () => { if (!V.raf && mkIsOpen()) V.raf = requestAnimationFrame(mkFrame); };
     controls.addEventListener('change', V.req);
     controls.addEventListener('start', () => { $('#mkHint').classList.add('off'); V.tween = null; });
@@ -1838,7 +2021,7 @@ async function mkInit() {
     renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); mkFail(new Error('lost')); });
     renderer.domElement.addEventListener('webglcontextrestored', () => {
       $('#mkMsg').hidden = true;
-      for (const o of Object.values(V.prods)) for (const pc of Object.values(o.prints)) pc.tex.needsUpdate = true;
+      for (const t of [V.desTex, V.hgtTex, V.scene.environment]) if (t) t.needsUpdate = true;
       V.req();
     });
     V3 = V; return V;
@@ -1866,22 +2049,125 @@ function mkFrame(t) {
 }
 function mkSetCam(r, phi, th) { const c = V3.camera; c.position.setFromSphericalCoords(r, phi, th); c.lookAt(0, 0, 0); V3.controls.update(); }
 function mkSide(o) { const L = o.info.lados || {}; return L[MK.lado] || L.frente || Object.values(L)[0] || { mat: '', cx: 0, cy: 0 }; }
-function mkGloss(prod, name) {
-  if (name === 'tapa') return { color: 0x262626, shininess: 60, specular: 0x3a3a3a };
-  if (name === 'puntera') return { color: 0xc9c9c9, shininess: 80, specular: 0x777777 };
-  if (prod === 'taza') return { shininess: 90, specular: 0x555555 };
-  if (prod === 'termo') return { shininess: 36, specular: 0x333333 };
-  return { shininess: 5, specular: 0x0d0d0d }; // tela
+// Material de cada pieza (PBR): qué tan áspera (roughness) y qué tan metálica
+function mkMatOpt(prod, name) {
+  if (name === 'tapa') return { color: 0x262626, roughness: 0.45, metalness: 0 };
+  if (name === 'puntera') return { color: 0xc9c9c9, roughness: 0.3, metalness: 0.9 };
+  if (prod === 'taza') return { roughness: 0.14, metalness: 0 };
+  if (prod === 'termo') return { roughness: 0.38, metalness: 0.15 };
+  return { roughness: 0.92, metalness: 0 }; // tela
 }
+// Textura desde un canvas. color: el diseño (sRGB, premultiplicado para que el borde no se oscurezca); si no, datos (alturas)
+function mkTex(T, canvas, color, aniso) {
+  if (!canvas.width) { canvas.width = canvas.height = 2; }
+  const t = new T.CanvasTexture(canvas); t.flipY = false; t.anisotropy = aniso;
+  if (color) { t.colorSpace = T.SRGBColorSpace; t.premultiplyAlpha = true; }
+  return t;
+}
+// Estudio para los reflejos: cielo claro, piso oscuro y dos ventanas de luz (mapa equirectangular)
+function mkEnvTexture(T) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#fffdf8'); g.addColorStop(0.4, '#ddd3c2'); g.addColorStop(0.5, '#9f927c'); g.addColorStop(0.6, '#584e41'); g.addColorStop(1, '#201a14');
+  x.fillStyle = g; x.fillRect(0, 0, 512, 256);
+  const box = (cx, cy, w, h, a) => { x.save(); x.translate(cx, cy); x.scale(w, h); const r = x.createRadialGradient(0, 0, 0, 0, 0, 1); r.addColorStop(0, `rgba(255,255,255,${a})`); r.addColorStop(0.55, `rgba(255,255,255,${a * 0.85})`); r.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = r; x.fillRect(-1, -1, 2, 2); x.restore(); };
+  // Ventanas de luz adelante y atrás (x = 384 y 128 son +Z y −Z), un poco bajo el horizonte: ahí cae el reflejo de una
+  // prenda vista de frente y un poco desde arriba, así el metal se ve claro. Tiras a los lados (franjas al girar) y luz arriba.
+  box(384, 128, 84, 30, 1); box(128, 128, 84, 30, 0.9); box(384, 80, 50, 22, 0.7);
+  box(256, 110, 12, 60, 0.8); box(0, 110, 12, 60, 0.8); box(512, 110, 12, 60, 0.8);
+  box(300, 20, 200, 18, 0.5);
+  const t = new T.CanvasTexture(c); t.mapping = 303; t.colorSpace = T.SRGBColorSpace; return t; // 303 = EquirectangularReflectionMapping
+}
+// La tela casi no refleja: se le baja el reflejo (si no, el negro se ve gris). Así el entorno puede ser fuerte para
+// que brillen el metal y el glitter del diseño, sin aclarar la prenda.
+const MK_FAB_SPEC = 0.3;
 // En la tela se ve el revés (por el cuello, el ruedo y las mangas): se pinta más oscuro que el derecho
-function mkInsideTint(mat) {
-  mat.userData.inner = { value: new V3.T.Color(0x333333) };
+function mkFabric(mat, specK) {
+  mat.userData.inner = { value: new V3.T.Color(0x333333) }; const k = { value: specK };
   mat.onBeforeCompile = sh => {
-    sh.uniforms.mkInner = mat.userData.inner;
-    sh.fragmentShader = 'uniform vec3 mkInner;\n' + sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n\tif ( ! gl_FrontFacing ) diffuseColor.rgb = mkInner;');
+    sh.uniforms.mkInner = mat.userData.inner; sh.uniforms.mkSpecK = k;
+    sh.fragmentShader = 'uniform vec3 mkInner;\nuniform float mkSpecK;\n' + sh.fragmentShader
+      .replace('#include <map_fragment>', '#include <map_fragment>\n#ifdef DOUBLE_SIDED\n\tif ( ! gl_FrontFacing ) diffuseColor.rgb = mkInner;\n#endif')
+      .replace('#include <aomap_fragment>', '#include <aomap_fragment>\n\treflectedLight.directSpecular *= mkSpecK; reflectedLight.indirectSpecular *= mkSpecK;');
   };
 }
-// Prepara un modelo recién cargado: materiales propios y un lienzo (canvas) por zona de impresión
+// Zona de impresión: la tela (o la cerámica) y encima el diseño, con su acabado. El diseño es una textura aparte que se
+// ubica con mkRect (en unidades del lienzo, 0..1): así no se pinta toda la prenda y el diseño conserva su resolución.
+const MK_DECL = `
+uniform float mkOn; uniform vec4 mkRect; uniform float mkWrap; uniform int mkFin; uniform float mkAmt; uniform vec2 mkSize; uniform sampler2D mkHgt; uniform vec3 mkInner; uniform float mkSpecK;
+vec3 mkBump( vec3 pos, vec3 n, float hgt ) { // relieve con la altura en metros (no depende del zoom)
+  vec3 dpx = dFdx( pos ), dpy = dFdy( pos ); float dhx = dFdx( hgt ), dhy = dFdy( hgt );
+  vec3 r1 = cross( dpy, n ), r2 = cross( n, dpx ); float det = dot( dpx, r1 );
+  if ( abs( det ) < 1e-20 ) return n;
+  return normalize( abs( det ) * n - sign( det ) * ( dhx * r1 + dhy * r2 ) );
+}
+vec3 mkHash3( vec2 p ) { return fract( sin( vec3( dot( p, vec2( 127.1, 311.7 ) ), dot( p, vec2( 269.5, 183.3 ) ), dot( p, vec2( 419.2, 371.9 ) ) ) ) * 43758.5453 ); }
+vec3 mkHue( float h ) { return clamp( abs( mod( h * 6.0 + vec3( 0.0, 4.0, 2.0 ), 6.0 ) - 3.0 ) - 1.0, 0.0, 1.0 ); }
+float mkNoise( vec2 p ) { vec2 i = floor( p ), f = fract( p ); f = f * f * ( 3.0 - 2.0 * f );
+  return mix( mix( mkHash3( i ).x, mkHash3( i + vec2( 1.0, 0.0 ) ).x, f.x ), mix( mkHash3( i + vec2( 0.0, 1.0 ) ).x, mkHash3( i + vec2( 1.0, 1.0 ) ).x, f.x ), f.y ); }
+`;
+const MK_MAP = `
+vec3 mkBase = diffuseColor.rgb; float mkA = 0.0, mkIn = 0.0, mkHt = 0.0; vec3 mkCol = vec3( 0.0 ); vec2 mkUv = vec2( 0.0 );
+#ifdef USE_MAP
+{
+  vec2 q = vMapUv - mkRect.xy; if ( mkWrap > 0.5 ) q.x = fract( q.x ); // taza y termo: el diseño da la vuelta
+  mkUv = q / mkRect.zw;
+  vec2 gx = dFdx( vMapUv ) / mkRect.zw, gy = dFdy( vMapUv ) / mkRect.zw;
+  mkIn = mkOn * step( 0.0, mkUv.x ) * step( mkUv.x, 1.0 ) * step( 0.0, mkUv.y ) * step( mkUv.y, 1.0 );
+  vec2 cu = clamp( mkUv, 0.0, 1.0 );
+  vec4 d = textureGrad( map, cu, gx, gy ) * mkIn; // premultiplicado
+  vec4 hh = textureGrad( mkHgt, cu, gx, gy ) * mkIn;
+  mkA = d.a; mkCol = mkA > 0.002 ? d.rgb / mkA : vec3( 0.0 );
+  diffuseColor.rgb = mkBase * ( 1.0 - mkA ) + d.rgb;
+  // relieve en metros: el borde de la película (0,08 mm) y, en PUFF, un domo (algo exagerado para que se note de lejos)
+  mkHt = hh.r * 0.00008 + ( mkFin == 5 ? hh.g * mkAmt * 0.0035 : 0.0 );
+  // brillante, metalizado y holograma: la película sigue las ondas de la tela; así el reflejo cambia de un punto a otro
+  if ( mkFin == 1 || mkFin == 2 || mkFin == 4 ) { vec2 pc = mkUv * mkSize; mkHt += ( mkNoise( pc / 3.2 ) * 0.7 + mkNoise( pc / 1.3 + 7.3 ) * 0.3 ) * hh.g * 0.001 * mkAmt; }
+}
+#endif
+#ifdef DOUBLE_SIDED
+if ( ! gl_FrontFacing ) { diffuseColor.rgb = mkInner; mkA = 0.0; mkIn = 0.0; mkHt = 0.0; }
+#endif
+`;
+const MK_FIN = `
+normal = mkBump( - vViewPosition, normal, mkHt );
+if ( mkA > 0.0 ) {
+  vec3 col = mkCol, V = normalize( vViewPosition ); float R = 0.5, M = 0.0;
+  float lum = dot( col, vec3( 0.2126, 0.7152, 0.0722 ) );
+  if ( mkFin == 1 ) { R = mix( 0.45, 0.06, mkAmt ); } // brillante
+  else if ( mkFin == 2 ) { M = mkAmt; R = mix( 0.45, 0.16, mkAmt ); col = mix( col, pow( col, vec3( 0.6 ) ), mkAmt ); } // metalizado
+  else if ( mkFin == 3 ) { // glitter: escamas de 0,5 mm, cada una inclinada a su manera
+    vec3 tilt = mkHash3( floor( mkUv * mkSize / 0.05 ) ) * 2.0 - 1.0; tilt -= normal * dot( tilt, normal );
+    normal = normalize( normal + tilt * 0.9 * mkAmt );
+    M = 0.85 * mkAmt; R = mix( 0.45, 0.2, mkAmt ); col = mix( col, col * 0.75 + 0.18, 0.6 * mkAmt );
+  }
+  else if ( mkFin == 4 ) { // holograma: el tono cambia con el ángulo
+    float hue = fract( dot( normal, V ) * 2.2 + ( mkUv.x * 0.6 + mkUv.y ) * 1.4 );
+    col = mix( col, mkHue( hue ) * ( 0.45 + 0.55 * max( lum, 0.35 ) ), 0.75 * mkAmt ); M = 0.9 * mkAmt; R = mix( 0.45, 0.18, mkAmt );
+  }
+  else if ( mkFin == 5 ) { R = 0.85; col = mix( col, col * 0.85 + 0.1, 0.35 * mkAmt ); } // puff
+  else if ( mkFin == 6 ) { totalEmissiveRadiance += vec3( 0.45, 1.0, 0.52 ) * pow( lum, 0.9 ) * mkA * mkAmt * 1.4; } // glow
+  else if ( mkFin == 7 ) { R = 0.7; } // vintage
+  diffuseColor.rgb = mkBase * ( 1.0 - mkA ) + col * mkA;
+  roughnessFactor = mix( roughnessFactor, R, mkA );
+  metalnessFactor = mix( metalnessFactor, M, mkA );
+}
+`;
+function mkPrintMat(opt, side, lienzo, wrap) {
+  const V = V3, T = V.T;
+  const u = { mkOn: { value: 0 }, mkRect: { value: [0, 0, 1, 1] }, mkWrap: { value: wrap ? 1 : 0 }, mkFin: { value: 0 }, mkAmt: { value: 0 },
+    mkSize: { value: [30, 30] }, mkHgt: { value: V.hgtTex }, mkInner: { value: new T.Color(0x333333) }, mkSpecK: { value: opt.roughness > 0.8 ? MK_FAB_SPEC : 1 } };
+  const mat = new T.MeshStandardMaterial({ ...opt, side, map: V.desTex });
+  mat.userData.inner = u.mkInner;
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, u);
+    sh.fragmentShader = sh.fragmentShader.replace('void main() {', MK_DECL + '\nvoid main() {')
+      .replace('#include <map_fragment>', MK_MAP).replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + MK_FIN)
+      .replace('#include <aomap_fragment>', '#include <aomap_fragment>\n\t{ float k = mix( mkSpecK, 1.0, mkA ); reflectedLight.directSpecular *= k; reflectedLight.indirectSpecular *= k; }');
+  };
+  return { mat, u, lienzo, wrap };
+}
+// Prepara un modelo recién cargado: materiales propios y un material de impresión por zona
 function mkPrepare(prod, g) {
   const V = V3, T = V.T, root = new T.Group(), model = g.scene;
   root.add(model);
@@ -1889,26 +2175,18 @@ function mkPrepare(prod, g) {
   const prints = {}, mats = [];
   model.traverse(m => {
     if (!m.isMesh) return;
-    const src = m.material, name = src.name || '', lz = src.userData && src.userData.lienzo, opt = mkGloss(prod, name);
+    const src = m.material, name = src.name || '', lz = src.userData && src.userData.lienzo, opt = mkMatOpt(prod, name);
+    let mat;
     if (name.startsWith('print') && lz) {
-      let pc = prints[name];
-      if (!pc) {
-        const k = Math.min(MK_TEX / lz[0], MK_TEX / lz[1]), c = document.createElement('canvas');
-        c.width = Math.max(8, Math.round(lz[0] * k)); c.height = Math.max(8, Math.round(lz[1] * k));
-        const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace; tex.flipY = false;
-        tex.anisotropy = Math.min(4, V.renderer.capabilities.getMaxAnisotropy());
-        pc = prints[name] = { canvas: c, ctx: c.getContext('2d'), tex, lienzo: lz, wrap: name === 'print' };
-      }
-      opt.map = pc.tex;
-    }
-    const mat = new T.MeshPhongMaterial({ ...opt, side: src.side });
-    mat.name = name; if (mat.side === T.DoubleSide) mkInsideTint(mat);
-    src.dispose(); m.material = mat; mats.push(mat);
+      if (!prints[name]) prints[name] = mkPrintMat(opt, src.side, lz, name === 'print');
+      mat = prints[name].mat;
+    } else { mat = new T.MeshStandardMaterial({ ...opt, side: src.side }); mkFabric(mat, opt.roughness > 0.8 ? MK_FAB_SPEC : 1); }
+    mat.name = name; if (mat !== src) src.dispose(); m.material = mat; if (!mats.includes(mat)) mats.push(mat);
   });
   // Centrado en el origen para que la cámara gire alrededor del producto. Al lado se centra en el cuerpo
   // (la zona de impresión), no en el total: así el asa de la taza no lo corre.
   const box = new T.Box3().setFromObject(model), body = new T.Box3();
-  model.traverse(m => { if (m.isMesh && m.material.map) body.expandByObject(m); });
+  model.traverse(m => { if (m.isMesh && m.material.name.startsWith('print')) body.expandByObject(m); });
   const c = box.getCenter(new T.Vector3()); if (!body.isEmpty()) { const b = body.getCenter(new T.Vector3()); c.x = b.x; c.z = b.z; }
   model.position.sub(c);
   const size = new T.Vector3(2 * Math.max(box.max.x - c.x, c.x - box.min.x), box.max.y - box.min.y, 2 * Math.max(box.max.z - c.z, c.z - box.min.z));
@@ -1934,7 +2212,7 @@ function mkColors() {
   const base = new V.T.Color(P.shirt);
   for (const m of o.mats) {
     const n = m.name;
-    if (n.startsWith('print')) m.color.setRGB(1, 1, 1);
+    if (n.startsWith('print')) m.color.copy(base);
     else if (n === 'rib') m.color.copy(base).multiplyScalar(0.86);
     else if (n === 'tela' || n === 'ceramica' || n === 'metal') m.color.copy(base);
     if (m.userData.inner) m.userData.inner.value.copy(base).multiplyScalar(0.4);
@@ -1961,14 +2239,22 @@ async function mkUpdateDesign() {
   const seq = ++mkSeq; let d = null;
   const side = mkSide(o), pc = o.prints[side.mat];
   if (SRC && pc) {
-    const out = outSize(), k = pc.canvas.width / pc.lienzo[0];
-    const want = clamp(Math.round(out.wcm * k), 32, 2048), step = Math.max(1, out.w / want);
-    const rw = Math.max(1, Math.round(out.w / step)), rh = Math.max(1, Math.round(out.h / step));
+    const out = outSize(), k = Math.min(1, V.texMax / out.w, V.texMax / out.h), step = 1 / k; // hasta 300 ppp
+    const rw = Math.max(1, Math.round(out.w * k)), rh = Math.max(1, Math.round(out.h * k));
+    const hk = Math.min(1, V.hgtMax / Math.max(rw, rh)), hw = Math.max(1, Math.round(rw * hk)), hh = Math.max(1, Math.round(rh * hk));
+    const pxmmH = hw / (out.wcm * 10); // px del mapa de alturas por mm
     mkBusy('PROCESANDO…');
     try {
-      const res = await wcall({ type: 'render', outW: out.w, outH: out.h, ix: out.ix, iy: out.iy, iw: out.iw, ih: out.ih, rx: 0, ry: 0, rw, rh, step, approx: step > 1.5, kind: 'proc', p: params() });
+      const res = await wcall({ type: 'render', outW: out.w, outH: out.h, ix: out.ix, iy: out.iy, iw: out.iw, ih: out.ih, rx: 0, ry: 0, rw, rh, step, approx: step > 1.5, kind: 'proc', p: params(),
+        hmap: { w: hw, h: hh, r1: Math.max(1, 0.25 * pxmmH), r2: Math.max(2, 3.5 * pxmmH) } });
       if (seq !== mkSeq) return;
-      const c = document.createElement('canvas'); putTo(c, res); d = { canvas: c, wcm: out.wcm, hcm: out.hcm };
+      const c = document.createElement('canvas'); putTo(c, res);
+      const hc = document.createElement('canvas'); putTo(hc, { buf: res.hbuf, w: res.hw, h: res.hh });
+      d = { canvas: c, wcm: out.wcm, hcm: out.hcm };
+      const T = V.T, old = [V.desTex, V.hgtTex];
+      V.desTex = mkTex(T, c, true, V.aniso); V.hgtTex = mkTex(T, hc, false, V.aniso);
+      for (const ob of Object.values(V.prods)) for (const p of Object.values(ob.prints)) { p.mat.map = V.desTex; p.u.mkHgt.value = V.hgtTex; }
+      old.forEach(t => t.dispose());
     } catch (e) { console.error(e); if (seq === mkSeq) toast('No se pudo procesar el diseño para el mockup.'); }
     finally { if (seq === mkSeq) mkIdle(); }
   }
@@ -1976,25 +2262,40 @@ async function mkUpdateDesign() {
   V.design = d; mkPaint(); mkInfo(); V.req();
 }
 function mkRefreshSoon(delay = 140) { clearTimeout(mkT); mkT = setTimeout(() => { if (mkIsOpen() && V3 && V3.cur) mkUpdateDesign(); }, delay); }
-// Pinta cada zona de impresión: el color de la tela y, en la ubicación elegida, el diseño a su tamaño real
+// Dónde va el diseño en el lienzo de esa zona (en cm): izquierda, arriba, ancho y alto
+function mkRectCm(side, d) {
+  const top = (side.top != null ? side.top : side.cy - d.hcm / 2) - MK.dy;
+  return [side.cx - d.wcm / 2, top, d.wcm, d.hcm];
+}
+// Ubica el diseño en la zona elegida y aplica el ACABADO (las otras zonas quedan solo con la tela)
 function mkPaint() {
   const V = V3, o = V && V.cur; if (!o) return;
-  const side = mkSide(o), d = V.design;
+  const side = mkSide(o), d = V.design, fin = FIN_ID[P.finish] || 0, amt = P.finishAmt / 100;
   for (const [name, pc] of Object.entries(o.prints)) {
-    const mine = !!d && side.mat === name;
-    if (!mine && pc.key === P.shirt) continue; // ya está pintada de ese color y sin diseño: no se vuelve a subir
-    pc.key = mine ? null : P.shirt;
-    const c = pc.canvas, x = pc.ctx, k = c.width / pc.lienzo[0];
-    x.fillStyle = P.shirt; x.fillRect(0, 0, c.width, c.height);
-    if (mine) {
-      const w = d.wcm * k, h = d.hcm * k, left = side.cx * k - w / 2;
-      const top = (side.top != null ? side.top * k : side.cy * k - h / 2) - MK.dy * k;
-      x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-      x.drawImage(d.canvas, left, top, w, h);
-      if (pc.wrap) { x.drawImage(d.canvas, left - c.width, top, w, h); x.drawImage(d.canvas, left + c.width, top, w, h); } // taza y termo: da la vuelta
+    const u = pc.u, on = !!d && side.mat === name;
+    u.mkOn.value = on ? 1 : 0; u.mkFin.value = fin; u.mkAmt.value = amt;
+    if (on) {
+      const [l, t, w, h] = mkRectCm(side, d), L = pc.lienzo, r = u.mkRect.value;
+      r[0] = l / L[0]; r[1] = t / L[1]; r[2] = w / L[0]; r[3] = h / L[1]; u.mkSize.value[0] = w; u.mkSize.value[1] = h;
     }
-    pc.tex.needsUpdate = true;
   }
+  // GLOW: la perilla apaga la luz para ver cómo brilla en la oscuridad
+  const night = P.finish === 'glow' ? amt : 0, k = 1 - 0.94 * night;
+  V.hemi.intensity = V.L0.hemi * k; V.key.intensity = V.L0.key * k; V.fill.intensity = V.L0.fill * k; V.scene.environmentIntensity = V.L0.env * k;
+  V.stage.style.setProperty('--night', (0.9 * night).toFixed(3));
+  V.req();
+}
+// Lienzo completo de una zona (tela + diseño), para el GLB
+function mkBake(o, name, pc) {
+  const V = V3, side = mkSide(o), d = V.design, L = pc.lienzo, k = Math.min(MK_TEX / L[0], MK_TEX / L[1]);
+  const c = document.createElement('canvas'); c.width = Math.max(8, Math.round(L[0] * k)); c.height = Math.max(8, Math.round(L[1] * k));
+  const x = c.getContext('2d'); x.fillStyle = P.shirt; x.fillRect(0, 0, c.width, c.height);
+  if (d && side.mat === name) {
+    const [l, t, w, h] = mkRectCm(side, d).map(v => v * k);
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(d.canvas, l, t, w, h);
+    if (pc.wrap) { x.drawImage(d.canvas, l - c.width, t, w, h); x.drawImage(d.canvas, l + c.width, t, w, h); } // taza y termo: da la vuelta
+  }
+  const tex = new V.T.CanvasTexture(c); tex.colorSpace = V.T.SRGBColorSpace; tex.flipY = false; return tex;
 }
 function mkRecSize() { const r = MK_REC[MK.prod][MK.lado] || MK_REC[MK.prod].frente; return typeof r === 'string' ? (r === 'mug' ? MUG : SIZES[r][P.talla]) : r; }
 function mkInfo() {
@@ -2038,10 +2339,12 @@ async function mkSetProd(id) {
   try { await mkShow(id, false); } catch (e) { mkFail(e); } finally { mkIdle(); }
 }
 function mkFileName(ext) { return `${SRC ? SRC.name : 'tramaluz'}_mockup_${MK.prod}${PRODS[MK.prod].lados.length > 1 ? '_' + MK.lado : ''}.${ext}`.replace(/\s+/g, '_'); }
-function mkBackdrop(x, w, h) { // el mismo fondo de la pantalla del mockup
+function mkBackdrop(x, w, h) { // el mismo fondo de la pantalla del mockup (oscurecido con GLOW)
   const g = x.createRadialGradient(w / 2, h * 0.38, 0, w / 2, h * 0.38, Math.max(w, h) * 0.72);
   g.addColorStop(0, '#f3ede0'); g.addColorStop(0.55, '#ddd2bb'); g.addColorStop(1, '#b9aa8c');
   x.fillStyle = g; x.fillRect(0, 0, w, h);
+  const night = P.finish === 'glow' ? 0.9 * P.finishAmt / 100 : 0;
+  if (night) { x.fillStyle = `rgba(4,6,10,${night})`; x.fillRect(0, 0, w, h); }
 }
 async function mkPhoto() {
   const V = V3; if (!V || !V.cur) return;
@@ -2062,9 +2365,12 @@ async function mkGlb() {
   const T = V.T; mkBusy('ARMANDO GLB…');
   try {
     const root = o.root.clone(true); // copia con materiales estándar, que entiende cualquier visor
+    const baked = {};
     root.traverse(m => {
       if (!m.isMesh) return;
-      const s = m.material, std = new T.MeshStandardMaterial({ color: s.color.clone(), map: s.map || null, metalness: 0, roughness: s.shininess >= 60 ? 0.22 : s.shininess >= 20 ? 0.42 : 0.9, side: s.side });
+      const s = m.material, pe = Object.entries(o.prints).find(([, pc]) => pc.mat === s);
+      const map = pe ? (baked[pe[0]] = baked[pe[0]] || mkBake(o, pe[0], pe[1])) : null;
+      const std = new T.MeshStandardMaterial({ color: pe ? 0xffffff : s.color.clone(), map, metalness: s.metalness, roughness: s.roughness, side: s.side });
       std.name = s.name; m.material = std;
     });
     const buf = await new T.GLTFExporter().parseAsync(root, { binary: true, maxTextureSize: MK_TEX });
@@ -2115,7 +2421,7 @@ function closeMock() {
   });
 }
 mkWidthKnob = makeKnob($('#mkKnobs'), { key: 'widthCm', label: 'ANCHO', min: 3, max: 56, step: 0.5, def: 30, wheel: 2, fmt: v => fmtLen(v), noReg: true,
-  onChange: () => { sizeChanged(); mkRefreshSoon(); }, help: 'Es el mismo ANCHO de TAMAÑO: cambia el archivo' });
+  onChange: () => { widthChanged(); mkRefreshSoon(); }, help: 'Es el mismo ANCHO de TAMAÑO: cambia el archivo' });
 const mkDyKnob = makeKnob($('#mkKnobs'), { key: 'dy', label: 'SUBIR · BAJAR', obj: MK, persist: () => {}, noReg: true, min: -20, max: 20, step: 0.5, def: 0, wheel: 2,
   fmt: v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtLen(Math.abs(v)), onChange: () => { mkPaint(); if (V3) V3.req(); }, help: 'Mueve el diseño en el mockup (no cambia el archivo)' });
 makeSwitch($('#mkSpin'), 'spin', [[true, 'GIRAR']], () => { if (V3) { V3.tween = null; V3.req(); } }, { off: false, obj: MK, persist: mkSave });
@@ -2125,6 +2431,115 @@ $('#mkReset').onclick = () => mkView(true);
 $('#mkRec').onclick = mkUseRec;
 $('#mkPng').onclick = mkPhoto;
 $('#mkGlb').onclick = mkGlb;
+
+/* =========================================================
+   ACABADO: la película o el efecto del transfer. Se simula en la pantalla y en el mockup 3D;
+   solo VINTAGE cambia el PNG (quita tinta). Botones con su propia simulación: la luz sigue al dedo o al mouse.
+   ========================================================= */
+const FINISHES = [['mate', 'MATE'], ['brillo', 'BRILLANTE'], ['metal', 'METALIZADO'], ['glitter', 'GLITTER'], ['holo', 'HOLOGRAMA'], ['puff', 'PUFF 3D'], ['glow', 'GLOW'], ['vintage', 'VINTAGE']];
+const FIN_ID = { mate: 0, brillo: 1, metal: 2, glitter: 3, holo: 4, puff: 5, glow: 6, vintage: 7 };
+const FIN_KNOB = { mate: 'CANTIDAD', brillo: 'BRILLO', metal: 'METAL', glitter: 'DESTELLO', holo: 'ARCOÍRIS', puff: 'RELIEVE', glow: 'OSCURIDAD', vintage: 'DESGASTE' };
+const FIN_TITLE = { mate: 'Mate: el DTF normal, sin brillo', brillo: 'Brillante: película hot peel o glossy', metal: 'Metalizado: foil o película metálica',
+  glitter: 'Glitter: escarcha que destella', holo: 'Holograma: reflejo arcoíris', puff: 'Puff 3D: relieve esponjoso',
+  glow: 'Glow: fosforescente, brilla en la oscuridad', vintage: 'Vintage: desgastado con manchas y grietas (cambia el PNG)' };
+const FIN_NOTE = {
+  mate: 'MATE: el DTF normal (cold peel), sin brillo. No hay nada que ajustar.',
+  brillo: 'BRILLANTE: película hot peel o glossy. El PNG es el mismo: pídelo al taller.',
+  metal: 'METALIZADO: foil o película metálica sobre los colores. El PNG es el mismo: pídelo al taller.',
+  glitter: 'GLITTER: escarcha sobre todo el diseño, destella al moverse. Pídelo al taller.',
+  holo: 'HOLOGRAMA: arcoíris que cambia con el ángulo. Pídelo al taller.',
+  puff: 'PUFF 3D: relieve. Mejor en formas grandes y sólidas que en puntos de semitono. Pídelo al taller.',
+  glow: 'GLOW: brilla en la oscuridad; los claros brillan más y el negro no. La perilla apaga la luz.',
+  vintage: 'VINTAGE: manchas y grietas de estampado viejo. Este SÍ cambia el PNG: quita tinta.',
+};
+if (!(P.finish in FIN_ID)) P.finish = 'mate';
+P.finishAmt = clamp(Math.round(+P.finishAmt || 0), 0, 100);
+const FIN_ICON = 88;
+let finSample = null;
+// Muestra para los botones: un círculo de franjas con una estrella blanca, sobre tela oscura
+function finSampleLayers() {
+  if (finSample) return finSample;
+  const D = FIN_ICON, c = document.createElement('canvas'); c.width = c.height = D;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.save(); x.beginPath(); x.arc(D / 2, D / 2, D * 0.37, 0, 7); x.clip();
+  ['#f2b632', '#e2572b', '#3aa6c9'].forEach((col, i) => { x.fillStyle = col; x.fillRect(0, D * 0.13 + i * D * 0.25, D, D * 0.25 + 1); });
+  x.restore();
+  x.fillStyle = '#f4f2ee'; x.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? D * 0.07 : D * 0.17; x.lineTo(D / 2 + r * Math.cos(a), D / 2 + r * Math.sin(a)); }
+  x.fill();
+  const des = x.getImageData(0, 0, D, D).data, fab = new Uint8ClampedArray(D * D * 4);
+  for (let y = 0; y < D; y++) for (let k = 0; k < D; k++) { // tejido: punto de jersey
+    const v = 24 + 9 * hash2(k >> 1, y) + 5 * ((k + (y >> 1)) % 2), q = (y * D + k) * 4;
+    fab[q] = v; fab[q + 1] = v * 0.93; fab[q + 2] = v * 0.86; fab[q + 3] = 255;
+  }
+  return (finSample = { des, fab });
+}
+function drawFinIcon(ctx, f, lx = -0.55, ly = -0.7) {
+  const { des, fab } = finSampleLayers(), D = FIN_ICON, d = new Uint8ClampedArray(des), pxmm = 6;
+  if (f === 'vintage') for (let y = 0; y < D; y++) for (let k = 0; k < D; k++) { const q = (y * D + k) * 4; if (d[q + 3] && wearAt(k + 0.5, y + 0.5, 1, pxmm)) d[q + 3] = 0; }
+  finishSim(d, D, D, { f, t: 0.85, x0: 0, y0: 0, step: 1, pxmm, W: D, H: D, lx, ly });
+  const night = f === 'glow' ? 0.86 : 0, im = ctx.createImageData(D, D), o = im.data;
+  for (let q = 0; q < o.length; q += 4) {
+    const a = d[q + 3] / 255;
+    for (let c = 0; c < 3; c++) o[q + c] = d[q + c] * a + fab[q + c] * (1 - night) * (1 - a);
+    o[q + 3] = 255;
+  }
+  ctx.putImageData(im, 0, 0);
+}
+const finPickers = [];
+function makeFinishPicker(container) {
+  container.innerHTML = '';
+  const btns = FINISHES.map(([v, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.v = v; b.title = FIN_TITLE[v];
+    const c = document.createElement('canvas'); c.width = c.height = FIN_ICON; c.setAttribute('aria-hidden', 'true');
+    const sp = document.createElement('span'); sp.textContent = label; b.append(c, sp);
+    const ctx = c.getContext('2d'); drawFinIcon(ctx, v);
+    let raf = 0, lx = -0.55, ly = -0.7;
+    const redraw = () => { raf = 0; drawFinIcon(ctx, v, lx, ly); };
+    if (v !== 'mate' && v !== 'vintage') { // la luz sigue al puntero: se ve cómo brilla, refleja o destella
+      b.addEventListener('pointermove', e => {
+        const r = c.getBoundingClientRect(); if (!r.width) return;
+        lx = clamp(((e.clientX - r.left) / r.width) * 2.4 - 1.2, -1.2, 1.2); ly = clamp(((e.clientY - r.top) / r.height) * 2.4 - 1.2, -1.2, 1.2);
+        if (!raf) raf = requestAnimationFrame(redraw);
+      });
+      b.addEventListener('pointerleave', () => { lx = -0.55; ly = -0.7; if (!raf) raf = requestAnimationFrame(redraw); });
+    }
+    b.addEventListener('click', () => setFinish(v));
+    container.appendChild(b); return b;
+  });
+  const sync = () => btns.forEach(b => { const on = P.finish === b.dataset.v; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
+  container.addEventListener('keydown', e => {
+    const k = { ArrowLeft: -1, ArrowUp: -4, ArrowRight: 1, ArrowDown: 4 }[e.key]; if (!k) return;
+    e.preventDefault(); const i = FINISHES.findIndex(([v]) => v === P.finish), n = (i + k + FINISHES.length) % FINISHES.length;
+    btns[n].click(); btns[n].focus();
+  });
+  sync(); const pk = { sync }; finPickers.push(pk); return pk;
+}
+makeFinishPicker($('#swFinish')); makeFinishPicker($('#mkFinish'));
+const finKnobOpt = { key: 'finishAmt', label: 'CANTIDAD', min: 0, max: 100, step: 1, def: 60, wheel: 5, fmt: v => v + '%', onChange: () => finChanged(false) };
+makeKnob($('#kFin'), { ...finKnobOpt, help: 'Cuánto efecto: brillo, metal, destello, arcoíris, relieve, oscuridad o desgaste' });
+const mkFinKnob = makeKnob($('#mkFinKnobs'), { ...finKnobOpt, noReg: true });
+const finNotes = [$('#kFin'), $('#mkFinKnobs')].map(box => { const n = document.createElement('p'); n.className = 'note finnote'; box.appendChild(n); return n; });
+function syncFinishUI() {
+  if (!(P.finish in FIN_ID)) P.finish = 'mate';
+  finPickers.forEach(pk => pk.sync());
+  const lbl = FIN_KNOB[P.finish], t = P.finishAmt / 100;
+  for (const k of [knobs.finishAmt, mkFinKnob]) { k.disable(P.finish === 'mate'); k.wrap.querySelector('.klabel').textContent = lbl; k.el.setAttribute('aria-label', lbl); k.show(); }
+  finNotes.forEach(n => n.textContent = FIN_NOTE[P.finish]);
+  $('#simTag').hidden = !(SRC && P.finish !== 'mate' && P.finish !== 'vintage' && t > 0);
+  $('#night').style.opacity = SRC && P.finish === 'glow' ? (0.85 * t).toFixed(3) : '0';
+  renderAlerts();
+}
+// kind: cambió el acabado (no solo la cantidad). VINTAGE cambia el diseño: el mockup lo vuelve a calcular.
+function finChanged(kind, was) {
+  syncFinishUI(); scheduleRender(kind ? 0 : 60);
+  if (mkIsOpen() && V3 && V3.cur) { mkPaint(); if (P.finish === 'vintage' || was === 'vintage') mkRefreshSoon(kind ? 0 : 250); }
+}
+function setFinish(v) {
+  if (P.finish === v || !(v in FIN_ID)) return;
+  const was = P.finish; P.finish = v; persist(); finChanged(true, was); track('acabado-' + v);
+}
+syncFinishUI();
 </script>
 </body>
 </html>

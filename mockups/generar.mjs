@@ -168,7 +168,7 @@ function garment(o) {
     const r = dr > 1e-6 ? b(0) / dr : 0;
     return [N[0] + (Bt[0] - N[0]) * r, yTop(th) - b(1), N[2] + (Bt[2] - N[2]) * r];
   };
-  const NU = 56, NC = 8, NB = 28, vc = NC / (NC + NB);
+  const NU = 128, NC = 16, NB = 64, vc = NC / (NC + NB); // divisiones: alrededor (múltiplo de 4), hombro y cuerpo
   const theta = u => -PI + 2 * PI * u;
   const torso = surface(NU, NC + NB, (u, v) => {
     const th = theta(u);
@@ -195,7 +195,7 @@ function garment(o) {
 
   // Ruedo de abajo
   const hemPath = Array.from({ length: NU }, (_, i) => { const th = theta(i / NU); return bodyPt(th, o.hem); });
-  M.add(sweep(hemPath, circle(o.ribTop ? 0.5 : 0.32, 8), { closed: true, up: (i, p) => sub(p, [0, p[1], 0]) }), o.ribTop ? 'rib' : 'tela');
+  M.add(sweep(hemPath, circle(o.ribTop ? 0.5 : 0.32, 10), { closed: true, up: (i, p) => sub(p, [0, p[1], 0]) }), o.ribTop ? 'rib' : 'tela');
 
   // Mangas
   for (const sx of [1, -1]) {
@@ -207,7 +207,7 @@ function garment(o) {
     orient(S, (p, i, j) => R.ring(j / R.nv).c);
     M.add(S, (i, j) => (R.cuff && (j + 0.5) / R.nv > R.cuff) ? 'rib' : 'tela');
     const e = R.ring(1);
-    const hem = Array.from({ length: 24 }, (_, i) => { const a = 2 * PI * i / 24; return add(e.c, add(mul(e.up, e.r1 * Math.cos(a)), mul(e.side, e.r2 * Math.sin(a)))); });
+    const hem = Array.from({ length: 48 }, (_, i) => { const a = 2 * PI * i / 48; return add(e.c, add(mul(e.up, e.r1 * Math.cos(a)), mul(e.side, e.r2 * Math.sin(a)))); });
     M.add(sweep(hem, circle(R.cuff ? 0.45 : 0.3, 6), { closed: true, up: (i, p) => sub(p, e.c) }), R.cuff ? 'rib' : 'tela');
   }
 
@@ -234,7 +234,7 @@ function camiseta() {
       const C0 = [sx * 20.5, 57.5, 0], top1 = [sx * 41.5, 54.6, 0], d = norm([sx * 0.82, -0.57, 0]), u1 = [sx * 0.57, 0.82, 0];
       const C1 = sub(top1, mul(u1, 7.4));
       return {
-        nu: 24, nv: 9,
+        nu: 48, nv: 20,
         ring: t => ({ c: lerp3(C0, C1, t), up: norm(lerp3([0, 1, 0], u1, t)), side: [0, 0, 1], r1: lerp(9.6, 7.4, t) + 0.5 * Math.sin(PI * t), r2: lerp(6.2, 5.4, t) + 0.6 * Math.sin(PI * t) }),
       };
     },
@@ -274,7 +274,7 @@ function buzo() {
         if (t > cuff - 0.03) { const k = smooth(cuff - 0.03, cuff + 0.01, t); r1 = lerp(r1, 5.4, k); r2 = lerp(r2, 4.6, k); }
         return { c, up, side: [0, 0, 1], r1, r2 };
       };
-      return { nu: 22, nv: 18, ring, cuff };
+      return { nu: 44, nv: 40, ring, cuff };
     },
   };
   let hoodInfo;
@@ -287,10 +287,10 @@ function buzo() {
       const t = clamp((p[1] - 66) / 30, 0, 1), back = clamp((Ch[2] - p[2]) / R[2], 0, 1), low = clamp((Ch[1] - p[1]) / R[1], 0, 1);
       return [p[0] * (1 + 0.06 * back * low), p[1] - 2.5 * back * low * low, p[2] - 3.2 * t * t * (0.4 + 0.6 * back)];
     };
-    const hood = surface(36, 14, (u, v) => lean(hoodPt(a0 + (PI - a0) * v, 2 * PI * u)), { wrapU: true });
+    const hood = surface(72, 30, (u, v) => lean(hoodPt(a0 + (PI - a0) * v, 2 * PI * u)), { wrapU: true });
     orient(hood, () => Ch);
     M.add(hood, 'tela');
-    const rim = Array.from({ length: 40 }, (_, i) => lean(hoodPt(a0, 2 * PI * i / 40)));
+    const rim = Array.from({ length: 80 }, (_, i) => lean(hoodPt(a0, 2 * PI * i / 80)));
     M.add(sweep(rim, circle(0.75, 8), { closed: true, up: (i, p) => sub(p, add(Ch, [0, 0, R[2] * Math.cos(a0)])) }), 'tela');
     // Cordones: salen del borde de la capucha y caen sobre el pecho
     for (const sx of [1, -1]) {
@@ -313,7 +313,7 @@ function buzo() {
     }
     // Bolsillo canguro: una capa sobre el frente, con la misma impresión (el diseño pasa por encima)
     const yb = 8.2, yt = 29, xr = y => y < 15 ? 18.5 : lerp(18.5, 13.2, (y - 15) / (yt - 15));
-    const pocket = surface(24, 12, (u, v) => {
+    const pocket = surface(48, 24, (u, v) => {
       const y = lerp(yt, yb, v), x = lerp(-xr(y), xr(y), u), f = frontAt(G, x, y);
       const nrm = norm([G.ex(f.th) * G.B(y) / G.A(y) * 0.6, 0, Math.max(0.2, G.ez(f.th))]);
       const edge = Math.min(1, Math.min(u, 1 - u) * 14, Math.min(v, 1 - v) * 10);
