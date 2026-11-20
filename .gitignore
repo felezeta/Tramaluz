@@ -5,3 +5,6 @@ desktop.ini
 
 # Editor
 .vscode/
+
+# Archivos temporales (pruebas, capturas, herramientas): no se publican
+.temp/
