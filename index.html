@@ -1856,6 +1856,9 @@ $('#expNote').textContent = 'El archivo queda en tu carpeta de Descargas.';
    solo al abrir esta sección, y la escena se dibuja solo cuando algo cambia (no gasta batería quieta).
    Los modelos los arma mockups/generar.mjs.
    ========================================================= */
+// Versión de los modelos: súbela cada vez que cambies un .glb. Si no, el navegador puede seguir mostrando el viejo
+// (GitHub Pages deja guardar los archivos 10 minutos y el nombre es el mismo).
+const MK_VER = '2026-11-20';
 const PRODS = {
   camiseta: { label: 'CAMISETA', lados: ['frente', 'espalda', 'pecho'], el: 4 },
   buzo: { label: 'BUZO', lados: ['frente', 'espalda', 'pecho'], el: 4 },
@@ -2094,7 +2097,7 @@ async function mkShow(prod, animate) {
   let o = V.prods[prod];
   if (!o) {
     mkBusy('CARGANDO ' + PRODS[prod].label + '…');
-    const g = await V.loader.loadAsync('mockups/' + prod + '.glb');
+    const g = await V.loader.loadAsync('mockups/' + prod + '.glb?v=' + MK_VER);
     o = V.prods[prod] = V.prods[prod] || mkPrepare(prod, g);
   }
   if (tok !== V.tok) return; // mientras cargaba se eligió otro producto
