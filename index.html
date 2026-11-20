@@ -109,8 +109,41 @@ button{font:inherit;color:inherit;cursor:pointer}
 .row+.row{margin-top:12px}
 .knobs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 6px}
 .knobs.five{grid-template-columns:repeat(5,1fr)}
-.qhelp{position:absolute;top:-12px;right:12px;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--ink);background:var(--plate);font-family:var(--label);font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;color:var(--ink)}
-.qhelp:hover{background:var(--mustard)}
+/* ? de ayuda: botón oscuro con el signo ámbar encendido, para que se vea entre tanto beige */
+.qhelp{position:absolute;top:-13px;right:12px;width:26px;height:26px;border-radius:50%;border:0;background:var(--ink);color:var(--vfd);
+  font-family:var(--body);font-weight:700;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0 0 1px;
+  text-shadow:0 0 7px rgba(255,179,71,.8);box-shadow:0 0 0 2.5px var(--plate),0 2px 4px 2px rgba(0,0,0,.25);transition:background .15s,color .15s}
+.qhelp:hover{background:var(--orange);color:#fff8ee;text-shadow:none}
+.chip-btn.manual{background:var(--ink);border-color:var(--ink);color:var(--vfd);display:inline-flex;align-items:center;gap:7px;text-shadow:0 0 6px rgba(255,179,71,.5)}
+.chip-btn.manual b{font-family:var(--body);font-weight:700;font-size:15px;line-height:.8;text-shadow:0 0 7px rgba(255,179,71,.8)}
+.chip-btn.manual:hover{background:var(--orange);border-color:var(--orange);color:#fff8ee;text-shadow:none}
+.chip-btn.manual:hover b{text-shadow:none}
+/* INFO (solo en PC): explica lo que está bajo el mouse, como el Info View de Ableton */
+.infobox,.infotog{display:none}
+.infotog{align-items:center;gap:7px}
+.infotog[aria-pressed="true"] .led{background:var(--led-g);box-shadow:0 0 6px var(--led-g)}
+.infobox{background:var(--vfd-bg);border-radius:8px;padding:9px 12px 10px;min-height:104px;flex:none;
+  box-shadow:0 0 0 2px #0006 inset,0 1px 0 rgba(255,255,255,.45)}
+.ititle{font-family:var(--label);font-size:8.5px;letter-spacing:.14em;color:#c08a45;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.ititle::before{content:"?";font-family:var(--body);font-weight:700;font-size:11px;letter-spacing:0;width:15px;height:15px;border-radius:50%;flex:none;
+  display:flex;align-items:center;justify-content:center;background:var(--vfd);color:var(--vfd-bg);box-shadow:0 0 6px rgba(255,179,71,.6)}
+.ititle b{font-weight:400;color:#f0d7a8}
+.itext{margin:0;color:var(--vfd);font-size:13.5px;line-height:1.45;text-shadow:0 0 5px rgba(255,179,71,.3)}
+.itext b{color:#fff0d6;font-weight:600}
+.ihint{display:block;margin-top:5px;font-size:12px;color:#c08a45;text-shadow:none}
+.mkview .infobox{min-height:84px}
+/* PC: la barra bajo la pantalla en una sola fila (antes el ? quedaba solo en una segunda fila) */
+@media (min-width:1041px){ .screenbar .vfd.grow{min-width:150px} }
+@media (min-width:1041px) and (max-width:1339px){ .sw.hist .lbl{display:none} } /* columna más angosta: solo las flechas */
+@media (min-width:1041px) and (hover:hover) and (pointer:fine){
+  .infotog{display:inline-flex}
+  html.info .infobox{display:block}
+  /* la columna (pantalla, barra de dos filas e INFO) tiene que caber entera mientras se queda pegada arriba */
+  html.info .screen{height:min(68vh,640px,calc(100vh - 246px))}
+}
+@media (min-width:1041px) and (max-width:1339px) and (hover:hover) and (pointer:fine){
+  html.info .screen{height:min(68vh,640px,calc(100vh - 290px))} /* el INFO tiene más líneas en la columna angosta */
+}
 .sheet.help{max-width:720px}
 .help h4{font-family:var(--label);font-weight:400;font-size:10px;letter-spacing:.16em;margin:0 0 10px;color:var(--orange2)}
 .hsec{border:1.5px solid var(--ink);border-radius:8px;padding:12px;background:rgba(255,255,255,.25);scroll-margin-top:12px;transition:box-shadow .3s}
@@ -142,6 +175,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sw.hist svg{flex:none}
 .sw button[aria-checked="true"]{background:linear-gradient(180deg,#bfae86,#d8c9a4);box-shadow:0 0 0 #000,inset 0 2px 3px rgba(0,0,0,.35);transform:translateY(1px)}
 .sw button[aria-checked="true"] .led{background:var(--led-r);box-shadow:0 0 6px var(--led-r)}
+/* escala SUGERIDA de AGRANDAR CON IA: luz ámbar que late suave */
+.sw button.sug:not([aria-checked="true"]){box-shadow:inset 0 0 0 2px var(--led-a),0 2px 0 #8d7a57}
+.sw button.sug:not([aria-checked="true"]) .led{background:var(--led-a);box-shadow:0 0 7px var(--led-a);animation:sug 1.6s ease-in-out infinite}
+@keyframes sug{50%{opacity:.35;box-shadow:none}}
+@media (prefers-reduced-motion:reduce){.sw button.sug .led{animation:none}}
 .swlabel{font-family:var(--label);font-size:8.5px;letter-spacing:.12em;color:var(--ink2);margin-bottom:5px;display:block}
 .btn{border:0;border-radius:8px;padding:12px 16px 10px;font-family:var(--label);font-size:10px;letter-spacing:.14em;
   background:linear-gradient(180deg,#f0e6cf,#cdbd94);color:var(--ink);box-shadow:0 3px 0 #8d7a57,0 4px 8px rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:8px}
@@ -313,7 +351,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
   .controls{gap:14px}
   .group{padding:15px 10px 10px}
   .group>h3{font-size:9px;left:10px}
-  .qhelp{width:28px;height:28px;top:-14px;right:10px;font-size:11px}
+  .qhelp{width:28px;height:28px;top:-14px;right:10px;font-size:18px}
   .row{gap:10px}
   .knobs,.knobs.five{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 4px}
   .knob{width:48px;height:48px}
@@ -352,6 +390,8 @@ html.mk-open,html.mk-open body{overflow:hidden}
 </style>
 </head>
 <body>
+<script>/* INFO prendido o apagado (se recuerda); aquí arriba para que la pantalla no salte al cargar */
+try { if (localStorage.getItem('tramaluz.info') !== '0') document.documentElement.classList.add('info'); } catch (e) { document.documentElement.classList.add('info'); }</script>
 <div class="rack">
   <div class="cheek" aria-hidden="true"></div>
   <main class="plate">
@@ -363,7 +403,8 @@ html.mk-open,html.mk-open body{overflow:hidden}
       </div>
       <div class="topright">
         <div class="plan" title="Gratis y sin límites"><span class="led g"></span><span>GRATIS · SIN LÍMITES</span></div>
-        <button class="chip-btn" id="btnHelp" type="button" data-help="h-inicio">? MANUAL</button>
+        <button class="chip-btn infotog" id="btnInfo" type="button" aria-pressed="true" title="Prende o apaga el recuadro INFO"><span class="led"></span>INFO</button>
+        <button class="chip-btn manual" id="btnHelp" type="button" data-help="h-inicio"><b>?</b>MANUAL</button>
         <div class="power"><span class="led g"></span>ENCENDIDO</div>
       </div>
     </header>
@@ -403,6 +444,10 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <div class="sw pinsw"><button type="button" id="btnPin" aria-pressed="true" title="Deja la pantalla pegada arriba mientras bajas por los controles"><span class="led"></span><span>FIJA</span></button></div>
           <button class="qhelp" style="position:static;flex:none" type="button" data-help="h-pantalla" aria-label="Ayuda: pantalla">?</button>
         </div>
+        <aside class="infobox" aria-label="Info del control bajo el mouse">
+          <p class="ititle">INFO</p>
+          <p class="itext">Pasa el mouse por cualquier perilla, botón o dato y aquí te explico qué es y para qué sirve. Los <b>?</b> abren el manual completo.</p>
+        </aside>
       </section>
 
       <section class="controls" aria-label="Controles">
@@ -511,7 +556,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <li>Prende o apaga los <b>PROCESOS</b> y ajusta <b>TRAMA</b> y <b>TONO</b> mirando la pantalla.</li>
           <li>En <b>TAMAÑO</b> elige el uso y la talla (o el ancho), revisa los <b>AVISOS</b> y dale <b>GRABAR PNG</b>.</li>
         </ol>
-        <p class="tip">Toca cualquier <b>?</b> de la app para ver solo esa parte. Tus imágenes nunca salen de tu computador.</p>
+        <p class="tip">Toca cualquier <b>?</b> de la app para ver solo esa parte. En el computador, el recuadro <b>INFO</b> bajo la pantalla explica lo que tengas bajo el mouse. Tus imágenes nunca salen de tu computador.</p>
       </section>
       <section class="hsec" id="h-perillas"><h4>PERILLAS</h4>
         <dl class="hdl">
@@ -530,6 +575,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <dt>LÍNEA PUNTEADA</dt><dd>Marca el borde del archivo cuando el tamaño es exacto (CENTRAR, LLENAR o ESTIRAR).</dd>
           <dt>DESHACER · REHACER</dt><dd>Vuelve atrás o adelante en tus cambios: perillas, procesos, forma, camiseta, ancho y agrandado con IA. Atajos: Ctrl+Z y Ctrl+Y.</dd>
           <dt>DISPLAY</dt><dd>Tamaño final en cm y en píxeles.</dd>
+          <dt>INFO</dt><dd>Solo en el computador: el recuadro bajo la pantalla dice qué es y para qué sirve lo que tengas bajo el mouse. El botón <b>INFO</b> de arriba lo prende o lo apaga (apagado, la pantalla queda un poco más grande).</dd>
         </dl>
       </section>
       <section class="hsec" id="h-fuente"><h4>FUENTE</h4>
@@ -546,7 +592,7 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <dt>SIN AGRANDAR</dt><dd>Hasta qué tamaño se imprime nítida (300 ppp) sin agrandarla.</dd>
           <dt>IMPRESIÓN</dt><dd>Ancho × alto que tendrá impresa.</dd>
           <dt>ARCHIVO FINAL</dt><dd>Los píxeles del PNG que vas a grabar.</dd>
-          <dt>CALIDAD</dt><dd>Resolución real a ese tamaño. Con menos de 200 ppp se ve pixelada, y te dice cuánto agrandar con IA.</dd>
+          <dt>CALIDAD</dt><dd>Resolución real a ese tamaño. Con menos de 200 ppp se ve pixelada. Si no es BUENA, te dice a qué escala agrandar con IA: la misma que se prende en ámbar en AGRANDAR CON IA.</dd>
           <dt>LARGO EN ROLLO</dt><dd>Cuánto rollo ocupa el diseño, para calcular el precio.</dd>
         </dl>
       </section>
@@ -554,8 +600,8 @@ html.mk-open,html.mk-open body{overflow:hidden}
         <dl class="hdl">
           <dt>ANIME</dt><dd>Para dibujos e ilustraciones con líneas limpias.</dd>
           <dt>GENERAL</dt><dd>Para fotos y texturas.</dd>
-          <dt>×2 A ×7</dt><dd>Toca uno para agrandar la imagen esas veces; la barra verde muestra el avance. Tócalo otra vez (o mientras trabaja) para apagarlo y volver a la original, sin perder tus ajustes. De ×5 a ×7 la IA pasa dos veces: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
-          <dt>DISPLAY</dt><dd>Los píxeles de la imagen que se está usando. Pasa el mouse sobre cada escala para ver cuánto quedaría.</dd>
+          <dt>×2 A ×7</dt><dd>Toca uno para agrandar la imagen esas veces; la barra verde muestra el avance. Tócalo otra vez (o mientras trabaja) para apagarlo y volver a la original, sin perder tus ajustes. La escala con la <b>luz ámbar</b> es la SUGERIDA: la menor que deja tu diseño a 300 ppp en el tamaño que elegiste. De ×5 a ×7 la IA pasa dos veces: queda mejor, pero tarda unas 5 veces más que ×4.</dd>
+          <dt>DISPLAY</dt><dd>Los píxeles de la imagen que se está usando y, si hace falta, la escala SUGERIDA con los ppp que quedarían. Pasa el mouse sobre cada escala para ver cuánto quedaría.</dd>
         </dl>
         <p class="tip">Si en AVISOS dice que la imagen se revienta, agranda con el número que te sugiere. Agranda antes de ajustar la trama. Corre en tu computador: la primera vez descarga el modelo y en equipos sin buena tarjeta de video es más lento.</p>
       </section>
@@ -667,6 +713,10 @@ html.mk-open,html.mk-open body{overflow:hidden}
           <button class="chip-btn" type="button" id="mkReset">CENTRAR</button>
           <div class="vfd grow" id="mkStatus" aria-live="polite">—</div>
         </div>
+        <aside class="infobox" aria-label="Info del control bajo el mouse">
+          <p class="ititle">INFO</p>
+          <p class="itext">Pasa el mouse por cualquier control y aquí te explico qué es y para qué sirve.</p>
+        </aside>
       </section>
       <section class="mkctl" aria-label="Controles del mockup">
         <div class="group">
@@ -749,7 +799,7 @@ const knobs = {};
 // o.obj: objeto que guarda el valor (P si no se dice) · o.persist: cómo se guarda · o.noReg: no la anota en knobs (copia de otra perilla)
 function makeKnob(parent, o) {
   const S = o.obj || P, save = o.persist || persist;
-  const wrap = document.createElement('div'); wrap.className = 'k';
+  const wrap = document.createElement('div'); wrap.className = 'k'; wrap.dataset.key = o.key; // data-key: lo usa INFO
   wrap.innerHTML = `<div class="knob" role="slider" tabindex="0"><div class="cap"></div></div><div class="klabel"></div><div class="kval"></div>`;
   const el = wrap.querySelector('.knob'), lab = wrap.querySelector('.klabel'), val = wrap.querySelector('.kval');
   lab.textContent = o.label; el.setAttribute('aria-label', o.aria || o.label); el.title = o.help || '';
@@ -1098,6 +1148,14 @@ function outSize() {
 }
 // Resolución real (ppp) a la que se imprime la imagen; si se estira, cuenta el lado más exigido
 function effPpi(img = SRC) { const o = outSize(); return Math.min(img.w / (o.iwcm / 2.54), img.h / (o.ihcm / 2.54)); }
+// Escala SUGERIDA de AGRANDAR CON IA: la menor que deja el diseño a 300 ppp a este tamaño (contando desde la original).
+// La usan CALIDAD (MEDIDAS), la luz ámbar de la escala y los AVISOS, así siempre dicen lo mismo.
+// null si la calidad ya es BUENA · ppi: cómo queda con esa escala · falta: ni ×7 llega a 200 ppp · hecho: ya está agrandada así o más
+function upSuggest() {
+  if (!SRC || effPpi() >= 250) return null;
+  const base = BASE || SRC, p0 = effPpi(base), n = Math.min(7, Math.max(2, Math.ceil(DPI / p0 - 1e-6)));
+  return { n, ppi: p0 * n, falta: p0 * n < 200, hecho: SRC !== base && (SRC.upScale || 0) >= n };
+}
 
 /* ---- Tamaños por uso y talla (cm, ancho × alto máximos). Armados con guías de talleres de DTF;
         30 × 40 en L y XL es la medida con la que trabaja el taller. ---- */
@@ -1145,8 +1203,10 @@ function computeAlerts() {
   const A = [], add = (lvl, title, text) => A.push({ lvl, title, text });
   const o = outSize(), ppi = effPpi(), base = BASE || SRC;
   if (ppi < 200) {
-    const need = Math.ceil(DPI / effPpi(base) - 1e-6);
-    const fix = need <= 7 ? `Agrándala ×${Math.max(2, need)} en AGRANDAR CON IA, o elige un tamaño menor.` : 'Ni agrandando ×7 alcanza: elige un tamaño menor o consigue la imagen con más resolución.';
+    const s = upSuggest();
+    const fix = !s.falta ? `Agrándala ×${s.n} en AGRANDAR CON IA (la escala con la luz ámbar): queda a ${nf0.format(Math.min(s.ppi, DPI))} ppp. O elige un tamaño menor.`
+      : s.hecho ? 'Ya está agrandada ×7 y no alcanza: elige un tamaño menor o consigue la imagen con más resolución.'
+      : 'Ni agrandando ×7 alcanza: agrándala ×7 y elige un tamaño menor, o consigue la imagen con más resolución.';
     if (ppi < 150) add('r', 'SE VA A REVENTAR (PIXELADA)', `A este tamaño la imagen queda a ${nf0.format(ppi)} ppp; para DTF se necesitan 300 (mínimo 200). Se verán cuadritos y bordes borrosos. ${fix}`);
     else add('a', 'CALIDAD JUSTA', `${nf0.format(ppi)} ppp: se imprime, pero los bordes pueden salir algo borrosos. ${fix}`);
   }
@@ -1231,20 +1291,27 @@ function renderMeasures() {
   add('IMPRESIÓN', fmtPair(o.wcm, o.hcm));
   if (o.w !== o.iw || o.h !== o.ih) add('DISEÑO', fmtPair(o.iwcm, o.ihcm) + (o.fit === 'fill' ? ' · se recorta' : o.fit === 'center' ? ' · centrado' : ''));
   add('ARCHIVO FINAL', `${o.w} × ${o.h} px · 300 ppp`);
+  const s = upSuggest(); // escala sugerida de AGRANDAR CON IA (la misma de la luz ámbar y de los AVISOS)
   if (ppi >= 250) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'BUENA', 'ok');
-  else if (ppi >= 200) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'ACEPTABLE', 'ok');
-  else add('CALIDAD', `${nf0.format(ppi)} ppp`, ppi < 150 ? 'SE REVIENTA: MIRA LOS AVISOS' : 'BAJA: MIRA LOS AVISOS');
+  else if (ppi >= 200) add('CALIDAD', `${nf0.format(ppi)} ppp`, 'ACEPTABLE' + (s.hecho ? '' : ` · MEJOR CON IA ×${s.n}`), 'ok');
+  else add('CALIDAD', `${nf0.format(ppi)} ppp`, (ppi < 150 ? 'SE REVIENTA' : 'BAJA') + ': '
+    + (!s.falta ? `AGRANDA ×${s.n} CON IA` : s.hecho ? 'REDUCE EL TAMAÑO' : 'AGRANDA ×7 Y REDUCE EL TAMAÑO'));
   const keepSemi = procMode() === 'none';
   add('SEMITRANSP.', `${nf0.format(SRC.semi)}% en el original → ` + (keepSemi ? 'se conservan al grabar' : '0% al grabar'), keepSemi && SRC.semi >= 0.5 ? 'OJO EN DTF' : null);
   add('LARGO EN ROLLO', fmtLen(o.hcm));
 }
 function updateUpSize() {
   const el = $('#upSize'); if (!el) return;
-  $('#swScale').querySelectorAll('button').forEach(b => { const n = +b.dataset.v; b.title = BASE ? `×${n}: quedaría de ${BASE.w * n} × ${BASE.h * n} px` : ''; });
+  const s = upSuggest(), sug = s && !s.hecho ? s.n : 0; // la escala sugerida se prende en ámbar
+  $('#swScale').querySelectorAll('button').forEach(b => {
+    const n = +b.dataset.v; b.classList.toggle('sug', n === sug);
+    b.title = BASE ? `×${n}: quedaría de ${BASE.w * n} × ${BASE.h * n} px` + (n === sug ? ' · SUGERIDA para tu tamaño' : '') : '';
+  });
   if (!SRC) { el.textContent = '—'; return; }
-  el.textContent = upRunning ? `AGRANDANDO ×${P.scale}…`
+  el.textContent = (upRunning ? `AGRANDANDO ×${P.scale}…`
     : SRC !== BASE && SRC.upScale ? `AGRANDADA ×${SRC.upScale} (${SRC.upModel === 'general' ? 'GENERAL' : 'ANIME'}) · ${SRC.w} × ${SRC.h} px`
-    : `SIN AGRANDAR · ${SRC.w} × ${SRC.h} px`;
+    : `SIN AGRANDAR · ${SRC.w} × ${SRC.h} px`)
+    + (sug && !upRunning ? ` · SUGERIDA ×${sug}` + (s.falta ? ' Y UN TAMAÑO MENOR' : ` → ${nf0.format(Math.min(s.ppi, DPI))} PPP`) : '');
 }
 function syncSizeInputs(force) {
   const iw = $('#inW'), ih = $('#inH'); if (!iw) return;
@@ -1649,6 +1716,145 @@ $('#hClose').onclick = closeHelp;
 $('#helpModal').addEventListener('click', e => { if (e.target.id === 'helpModal') closeHelp(); });
 
 /* =========================================================
+   INFO (solo en PC): como el Info View de Ableton. Al pasar el mouse (o el foco del teclado) por un control,
+   el recuadro bajo la pantalla dice qué es y para qué sirve. El texto sale del MANUAL (el <dd> de su <dt>),
+   así hay una sola versión: si cambias el manual, cambia el INFO. En celular no se muestra: ahí están los ?.
+   ========================================================= */
+// [selector, sección del manual, término (el <dt>)]. La sección puede ser una función que recibe el elemento y
+// devuelve [sección, término]. Gana el primero que contiene al elemento: de lo más específico a lo más general.
+const INFO = [
+  // mockup 3D
+  ['#mkProd', 'h-mockup', 'PRODUCTO'],
+  ['#mkLadoRow', 'h-mockup', 'UBICACIÓN'],
+  ['#mkKnobs [data-key="widthCm"], #mkRec, #mkNote', 'h-mockup', 'ANCHO'],
+  ['#mkKnobs [data-key="dy"]', 'h-mockup', 'SUBIR · BAJAR'],
+  ['#mkColors', 'h-mockup', 'COLOR'],
+  ['#mkSpin, #mkReset', 'h-mockup', 'GIRAR'],
+  ['#mkPng', 'h-mockup', 'FOTO PNG'],
+  ['#mkGlb', 'h-mockup', 'MODELO 3D (GLB)'],
+  ['#mkStage, #mkStatus, #btnMock', 'h-mockup', 'VER EN 3D'],
+  // pantalla
+  ['#zFit', 'h-pantalla', 'VER TODO'],
+  ['#zOut, #zIn', 'h-pantalla', '− · +'],
+  ['#z100', 'h-pantalla', '100%'],
+  ['#swCmp, #divider', 'h-pantalla', 'COMPARAR'],
+  ['#btnUndo, #btnRedo', 'h-pantalla', 'DESHACER · REHACER'],
+  ['#status', 'h-pantalla', 'DISPLAY'],
+  ['#empty, #btnLoad', 'h-fuente', 'CARGAR'],
+  ['#screen', 'h-pantalla', 'MOVERTE'],
+  // panel
+  ['#srcInfo', 'h-fuente', 'DISPLAY'],
+  ['#swUnit', 'h-medidas', 'VER EN'],
+  ['#mInfo dt, #mInfo dd', el => { const d = el.closest('dd'); return ['h-medidas', ((d ? d.previousElementSibling : el.closest('dt')) || el).textContent.trim()]; }],
+  ['#swModel [data-v="anime"]', 'h-ia', 'ANIME'],
+  ['#swModel [data-v="general"]', 'h-ia', 'GENERAL'],
+  ['#swScale, #upMeter, #upNote', 'h-ia', '×2 A ×7'],
+  ['#upSize', 'h-ia', 'DISPLAY'],
+  ['#swClean', 'h-modo', 'LIMPIAR'],
+  ['#swSemi', 'h-modo', 'SEMITONO'],
+  ['#swKnock [data-v="dark"]', 'h-modo', 'OSCUROS'],
+  ['#swKnock [data-v="light"]', 'h-modo', 'CLAROS'],
+  ['[data-key="alphaCut"]', 'h-modo', 'CORTE ALFA'],
+  ['[data-key="choke"]', 'h-modo', 'CONTRAER'],
+  ['#modeNote', () => ['h-modo', { both: 'LOS DOS PRENDIDOS', clean: 'SOLO LIMPIAR', semi: 'SEMITONO', none: 'LOS DOS APAGADOS' }[procMode()]]],
+  ['[data-key="lpi"]', 'h-trama', 'LPI'],
+  ['[data-key="angle"]', 'h-trama', 'ÁNGULO'],
+  ['[data-key="minDot"]', 'h-trama', 'PUNTO MÍN'],
+  ['[data-key="cell"]', 'h-trama', 'CELDA'],
+  ['#swShape [data-v="grain"]', 'h-trama', 'GRANULADO'],
+  ['#swShape', 'h-trama', 'FORMA'],
+  ['[data-key="black"]', 'h-tono', 'NEGRO / BLANCO'],
+  ['[data-key="solid"]', 'h-tono', 'SÓLIDO'],
+  ['[data-key="curve"]', 'h-tono', 'CURVA'],
+  ['[data-key="intensity"]', 'h-tono', 'INTENSIDAD'],
+  ['#kWear', 'h-vintage', 'DESGASTE'],
+  ['#shirts .custom', 'h-camiseta', 'RUEDA'],
+  ['#shirts', 'h-camiseta', 'COLORES'],
+  ['#swUse', 'h-tamano', 'USO'],
+  ['#rowTalla', 'h-tamano', 'TALLA'],
+  ['#kOut [data-key="widthCm"], #kOut .fld:first-child', 'h-tamano', 'ANCHO'],
+  ['#kOut .fld:nth-child(2)', 'h-tamano', 'ALTO'],
+  ['#swFit [data-v="fit"]', 'h-tamano', 'AJUSTAR'],
+  ['#swFit [data-v="center"]', 'h-tamano', 'CENTRAR'],
+  ['#swFit [data-v="fill"]', 'h-tamano', 'LLENAR'],
+  ['#swFit [data-v="stretch"]', 'h-tamano', 'ESTIRAR'],
+  ['#alerts', 'h-salida', 'AVISOS'],
+  ['#btnExport, #expNote', 'h-salida', 'GRABAR PNG'],
+  // botones de ayuda y títulos: el resumen de la sección
+  ['.qhelp, .group > h3', el => {
+    const g = el.closest('.group'), q = g && g.querySelector('.qhelp');
+    return [el.dataset.help || (q && q.dataset.help) || (el.closest('#mkModal') ? 'h-mockup' : null), null];
+  }],
+  ['#btnHelp', null, { t: 'MANUAL', d: 'Abre el manual completo: los pasos para preparar tu archivo y qué hace cada control. Cada <b>?</b> lo abre justo en esa parte.' }],
+  ['#btnInfo', 'h-pantalla', 'INFO'],
+  ['.plan', null, { t: 'GRATIS · SIN LÍMITES', d: 'Tramaluz es gratis y no tiene límite de imágenes. Todo se procesa en tu computador: tus diseños no se suben a ningún lado.' }],
+];
+// Resumen de cada sección (cuando el mouse está en un ? o en el título de un grupo)
+const INFO_SUM = {
+  'h-pantalla': 'La vista previa: así va a quedar el PNG sobre la tela. Acércate para ver los puntos a tamaño real.',
+  'h-fuente': 'La imagen que vas a imprimir: PNG, JPG o WebP. No se sube a ningún lado.',
+  'h-medidas': 'Cuánto mide tu diseño en píxeles y en la prenda, si tiene resolución suficiente y cuánto rollo ocupa.',
+  'h-ia': 'Agranda la imagen con IA para que no se pixele al imprimirla grande.',
+  'h-modo': 'Qué le hace Tramaluz a tu imagen: <b>LIMPIAR</b> quita el fondo y lo semitransparente, y <b>SEMITONO</b> convierte sombras y degradados en puntos.',
+  'h-trama': 'Los puntos del semitono: cuántos hay, en qué ángulo van, qué tan pequeños pueden ser y qué forma tienen.',
+  'h-tono': 'Qué desaparece, desde dónde la tinta queda sólida y cuánta tinta llevan los medios tonos.',
+  'h-vintage': 'Desgaste de estampado viejo, con manchas y grietas. Va en el PNG.',
+  'h-camiseta': 'El color de la tela: cambia la vista y pone OSCUROS o CLAROS.',
+  'h-tamano': 'El tamaño del diseño impreso: por uso y talla, o con tus propias medidas.',
+  'h-salida': 'Revisa los avisos y graba el PNG final a 300 ppp, listo para el RIP.',
+  'h-mockup': 'Tu diseño puesto en camiseta, buzo, taza, termo o tote bag, en 3D. Descarga la foto o el modelo.',
+};
+const INFO_KNOB = 'Arrastra hacia arriba o abajo, o usa la rueda. Shift: fino. Doble clic: valor de fábrica.';
+const infoCache = new Map();
+function infoEntry(sec, term) {
+  if (term && typeof term === 'object') return { key: term.t, head: term.t, html: term.d };
+  const key = sec + '|' + (term || '');
+  if (infoCache.has(key)) return infoCache.get(key);
+  const s = sec && document.getElementById(sec); let it = null;
+  if (s) {
+    const name = s.querySelector('h4').textContent.split(' · ')[0].trim(); // «TRAMA · SOLO CON SEMITONO…» → TRAMA
+    if (!term) { if (INFO_SUM[sec]) it = { key, head: name, html: INFO_SUM[sec] }; }
+    else {
+      const dt = [...s.querySelectorAll('dt')].find(d => d.textContent.trim() === term);
+      if (dt) it = { key, head: name, term, html: dt.nextElementSibling.innerHTML };
+      else console.warn('INFO: falta en el manual', sec, term);
+    }
+  }
+  infoCache.set(key, it); return it;
+}
+function infoFor(el) {
+  if (!el || !el.closest) return null;
+  for (const [sel, sec, term] of INFO) {
+    const hit = el.closest(sel); if (!hit) continue;
+    const [s, t] = typeof sec === 'function' ? sec(hit) : [sec, term];
+    const it = infoEntry(s, t); if (!it) return null;
+    return hit.matches('.k') && hit.querySelector('.knob') ? { ...it, key: it.key + '|k', hint: INFO_KNOB } : it;
+  }
+  return null; // en lo demás (espacios, notas) se queda lo último que se mostró
+}
+let infoKey = '';
+function showInfo(it) {
+  if (!it || it.key === infoKey) return;
+  infoKey = it.key;
+  const head = escHtml(it.head) + (it.term ? ' · <b>' + escHtml(it.term) + '</b>' : '');
+  for (const box of document.querySelectorAll('.infobox')) {
+    box.querySelector('.ititle').innerHTML = head;
+    box.querySelector('.itext').innerHTML = it.html + (it.hint ? `<span class="ihint">${it.hint}</span>` : '');
+  }
+}
+function escHtml(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
+const infoMQ = matchMedia('(min-width:1041px) and (hover:hover) and (pointer:fine)');
+const infoOn = () => infoMQ.matches && document.documentElement.classList.contains('info');
+document.addEventListener('pointerover', e => { if (e.pointerType === 'mouse' && infoOn()) showInfo(infoFor(e.target)); });
+document.addEventListener('focusin', e => { if (infoOn()) showInfo(infoFor(e.target)); });
+function syncInfoBtn() { $('#btnInfo').setAttribute('aria-pressed', document.documentElement.classList.contains('info')); }
+$('#btnInfo').addEventListener('click', () => {
+  const on = document.documentElement.classList.toggle('info'); store.set('tramaluz.info', on ? '1' : '0'); syncInfoBtn(); // la pantalla se redibuja sola (ResizeObserver)
+  track('info-' + (on ? 'prender' : 'apagar'));
+});
+syncInfoBtn();
+
+/* =========================================================
    Armado de la interfaz
    ========================================================= */
 syncZoomUI();
@@ -1716,7 +1922,7 @@ const rr = () => scheduleRender();
 makeKnob($('#kTrama'), { key: 'lpi', label: 'LPI', min: 15, max: 75, step: 1, def: 45, fmt: v => nf0.format(v), onChange: () => { syncModeUI(); rr(); }, help: 'Líneas por pulgada: menos LPI = puntos más grandes' });
 makeKnob($('#kTrama'), { key: 'angle', label: 'ÁNGULO', min: 0, max: 90, step: 0.5, def: 22.5, wheel: 5, fmt: v => nf1.format(v) + '°', onChange: rr });
 makeKnob($('#kTrama'), { key: 'minDot', label: 'PUNTO MÍN', min: 0, max: 0.8, step: 0.05, def: 0.25, fmt: v => v.toFixed(2) + ' mm', onChange: rr, help: 'Puntos más pequeños que esto se eliminan (se despegan en DTF)' });
-const kCell = document.createElement('div'); kCell.className = 'k'; kCell.innerHTML = '<div class="kspace"><span class="kval" id="cellInfo"></span></div><div class="klabel">CELDA</div>'; $('#kTrama').appendChild(kCell);
+const kCell = document.createElement('div'); kCell.className = 'k'; kCell.dataset.key = 'cell'; kCell.innerHTML = '<div class="kspace"><span class="kval" id="cellInfo"></span></div><div class="klabel">CELDA</div>'; $('#kTrama').appendChild(kCell);
 makeKnob($('#kTono'), { key: 'black', label: 'NEGRO', min: 0, max: 50, step: 1, def: 8, fmt: v => v + '%', onChange: rr, help: 'Todo lo más oscuro que esto desaparece (se ve la camiseta)' });
 makeKnob($('#kTono'), { key: 'solid', label: 'SÓLIDO', min: 50, max: 100, step: 1, def: 92, fmt: v => v + '%', onChange: rr, help: 'Desde aquí la tinta queda sólida, sin puntos' });
 makeKnob($('#kTono'), { key: 'curve', label: 'CURVA', min: 0.4, max: 2.5, step: 0.05, def: 1, fmt: v => v.toFixed(2), onChange: rr, help: 'Más de 1 = puntos más pequeños en medios tonos' });
